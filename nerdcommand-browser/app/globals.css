@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --bg-from: #020617;
+  --bg-to: #0f172a;
+  --accent: #60a5fa;
+  --accent-fg: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(96, 165, 250, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background-attachment: fixed;
+  color: #f1f5f9;
+  font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+}
+
+.accent-bg {
+  background-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+.accent-text {
+  color: var(--accent);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+}

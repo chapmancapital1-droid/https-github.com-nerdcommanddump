@@ -1,0 +1,28 @@
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "claude-sonnet-4-6",
+        "fallback": "claude-haiku-4-5-20251001",
+        "subagents": "claude-haiku-4-5-20251001"
+      },
+      "cacheRetention": "short",
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "toolResultTtlTurns": 4,
+        "toolResultMaxChars": 12000
+      },
+      "bootstrapMaxChars": 20000,
+      "memoryInGroupContexts": false
+    },
+    "commandQueue": {
+      "defaultMode": "collect",
+      "collectWindowMs": 1500
+    }
+  },
+  "workspace": {
+    "defaults": {
+      "workspace": "~/.openclaw/workspace"
+    }
+  }
+}

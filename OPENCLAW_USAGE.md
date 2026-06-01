@@ -50,15 +50,43 @@ OpenClaw uses a local SQLite database for persistent state. One migration owner 
 
 ---
 
+## Pipeline Integration (earliest intercept points)
+
+The OpenClaw pipeline runs: **Inbound → Command Queue → Prompt Assembly → Model Inference → Tool Execution → Outlet**
+
+Token savings compound when applied as early as possible — before the model is called at all:
+
+```
+Inbound message
+    │
+    ▼
+Command Queue          ← coalesce rapid messages (collect mode, 1.5s window)
+    │                    route by complexity → Haiku vs Sonnet vs Opus
+    ▼
+Prompt Assembly        ← static context first (cache hits from turn 2+)
+    │                    lazy-load tool schemas (40 tokens vs 800+)
+    │                    cap bootstrap files at 20k chars
+    ▼
+Model Inference        ← cacheRetention:short auto-enabled for Anthropic
+    │                    sub-agents use Haiku for parallel subtasks
+    ▼
+Tool Execution         ← results capped at 12k chars per call
+    │                    evict results older than 4 turns
+    ▼
+Outlet / Response
+```
+
+See `AGENTS.md` and `openclaw.config.json` in this repo for the concrete settings.
+
 ## Recommended Integration Path
 
-| Priority | Tool | Benefit |
-|----------|------|---------|
-| High | Token Optimizer | Up to 90% reduction on repeated-context API calls |
-| High | Cost Tracker skill | Daily visibility into token spend per model |
-| Medium | AGENTS.md structure | Cleaner routing, less accidental tool sprawl |
-| Medium | api-credits-lite | Know your balance before hitting provider limits |
-| Low | Multi-agent routing | Isolate workloads once the above are stable |
+| Priority | Where in pipeline | Action | Benefit |
+|----------|-------------------|--------|---------|
+| 1 | Command Queue | Set `collect` mode + route by complexity | Fewer runs, cheaper model for simple jobs |
+| 2 | Prompt Assembly | Static context first + lazy tool loading | Cache hits from turn 2 onward (~90% saving on static tokens) |
+| 3 | Model Inference | `cacheRetention: short` for Anthropic sessions | Automatic on Anthropic API keys |
+| 4 | Tool Execution | Cap results at 12k chars, evict after 4 turns | Prevents context bloat from large tool outputs |
+| 5 | Visibility | Cost Tracker skill + api-credits-lite | Know daily spend per model before you hit a limit |
 
 ---
 

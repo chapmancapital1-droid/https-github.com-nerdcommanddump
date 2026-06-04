@@ -3,8 +3,15 @@
 Usage:
     from nci_agent import generate, health, backend_name
 
-    signal = generate("AUDCAD has been ranging 0.00050 pips for 2h, ATR low, spread 1.2")
+    # Free-form signal analysis
+    signal = generate("AUDCAD ranging 0.00050 for 2h, ATR low, spread 1.2")
     print(signal)  # [AUDCAD] [SHORT] [62%] [break below 0.8920] [close above 0.8935]
+
+    # Analyse a live EA proposal (reads MT4 JSON files directly)
+    from nci_live import read_live, read_proposal
+    from nci_agent import analyse_live_proposal
+    result = analyse_live_proposal()
+    print(result)
 """
 from typing import Optional
 
@@ -24,3 +31,14 @@ def generate(prompt: str, system: Optional[str] = None) -> str:
 
 def health() -> bool:
     return _backend.health()
+
+
+def analyse_live_proposal() -> Optional[str]:
+    """Read the current EA signal_proposal.json and return an LLM verdict string."""
+    from nci_live import read_live, read_proposal
+    proposal = read_proposal()
+    if not proposal:
+        return None
+    live = read_live()
+    prompt = proposal.to_agent_prompt(live)
+    return generate(prompt)

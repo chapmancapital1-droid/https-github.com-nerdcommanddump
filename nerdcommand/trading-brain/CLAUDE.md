@@ -13,20 +13,39 @@ Do not drift into general coding, content, or unrelated tasks — redirect to th
 
 ## NCI Live Update
 
-The `nci/` folder contains the live data feed and signal engine.
+The `nci/` folder bridges the MT4 EA (`mt4/NCI_GodMode_v3_2_Fusion.mq4`) with the LLM brain.
+
+### EA → Python data flow
+```
+MT4 EA  ──writes──►  NCI_LiveData.json       ──►  nci_live.py (NCILiveData)
+                      signal_proposal.json    ──►  nci_live.py (SignalProposal)
+                                                         │
+                                               nci_signal_approval.py
+                                                         │
+                                               LLM (Ollama or llama-cpp)
+                                                         │
+                                               signals/approvals.jsonl
+```
 
 ### Quick commands
 ```bash
-# Check live account snapshot
+# Show live account state + current signal proposal from the EA
 python nci/nci_live.py
 
-# Run a signal (Ollama by default)
+# One-shot LLM second-opinion on the current proposal
+python nci/nci_signal_approval.py
+
+# Watch mode — analyse every new bar's proposal as the EA runs
+python nci/nci_signal_approval.py --watch
+
+# Dry run (no LLM call, just print proposal)
+python nci/nci_signal_approval.py --dry-run
+
+# Free-form signal prompt
 python -c "from nci.nci_agent import generate; print(generate('GBPUSD at 1.2700 support, RSI 28'))"
 
 # Switch to direct llama-cpp (after installing wheels + copying model)
 set USE_LOCAL_LLAMA=true   # Windows
-# or
-export USE_LOCAL_LLAMA=true  # Linux/Mac
 
 # Benchmark both backends
 python nci/benchmark.py
@@ -34,6 +53,14 @@ python nci/benchmark.py
 # Loss pattern analysis
 python nci/analysis/loss_pattern.py
 ```
+
+### Setup: point MT4_FILES_DIR at the EA's output folder
+The EA writes `NCI_LiveData.json` and `signal_proposal.json` to MT4's MFiles folder.
+Set the env var before running any nci/ script:
+```cmd
+set MT4_FILES_DIR=C:\Users\<you>\AppData\Roaming\MetaQuotes\Terminal\<ID>\MFiles
+```
+Or use portable mode path: `<MT4_INSTALL>\MFiles\`
 
 ### Backend toggle
 | Env var | Value | Effect |

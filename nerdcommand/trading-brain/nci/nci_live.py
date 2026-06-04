@@ -1,4 +1,14 @@
-"""NCI live feed reader — polls MT4 bridge JSON snapshots from BRIDGE_DATA_DIR."""
+"""NCI live feed reader — consumes JSON written by NCI_GodMode_v3_2_Fusion.mq4.
+
+The EA writes two files on every new bar:
+  NCI_LiveData.json     — account state, ABC stage, ADX, FER, buy/sell scores
+  signal_proposal.json  — proposed trade with confluence, SL/TP, R:R, qualifies flag
+
+Point MT4_FILES_DIR at the MT4 terminal's MFiles folder (portable mode default or
+%APPDATA%\\MetaQuotes\\Terminal\\<INSTANCE_ID>\\MFiles\\).
+"""
+from __future__ import annotations
+
 import json
 import os
 import time
@@ -6,108 +16,184 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from config import BRIDGE_DATA_DIR, BRIDGE_POLL_SEC
+from config import (
+    BRIDGE_POLL_SEC,
+    NCI_LIVE_JSON,
+    SIGNAL_PROPOSAL_JSON,
+)
+
+# ABC stage labels mirror the EA
+STAGE_LABEL = {0: "A_CONSOLIDATION", 1: "B_EXPANSION", 2: "C_CONTRACTION"}
 
 
 @dataclass
-class Position:
-    ticket: int
-    symbol: str
-    side: str          # "BUY" | "SELL"
-    lots: float
-    open_price: float
-    current_price: float
-    profit: float
-    swap: float = 0.0
-    comment: str = ""
-
-
-@dataclass
-class AccountSnapshot:
-    timestamp: float
+class NCILiveData:
+    """Parsed NCI_LiveData.json — emitted by the EA on every new bar."""
     balance: float
     equity: float
-    floating: float
-    daily_pnl: float
-    margin_used: float
-    margin_free: float
-    drawdown_pct: float
-    circuit_breaker_locked: bool
-    positions: list[Position] = field(default_factory=list)
+    margin: float
+    drawdown: float           # fraction, e.g. -0.002 = -0.2%
+    trades_daily: int
+    consec_losses: int
+    abc_stage: int            # 0=A 1=B 2=C
+    abc_stage_h4: int
+    adx: float
+    fer: float
+    buy_score: int            # of 15
+    sell_score: int           # of 15
+    atr: float
+    timestamp: str
 
     @classmethod
-    def from_dict(cls, d: dict) -> "AccountSnapshot":
-        positions = [Position(**p) for p in d.get("positions", [])]
+    def from_dict(cls, d: dict) -> "NCILiveData":
         return cls(
-            timestamp=d["timestamp"],
-            balance=d["balance"],
-            equity=d["equity"],
-            floating=d.get("floating", d["equity"] - d["balance"]),
-            daily_pnl=d.get("daily_pnl", 0.0),
-            margin_used=d.get("margin_used", 0.0),
-            margin_free=d.get("margin_free", 0.0),
-            drawdown_pct=d.get("drawdown_pct", 0.0),
-            circuit_breaker_locked=d.get("circuit_breaker_locked", False),
-            positions=positions,
+            balance=d.get("balance", 0.0),
+            equity=d.get("equity", 0.0),
+            margin=d.get("margin", 0.0),
+            drawdown=d.get("drawdown", 0.0),
+            trades_daily=d.get("trades_daily", 0),
+            consec_losses=d.get("consec_losses", 0),
+            abc_stage=d.get("abc_stage", 0),
+            abc_stage_h4=d.get("abc_stage_h4", 0),
+            adx=d.get("adx", 0.0),
+            fer=d.get("fer", 0.0),
+            buy_score=d.get("buy_score", 0),
+            sell_score=d.get("sell_score", 0),
+            atr=d.get("atr", 0.0),
+            timestamp=d.get("timestamp", ""),
         )
 
     def format_table(self) -> str:
-        cb = "🔴 LOCKED" if self.circuit_breaker_locked else "✅ open"
-        lines = [
-            f"NCI Live  {time.strftime('%H:%M:%S UTC', time.gmtime(self.timestamp))}",
-            f"  Balance   ${self.balance:>10,.2f}",
-            f"  Equity    ${self.equity:>10,.2f}",
-            f"  Floating  ${self.floating:>+10.2f}",
-            f"  Daily P&L ${self.daily_pnl:>+10.2f}",
-            f"  DD        {self.drawdown_pct:>6.2f}%   CB {cb}",
-            "",
-            f"  {'SYM':<10} {'SIDE':<5} {'LOTS':>5} {'ENTRY':>8} {'NOW':>8} {'P&L':>8}",
-            "  " + "-" * 52,
-        ]
-        for p in self.positions:
-            lines.append(
-                f"  {p.symbol:<10} {p.side:<5} {p.lots:>5.2f} "
-                f"{p.open_price:>8.5f} {p.current_price:>8.5f} "
-                f"{p.profit:>+8.2f}"
+        stage  = STAGE_LABEL.get(self.abc_stage,    "?")
+        stageh4 = STAGE_LABEL.get(self.abc_stage_h4, "?")
+        dd_pct = self.drawdown * 100
+        bar = lambda score: ("█" * score) + ("░" * (15 - score))
+        return "\n".join([
+            f"╔══ NCI LIVE  {self.timestamp} ══╗",
+            f"  Balance  ${self.balance:>10,.2f}",
+            f"  Equity   ${self.equity:>10,.2f}   DD {dd_pct:>+.2f}%",
+            f"  Margin   ${self.margin:>10,.2f}",
+            f"",
+            f"  Stage (M1): {stage}",
+            f"  Stage (H4): {stageh4}",
+            f"  ADX {self.adx:>5.1f}   FER {self.fer:>5.3f}   ATR {self.atr:.5f}",
+            f"",
+            f"  BUY  [{bar(self.buy_score)}] {self.buy_score:>2}/15",
+            f"  SELL [{bar(self.sell_score)}] {self.sell_score:>2}/15",
+            f"",
+            f"  Open trades: {self.trades_daily}   Consec losses: {self.consec_losses}",
+            f"╚{'═'*44}╝",
+        ])
+
+
+@dataclass
+class SignalProposal:
+    """Parsed signal_proposal.json — proposed trade from the EA."""
+    symbol: str
+    action: str           # "BUY" | "SELL"
+    mode: str             # ABC stage label
+    godmode_score: float  # confluence / 15 * 10
+    confluence: int
+    confluence_max: int
+    abc_stage: str
+    sl_pips: float
+    tp_pips: float
+    risk_reward: float
+    qualifies: bool
+    timestamp: str
+    approved: bool = False
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "SignalProposal":
+        return cls(
+            symbol=d.get("symbol", ""),
+            action=d.get("action", ""),
+            mode=d.get("mode", ""),
+            godmode_score=d.get("godmode_score", 0.0),
+            confluence=d.get("confluence", 0),
+            confluence_max=d.get("confluence_max", 15),
+            abc_stage=d.get("abc_stage", ""),
+            sl_pips=d.get("sl_pips", 0.0),
+            tp_pips=d.get("tp_pips", 0.0),
+            risk_reward=d.get("risk_reward", 0.0),
+            qualifies=d.get("qualifies", False),
+            timestamp=d.get("timestamp", ""),
+            approved=d.get("approved", False),
+        )
+
+    def to_agent_prompt(self, live: Optional[NCILiveData] = None) -> str:
+        """Format as a prompt for the NCI LLM agent."""
+        ctx = ""
+        if live:
+            ctx = (
+                f" ABC={STAGE_LABEL.get(live.abc_stage,'?')},"
+                f" ADX={live.adx:.1f},"
+                f" FER={live.fer:.3f},"
+                f" ATR={live.atr:.5f},"
+                f" open_trades={live.trades_daily},"
+                f" consec_losses={live.consec_losses}"
             )
-        return "\n".join(lines)
+        return (
+            f"{self.symbol} {self.action} proposal:"
+            f" confluence {self.confluence}/{self.confluence_max},"
+            f" SL={self.sl_pips:.0f}p, TP={self.tp_pips:.0f}p, R:R={self.risk_reward:.2f},"
+            f" stage={self.abc_stage}, qualifies={self.qualifies}.{ctx}"
+            f" Assess this trade. Output: APPROVE or REJECT, then one-line reason."
+        )
+
+    def format_table(self) -> str:
+        q = "✅ QUALIFIES" if self.qualifies else "❌ NOT QUALIFYING"
+        a = "✅ APPROVED" if self.approved else "⏳ PENDING"
+        return "\n".join([
+            f"  Signal: {self.symbol} {self.action}",
+            f"  Mode:   {self.mode}",
+            f"  Score:  {self.confluence}/{self.confluence_max}  ({self.godmode_score:.1f}/10)",
+            f"  SL:     {self.sl_pips:.0f} pips   TP: {self.tp_pips:.0f} pips   R:R {self.risk_reward:.2f}",
+            f"  Gate:   {q}",
+            f"  LLM:    {a}",
+        ])
 
 
-def _latest_snapshot_path(data_dir: str) -> Optional[Path]:
-    d = Path(data_dir)
-    if not d.exists():
-        return None
-    files = sorted(d.glob("snapshot_*.json"), reverse=True)
-    return files[0] if files else None
-
-
-def read_latest(data_dir: str = BRIDGE_DATA_DIR) -> Optional[AccountSnapshot]:
-    path = _latest_snapshot_path(data_dir)
-    if not path:
-        return None
+def _read_json(path: str) -> Optional[dict]:
     try:
         with open(path) as f:
-            return AccountSnapshot.from_dict(json.load(f))
+            return json.load(f)
     except Exception:
         return None
 
 
-def watch(data_dir: str = BRIDGE_DATA_DIR, poll_sec: int = BRIDGE_POLL_SEC):
-    """Generator — yields AccountSnapshot each time the bridge writes a new file."""
-    seen: Optional[str] = None
+def read_live(path: str = NCI_LIVE_JSON) -> Optional[NCILiveData]:
+    d = _read_json(path)
+    return NCILiveData.from_dict(d) if d else None
+
+
+def read_proposal(path: str = SIGNAL_PROPOSAL_JSON) -> Optional[SignalProposal]:
+    d = _read_json(path)
+    return SignalProposal.from_dict(d) if d else None
+
+
+def watch(poll_sec: int = BRIDGE_POLL_SEC):
+    """Generator — yields (NCILiveData, SignalProposal) each time the EA writes new data."""
+    seen_ts: Optional[str] = None
     while True:
-        path = _latest_snapshot_path(data_dir)
-        if path and str(path) != seen:
-            snap = read_latest(data_dir)
-            if snap:
-                seen = str(path)
-                yield snap
+        live = read_live()
+        if live and live.timestamp != seen_ts:
+            seen_ts = live.timestamp
+            proposal = read_proposal()
+            yield live, proposal
         time.sleep(poll_sec)
 
 
 if __name__ == "__main__":
-    snap = read_latest()
-    if snap:
-        print(snap.format_table())
+    live = read_live()
+    proposal = read_proposal()
+
+    if live:
+        print(live.format_table())
     else:
-        print(f"No snapshot found in {BRIDGE_DATA_DIR}")
+        print(f"[NCI] No live data at {NCI_LIVE_JSON}")
+        print(f"      Set MT4_FILES_DIR env var to your MT4 terminal's MFiles folder.")
+
+    if proposal:
+        print()
+        print(proposal.format_table())

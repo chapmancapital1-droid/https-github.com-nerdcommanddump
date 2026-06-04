@@ -21,12 +21,22 @@ LOCAL_GPU_LAYERS  = int(os.getenv("LOCAL_GPU_LAYERS",  "35"))   # tune to VRAM
 LOCAL_CTX_SIZE    = int(os.getenv("LOCAL_CTX_SIZE",    "4096"))
 LOCAL_THREADS     = int(os.getenv("LOCAL_THREADS",     "6"))
 
-# -- NCI bridge --------------------------------------------------------------
-# The MT4/Bridge writes account snapshots here as JSON files.
+# -- MT4 EA live data --------------------------------------------------------
+# NCI_GodMode_v3_2_Fusion.mq4 writes these files on every new bar.
+# Default path = MT4 portable mode MFiles folder. Override to your instance path:
+#   %APPDATA%\MetaQuotes\Terminal\<INSTANCE_ID>\MFiles\
+MT4_FILES_DIR = os.getenv(
+    "MT4_FILES_DIR",
+    r"D:\NERDCOMMANDCLAUDEBRAIN\mt4_files",
+)
+NCI_LIVE_JSON      = os.path.join(MT4_FILES_DIR, "NCI_LiveData.json")
+SIGNAL_PROPOSAL_JSON = os.path.join(MT4_FILES_DIR, "signal_proposal.json")
+BRIDGE_POLL_SEC    = int(os.getenv("BRIDGE_POLL_SEC", "2"))
+
+# Legacy bridge snapshots (older format). Set if still using a separate bridge.
 BRIDGE_DATA_DIR = os.getenv(
     "BRIDGE_DATA_DIR", r"D:\NERDCOMMANDCLAUDEBRAIN\bridge"
 )
-BRIDGE_POLL_SEC = int(os.getenv("BRIDGE_POLL_SEC", "5"))
 
 # -- Agent -------------------------------------------------------------------
 AGENT_MAX_TOKENS  = int(os.getenv("AGENT_MAX_TOKENS",  "512"))

@@ -29,14 +29,24 @@ MT4_FILES_DIR = os.getenv(
     "MT4_FILES_DIR",
     r"D:\NERDCOMMANDCLAUDEBRAIN\mt4_files",
 )
+
+# v3.2 Fusion EA outputs
 NCI_LIVE_JSON      = os.path.join(MT4_FILES_DIR, "NCI_LiveData.json")
 SIGNAL_PROPOSAL_JSON = os.path.join(MT4_FILES_DIR, "signal_proposal.json")
-BRIDGE_POLL_SEC    = int(os.getenv("BRIDGE_POLL_SEC", "2"))
 
-# Legacy bridge snapshots (older format). Set if still using a separate bridge.
+# Hybrid v1.8 EA outputs (rich signal + command overrides)
+NCI_SIGNAL_JSON    = os.path.join(MT4_FILES_DIR, "NCI_Signal.json")
+NCI_COMMANDS_JSON  = os.path.join(MT4_FILES_DIR, "NCI_Commands.json")
+
+# ScalpBot v2.0 EA outputs
+NCI_MONITOR_JSON   = os.path.join(MT4_FILES_DIR, "NCI_Monitor.json")
+
+# nci Bridge
+BRIDGE_POLL_SEC    = int(os.getenv("BRIDGE_POLL_SEC", "2"))
 BRIDGE_DATA_DIR = os.getenv(
     "BRIDGE_DATA_DIR", r"D:\NERDCOMMANDCLAUDEBRAIN\bridge"
 )
+BRIDGE_STATE_FILE  = os.path.join(BRIDGE_DATA_DIR, "nci_bridge_state.json")
 
 # -- Agent -------------------------------------------------------------------
 AGENT_MAX_TOKENS  = int(os.getenv("AGENT_MAX_TOKENS",  "512"))

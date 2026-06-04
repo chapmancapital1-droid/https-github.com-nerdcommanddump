@@ -11,44 +11,53 @@ Do not drift into general coding, content, or unrelated tasks — redirect to th
 | Multi-indicator analysis, strategy reasoning, backtests | Sonnet (default) |
 | Full portfolio review, novel strategy design | Sonnet — confirm before long runs |
 
-## NCI Live Update
+## NCI Live Update & Bridge Dashboard
 
-The `nci/` folder bridges the MT4 EA (`mt4/NCI_GodMode_v3_2_Fusion.mq4`) with the LLM brain.
+The `nci/` folder provides **nci Bridge** — the unified central hub for all trading brain data across all versions, sessions, and EAs.
 
-### EA → Python data flow
+### Architecture
 ```
-MT4 EA  ──writes──►  NCI_LiveData.json       ──►  nci_live.py (NCILiveData)
-                      signal_proposal.json    ──►  nci_live.py (SignalProposal)
-                                                         │
-                                               nci_signal_approval.py
-                                                         │
-                                               LLM (Ollama or llama-cpp)
-                                                         │
-                                               signals/approvals.jsonl
+NCI_GodMode_v3.2_Fusion.mq4  ┐
+NCI_Hybrid_v1.8.mq4          │
+NCI_ScalpBot_M5_v2.0.mq4     ├──► nci_bridge.py ──► nci_bridge_state.json
+Micro-lot framework (SQLite) │    (unified consolidation)
+Backtester results           ┘    
+                                     ↓
+                          LLM brain (nci_signal_approval.py)
+                                     ↓
+                          signals/approvals.jsonl
 ```
+
+### nci Bridge — Central Consolidation
+**Read:** [`NCI_BRIDGE_README.md`](nci/NCI_BRIDGE_README.md)
+
+The bridge consolidates:
+- **Live data**: Account state, ABC stage, ADX, FER, confluence scores (v3.2 EA)
+- **Rich signals**: Voter breakdown, gates, fired/blocked status (Hybrid v1.8 EA)
+- **Runtime overrides**: Command parameters (Hybrid v1.8 EA)
+- **Performance metrics**: Daily & all-time P&L, win rates, profit factor, Sharpe (SQLite)
+- **Position tracking**: Open trades, scalp counts, trade journal
 
 ### Quick commands
 ```bash
-# Show live account state + current signal proposal from the EA
+# Show current unified state (one-shot)
+python nci/nci_bridge.py
+
+# Watch mode — auto-refresh as EA writes new data
+python nci/nci_bridge.py --watch
+
+# Show legacy live data only (v3.2 signals)
 python nci/nci_live.py
 
-# One-shot LLM second-opinion on the current proposal
+# LLM second-opinion on current proposal
 python nci/nci_signal_approval.py
 
-# Watch mode — analyse every new bar's proposal as the EA runs
+# Watch mode — analyse every new bar as EA runs
 python nci/nci_signal_approval.py --watch
 
-# Dry run (no LLM call, just print proposal)
-python nci/nci_signal_approval.py --dry-run
-
-# Free-form signal prompt
-python -c "from nci.nci_agent import generate; print(generate('GBPUSD at 1.2700 support, RSI 28'))"
-
-# Switch to direct llama-cpp (after installing wheels + copying model)
-set USE_LOCAL_LLAMA=true   # Windows
-
-# Benchmark both backends
-python nci/benchmark.py
+# Consolidate data from previous Claude sessions
+python nci/consolidate_sessions.py --import-all /path/old/trading-brain
+python nci/consolidate_sessions.py --report
 
 # Loss pattern analysis
 python nci/analysis/loss_pattern.py

@@ -1,0 +1,41 @@
+"""Central config for NCI live update. All values overridable via env vars."""
+import os
+
+# -- Backend toggle ----------------------------------------------------------
+# Set USE_LOCAL_LLAMA=true once llama-cpp wheels are installed + model copied.
+# Leave false to stay on Ollama (safe default).
+USE_LOCAL_LLAMA = os.getenv("USE_LOCAL_LLAMA", "false").lower() == "true"
+
+# -- Ollama ------------------------------------------------------------------
+OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",   "http://localhost:11434")
+OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",      "qwen2.5-coder:7b")
+OLLAMA_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "60m")   # prevents eviction
+OLLAMA_TIMEOUT    = int(os.getenv("OLLAMA_TIMEOUT", "60"))  # seconds
+
+# -- Local llama-cpp ---------------------------------------------------------
+LOCAL_MODEL_PATH = os.getenv(
+    "LOCAL_MODEL_PATH",
+    r"D:\NERDCOMMANDCLAUDEBRAIN\models\qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+)
+LOCAL_GPU_LAYERS  = int(os.getenv("LOCAL_GPU_LAYERS",  "35"))   # tune to VRAM
+LOCAL_CTX_SIZE    = int(os.getenv("LOCAL_CTX_SIZE",    "4096"))
+LOCAL_THREADS     = int(os.getenv("LOCAL_THREADS",     "6"))
+
+# -- NCI bridge --------------------------------------------------------------
+# The MT4/Bridge writes account snapshots here as JSON files.
+BRIDGE_DATA_DIR = os.getenv(
+    "BRIDGE_DATA_DIR", r"D:\NERDCOMMANDCLAUDEBRAIN\bridge"
+)
+BRIDGE_POLL_SEC = int(os.getenv("BRIDGE_POLL_SEC", "5"))
+
+# -- Agent -------------------------------------------------------------------
+AGENT_MAX_TOKENS  = int(os.getenv("AGENT_MAX_TOKENS",  "512"))
+AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.1"))
+
+# -- Output paths ------------------------------------------------------------
+SIGNAL_LOG_DIR = os.getenv(
+    "SIGNAL_LOG_DIR", r"D:\NERDCOMMANDCLAUDEBRAIN\signals"
+)
+ANALYSIS_DIR = os.getenv(
+    "ANALYSIS_DIR", r"D:\NERDCOMMANDCLAUDEBRAIN\analysis"
+)

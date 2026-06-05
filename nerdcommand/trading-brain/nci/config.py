@@ -48,6 +48,26 @@ BRIDGE_DATA_DIR = os.getenv(
 )
 BRIDGE_STATE_FILE  = os.path.join(BRIDGE_DATA_DIR, "nci_bridge_state.json")
 
+# -- Alpha Vantage FX Live Feed -----------------------------------------------
+# Free tier: 25 requests/day  → use --once mode, AV_CACHE_MINUTES >= 60
+# Premium:   75 requests/min  → watch mode viable, AV_CACHE_MINUTES = 1
+#
+# Store your key in env var (never commit the key):
+#   Windows: set AV_API_KEY=YOUR_KEY
+#   Linux:   export AV_API_KEY=YOUR_KEY
+#   .env:    AV_API_KEY=YOUR_KEY
+AV_API_KEY        = os.getenv("AV_API_KEY", "")
+AV_BASE_URL       = "https://www.alphavantage.co/query"
+AV_CACHE_MINUTES  = int(os.getenv("AV_CACHE_MINUTES", "5"))    # cache TTL
+AV_INTERVAL       = os.getenv("AV_INTERVAL", "5min")           # 1min/5min/15min/30min/60min
+AV_OUTPUTSIZE     = os.getenv("AV_OUTPUTSIZE", "compact")      # compact=100 bars, full=all
+
+# Pairs to monitor (Alpha Vantage format: "FROM/TO")
+AV_PAIRS = os.getenv("AV_PAIRS", "EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD").split(",")
+
+# AV data mode: "live" uses AV as primary feed, "supplement" fills gaps when MT4 is offline
+AV_MODE = os.getenv("AV_MODE", "supplement")  # "live" | "supplement"
+
 # -- Agent -------------------------------------------------------------------
 AGENT_MAX_TOKENS  = int(os.getenv("AGENT_MAX_TOKENS",  "512"))
 AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.1"))

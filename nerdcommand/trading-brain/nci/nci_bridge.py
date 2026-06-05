@@ -6,8 +6,13 @@ Consolidates ALL trading data from:
   - NCI_ScalpBot_M5_v2.0.mq4 (M5 scalp metrics)
   - NCI_GodMode_v3.mq4 (legacy)
   - All JSON outputs (LiveData, Signals, Commands)
+  - Alpha Vantage FX live feed (when MT4 is offline)
   - SQLite trade journal (position_tracker)
   - Backtester results and performance analytics
+
+Data source priority:
+  1. MT4 EA (if NCI_LiveData.json is fresh ≤ 5 minutes)
+  2. Alpha Vantage live feed (fallback when MT4 offline)
 
 Outputs unified JSON and rich terminal display.
 """
@@ -28,7 +33,16 @@ from config import (
     SIGNAL_PROPOSAL_JSON,
     BRIDGE_DATA_DIR,
     MT4_FILES_DIR,
+    AV_API_KEY,
+    AV_MODE,
+    AV_PAIRS,
 )
+
+# AV feed — imported lazily so bridge works without AV key
+_AV_AVAILABLE = bool(AV_API_KEY)
+
+# MT4 data is considered "stale" after this many seconds (fall back to AV)
+MT4_STALE_SEC = 300  # 5 minutes
 
 # -- Constants ----------------------------------------------------------------
 
@@ -401,8 +415,94 @@ def _calc_all_time_stats() -> Dict[str, Any]:
 
 # -- Main Bridge Functions -------------------------------------------------------
 
+def _is_mt4_data_fresh(live: Optional[NCILiveData]) -> bool:
+    """Return True if MT4 data exists and was written within MT4_STALE_SEC."""
+    if not live or not live.timestamp:
+        return False
+    try:
+        # Try ISO format first, then common MT4 format
+        for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d %H:%M:%S", "%Y.%m.%d %H:%M:%S"):
+            try:
+                ts = datetime.strptime(live.timestamp, fmt)
+                age = (datetime.utcnow() - ts).total_seconds()
+                return age <= MT4_STALE_SEC
+            except ValueError:
+                continue
+    except Exception:
+        pass
+    return True  # unknown format — assume fresh
+
+
+def _try_av_supplement(state: NCIBridgeState) -> None:
+    """Fill state from Alpha Vantage if MT4 data is missing/stale."""
+    if not _AV_AVAILABLE:
+        return
+
+    try:
+        from av_feed import analyse_pair, write_live_json, write_signal_json
+
+        pairs = AV_PAIRS[:1]  # use first pair for quick scan
+        for pair_str in pairs:
+            parts = pair_str.replace("-", "/").split("/")
+            if len(parts) != 2:
+                continue
+            from_sym, to_sym = parts[0].strip().upper(), parts[1].strip().upper()
+            analysis = analyse_pair(from_sym, to_sym)
+            if not analysis:
+                continue
+
+            # Patch live data from AV indicators
+            if state.live is None:
+                state.live = NCILiveData(
+                    balance=0.0, equity=0.0, margin=0.0, drawdown=0.0,
+                    trades_daily=0, consec_losses=0,
+                    abc_stage=analysis.abc_stage,
+                    abc_stage_h4=analysis.abc_stage,
+                    adx=analysis.adx, fer=analysis.fer, atr=analysis.atr,
+                    buy_score=analysis.buy_score, sell_score=analysis.sell_score,
+                    timestamp=analysis.timestamp,
+                )
+                state.ea_version = "AV_Live"
+
+            # Patch signal proposal from AV
+            if state.proposal is None and analysis.proposed_direction != "NONE":
+                STAGE_LABELS = {0: "A_CONSOLIDATION", 1: "B_EXPANSION", 2: "C_CONTRACTION"}
+                score = analysis.buy_score if analysis.proposed_direction == "BUY" else analysis.sell_score
+                state.proposal = SignalProposal(
+                    symbol=analysis.symbol,
+                    action=analysis.proposed_direction,
+                    mode=STAGE_LABELS.get(analysis.abc_stage, "?"),
+                    godmode_score=round(score / 8 * 10, 1),
+                    confluence=score,
+                    confluence_max=8,
+                    abc_stage=STAGE_LABELS.get(analysis.abc_stage, "?"),
+                    sl_pips=analysis.proposed_sl_pips,
+                    tp_pips=analysis.proposed_tp_pips,
+                    risk_reward=analysis.proposed_rr,
+                    qualifies=analysis.qualifies,
+                    timestamp=analysis.timestamp,
+                    approved=False,
+                )
+
+            # Write files so other tools (nci_signal_approval.py) can consume them
+            write_live_json(analysis)
+            write_signal_json(analysis)
+            break  # one pair per refresh is enough
+
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"[Bridge] AV supplement error: {e}")
+
+
 def load_bridge_state() -> NCIBridgeState:
-    """Load complete unified state from all sources."""
+    """Load complete unified state from all sources.
+
+    Priority:
+      1. MT4 EA data (freshest, if running)
+      2. Alpha Vantage live feed (when MT4 is offline)
+      3. Performance data always from SQLite
+    """
     state = NCIBridgeState()
 
     # Load v3.2 EA data
@@ -412,6 +512,11 @@ def load_bridge_state() -> NCIBridgeState:
     # Load Hybrid v1.8 data
     state.hybrid_signal = read_hybrid_signal()
     state.command_override = read_commands()
+
+    # If MT4 data is stale/missing, supplement with Alpha Vantage
+    mt4_fresh = _is_mt4_data_fresh(state.live)
+    if (not mt4_fresh or AV_MODE == "live") and _AV_AVAILABLE:
+        _try_av_supplement(state)
 
     # Load SQLite stats
     daily = _calc_daily_stats()
@@ -438,7 +543,8 @@ def load_bridge_state() -> NCIBridgeState:
 
     # Metadata
     if state.live:
-        state.ea_version = "3.2_Fusion"
+        if state.ea_version == "unknown":
+            state.ea_version = "3.2_Fusion" if mt4_fresh else "AV_Live"
     state.last_update = datetime.utcnow().isoformat()
 
     return state

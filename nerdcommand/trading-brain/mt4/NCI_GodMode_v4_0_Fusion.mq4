@@ -19,6 +19,11 @@
 //|   [FIX] QuickBE 0.25R -> 0.5R  (was BE'ing winners too early)    |
 //|   [FIX] Secure trail now ATR-adaptive (was fixed 10p in noise)   |
 //|                                                                  |
+//|  v4.1 adds hour-of-day pattern learning (grafted Phoenix idea):  |
+//|   [NEW] Per-hour/per-direction win-rate buckets, persisted to    |
+//|         MQL4\Files\NCI_HourStats.csv (survives restarts)         |
+//|   [NEW] Confluence +/-bonus during proven/dead server hours      |
+//|                                                                  |
 //|   All v3.2 logic, ports and stop manager are preserved intact.   |
 //|                                                                  |
 //|   *** RUN ON DEMO FIRST. Validate with Strategy Tester before    |
@@ -27,8 +32,8 @@
 //|             (c) 2026 GangsterNerds LLC - NERDCOMMAND Trading      |
 //+------------------------------------------------------------------+
 #property copyright   "GangsterNerds LLC - NERDCOMMAND Trading"
-#property version     "4.00"
-#property description "NCI GodMode v4.0 Fusion - live-bridge brain link + impulse gate + per-port stats over the v3.2 multi-port engine."
+#property version     "4.10"
+#property description "NCI GodMode v4.1 Fusion - hour-of-day learning + live-bridge brain link + impulse gate + per-port stats over the v3.2 multi-port engine."
 #property strict
 
 //================================================================
@@ -315,6 +320,18 @@ extern int    InpPortMinSample     = 20;      // closed trades before a port is 
 extern double InpPortMinWinRate    = 35.0;    // disable a port below this WR over its sample
 
 //================================================================
+// HOUR-OF-DAY PATTERN LEARNING (v4.1) - grafted from Phoenix concept
+// Track win rate per server-hour per direction, persist to CSV, and add a
+// confluence bonus during statistically proven hours. Pure self-contained ML.
+//================================================================
+extern bool   InpUseHourLearning   = true;    // enable hour-of-day pattern learning
+extern int    InpHourMinSample     = 20;      // closed trades in that hour/dir before the bonus can fire
+extern double InpHourGoodWinRate   = 55.0;    // hour WR at/above this earns +InpHourBonus to confluence
+extern double InpHourBadWinRate    = 35.0;    // hour WR below this subtracts InpHourBonus (avoid dead hours)
+extern int    InpHourBonus         = 1;       // confluence points added/removed by the hour verdict
+extern string InpHourStatsFile     = "NCI_HourStats.csv"; // persisted in MQL4\Files\
+
+//================================================================
 // DASHBOARD / LOGGING
 //================================================================
 extern bool   InpWriteDashboard    = true;    // write JSON for GodMode dashboard
@@ -342,6 +359,10 @@ datetime g_blockUntil      = 0;     // bridge news/event blackout (server epoch)
 int      g_dailyTradeCount = 0;     // entries opened today
 int      PortWins[11];              // indexed by PORT_* id
 int      PortLosses[11];
+
+// v4.1 hour-of-day learning: [0]=BUY [1]=SELL, indexed 0..23 by server hour
+int      HourWins[2][24];
+int      HourTotal[2][24];
 
 #define TRACK_CAP 30
 int  TrackTicket[TRACK_CAP];
@@ -958,6 +979,71 @@ int BuyConfluenceScore() { string d; return(BuyConfluenceScore(d)); }
 int SellConfluenceScore(){ string d; return(SellConfluenceScore(d)); }
 
 //================================================================
+// HOUR-OF-DAY PATTERN LEARNING (v4.1)
+//================================================================
+// Win rate for a direction/hour, or -1 if the sample is too small to trust.
+double HourWinRate(int dir,int hour)
+{
+   if(hour<0||hour>23) return(-1.0);
+   int idx=(dir>0)?0:1;
+   int n=HourTotal[idx][hour];
+   if(n<InpHourMinSample) return(-1.0);
+   return(100.0*HourWins[idx][hour]/n);
+}
+// Confluence adjustment for the CURRENT server hour: +bonus on proven hours,
+// -bonus on statistically dead hours, 0 while still learning.
+int HourConfluenceBonus(int dir)
+{
+   if(!InpUseHourLearning) return(0);
+   double wr=HourWinRate(dir,TimeHour(TimeCurrent()));
+   if(wr<0) return(0);                          // not enough history yet
+   if(wr>=InpHourGoodWinRate) return(InpHourBonus);
+   if(wr< InpHourBadWinRate)  return(-InpHourBonus);
+   return(0);
+}
+// Persist all 48 buckets to MQL4\Files\ so learning survives EA/terminal restarts.
+void SaveHourStats()
+{
+   if(!InpUseHourLearning) return;
+   int h=FileOpen(InpHourStatsFile,FILE_CSV|FILE_WRITE,',');
+   if(h==INVALID_HANDLE){ if(InpVerboseLog) Print("HourStats save failed err=",GetLastError()); return; }
+   for(int dir=0;dir<2;dir++)
+      for(int hr=0;hr<24;hr++)
+         FileWrite(h,dir,hr,HourWins[dir][hr],HourTotal[dir][hr]);
+   FileClose(h);
+}
+void LoadHourStats()
+{
+   for(int dir=0;dir<2;dir++)
+      for(int hr=0;hr<24;hr++){ HourWins[dir][hr]=0; HourTotal[dir][hr]=0; }
+   if(!InpUseHourLearning) return;
+   if(!FileIsExist(InpHourStatsFile)){ if(InpVerboseLog) Print("HourStats: no file yet, starting fresh"); return; }
+   int h=FileOpen(InpHourStatsFile,FILE_CSV|FILE_READ,',');
+   if(h==INVALID_HANDLE){ if(InpVerboseLog) Print("HourStats load failed err=",GetLastError()); return; }
+   while(!FileIsEnding(h))
+   {
+      int dir=(int)FileReadNumber(h); if(FileIsEnding(h)) break;
+      int hr =(int)FileReadNumber(h);
+      int w  =(int)FileReadNumber(h);
+      int n  =(int)FileReadNumber(h);
+      if(dir>=0&&dir<2&&hr>=0&&hr<24){ HourWins[dir][hr]=w; HourTotal[dir][hr]=n; }
+   }
+   FileClose(h);
+   if(InpVerboseLog) Print("HourStats loaded from ",InpHourStatsFile);
+}
+// Record one closed trade into its entry-hour bucket and re-persist.
+void RecordHourResult(int orderType,datetime openTime,bool win)
+{
+   if(!InpUseHourLearning) return;
+   int dir=(orderType==OP_BUY)?0:((orderType==OP_SELL)?1:-1);
+   if(dir<0) return;
+   int hr=TimeHour(openTime);
+   if(hr<0||hr>23) return;
+   HourTotal[dir][hr]++;
+   if(win) HourWins[dir][hr]++;
+}
+
+//================================================================
 // SAFE ORDER MODIFY  (v1.4)
 //================================================================
 bool SafeOrderModify(int ticket,double price,double sl,double tp,datetime exp,color c=CLR_NONE)
@@ -1446,12 +1532,14 @@ void UpdateExpectancyAndStrikes()
       double pnl=OrderProfit()+OrderSwap()+OrderCommission(); TotalClosed++;
       int cport=PortIdFromComment(OrderComment());     // v4.0: route the result to its port's record
       if(cport>=0 && cport<=10){ if(pnl>0) PortWins[cport]++; else PortLosses[cport]++; }
+      RecordHourResult(OrderType(),OrderOpenTime(),pnl>0); // v4.1: feed hour-of-day learning
       if(pnl>0){ TotalWins++; ConsecutiveLosses=0; }
       else { TotalLosses++; ConsecutiveLosses++; if(InpUseStrikeCooldown&&ConsecutiveLosses>=InpStrikeLimit){ CooldownUntilTime=TimeCurrent()+InpCooldownBars*Period()*60; PostCooldownTradesLeft=3; Print("*** v3 STRIKE COOLDOWN *** ",ConsecutiveLosses," losses"); ConsecutiveLosses=0; } }
       double wr=TotalClosed>0?(100.0*TotalWins/TotalClosed):0.0;
       Print("[NCI WR v4] pnl=",DoubleToStr(pnl,2)," port=",PortName(cport)," W=",TotalWins," L=",TotalLosses," WR=",DoubleToStr(wr,1),"%");
    }
    LastTotalHistory=total;
+   SaveHourStats();        // v4.1: persist updated hour-of-day buckets after new closes
 }
 void CheckDailyDD()
 {
@@ -1523,13 +1611,16 @@ bool TryEntryPorts(int buy,int sell)
    // Port 1: original GodMode main path + v4.0 EMA-impulse & MACD-hist hard gates.
    if(InpUseGodModePort && PortEnabled(PORT_GODMODE) && SpreadPips()<=InpMaxSpreadPips && ABCAllowsEntry())
    {
-      if(buy>=g_minConfluence && buy>sell && EmaImpulseBuy() && MacdHistBull())
+      // v4.1: blend the hour-of-day verdict into the score the main port judges on.
+      int buyAdj =buy +HourConfluenceBonus(1);
+      int sellAdj=sell+HourConfluenceBonus(-1);
+      if(buyAdj>=g_minConfluence && buyAdj>sellAdj && EmaImpulseBuy() && MacdHistBull())
       {
-         if(HTFGateAllowBuy()){ if(g_tradingEnabled) TryOpenByPort(1,PORT_GODMODE); else Print("Fusion REPORT would BUY GodMode score=",buy); return(true); }
+         if(HTFGateAllowBuy()){ if(g_tradingEnabled) TryOpenByPort(1,PORT_GODMODE); else Print("Fusion REPORT would BUY GodMode score=",buy," hourAdj=",buyAdj); return(true); }
       }
-      if(sell>=g_minConfluence && sell>buy && EmaImpulseSell() && MacdHistBear())
+      if(sellAdj>=g_minConfluence && sellAdj>buyAdj && EmaImpulseSell() && MacdHistBear())
       {
-         if(HTFGateAllowSell()){ if(g_tradingEnabled) TryOpenByPort(-1,PORT_GODMODE); else Print("Fusion REPORT would SELL GodMode score=",sell); return(true); }
+         if(HTFGateAllowSell()){ if(g_tradingEnabled) TryOpenByPort(-1,PORT_GODMODE); else Print("Fusion REPORT would SELL GodMode score=",sell," hourAdj=",sellAdj); return(true); }
       }
    }
    else if(InpUseGodModePort && InpVerboseLog && (SpreadPips()>InpMaxSpreadPips || !ABCAllowsEntry()))
@@ -1655,8 +1746,13 @@ void WriteDashboard(int buy,int sell)
    double bal=AccountBalance(),eq=AccountEquity(),mg=AccountMargin(),dd=(bal>0)?(eq-bal)/bal:0.0;
    bool emaB=EmaImpulseBuy(), emaS=EmaImpulseSell();
    string j="{";
-   j+="\"version\": \"4.00\",";
+   j+="\"version\": \"4.10\",";
    j+="\"symbol\": \""+Symbol()+"\",";
+   j+="\"hour_server\": "+IntegerToString(TimeHour(TimeCurrent()))+",";
+   j+="\"hour_wr_buy\": "+DoubleToStr(HourWinRate(1,TimeHour(TimeCurrent())),1)+",";
+   j+="\"hour_wr_sell\": "+DoubleToStr(HourWinRate(-1,TimeHour(TimeCurrent())),1)+",";
+   j+="\"hour_bonus_buy\": "+IntegerToString(HourConfluenceBonus(1))+",";
+   j+="\"hour_bonus_sell\": "+IntegerToString(HourConfluenceBonus(-1))+",";
    j+="\"balance\": "+DoubleToStr(bal,2)+",";
    j+="\"equity\": "+DoubleToStr(eq,2)+",";
    j+="\"margin\": "+DoubleToStr(mg,2)+",";
@@ -1722,6 +1818,7 @@ int OnInit()
    g_reentry_avail=false; g_reentry_count=0; g_lastM5EntryTime=0; g_lastEntryPort="NONE";
    g_minConfluence=InpMinConfluence; g_tradingEnabled=InpTradingEnabled; g_riskMult=1.0; g_blockUntil=0; g_dailyTradeCount=0;
    for(int pi=0;pi<11;pi++){ PortWins[pi]=0; PortLosses[pi]=0; }
+   LoadHourStats();   // v4.1: restore hour-of-day learning from MQL4\Files\
    Print("===== NCI GodMode v4.0 FUSION - AUTONOMOUS EA =====");
    Print("Account: ",AccountNumber()," Bal: ",AccountBalance()," ",AccountCompany());
    Print("Symbol: ",Symbol()," TF: ",Period()," | TradingEnabled=",InpTradingEnabled);
@@ -1729,6 +1826,7 @@ int OnInit()
    Print("v4.0 GATES: EMAimpulse=",InpUseEmaImpulseGate," (",InpImpulseFastEMA,"/",InpImpulseMidEMA,"/",InpImpulseSlowEMA,") MACDhist=",InpUseMacdHistFilter);
    Print("v4.0 BRIDGE: heartbeat=",InpUseHeartbeat,"@",InpHeartbeatSec,"s cmdFile=",InpUseCommandFile," (",InpCommandFile,")");
    Print("v4.0 GUARDS: maxDailyTrades=",InpMaxDailyTrades," portAutoDisable=",InpUsePortAutoDisable," (n>=",InpPortMinSample," wr<",InpPortMinWinRate,"%)");
+   Print("v4.1 HOUR LEARNING: ",InpUseHourLearning," (n>=",InpHourMinSample," good>=",InpHourGoodWinRate,"% bad<",InpHourBadWinRate,"% bonus=±",InpHourBonus,") file=",InpHourStatsFile);
    Print("v4.0 FUSION PORTS: main=",InpUseGodModePort," scalp=",InpUseHybridScalpPort," m5=",InpUseM5ArrowPort," neuro=",InpUseNeuroPorts," zone=",InpUseZoneEntryPort," altABCBlock=",InpABCBlocksAltPorts);
    Print("v4.0 UNIFIED STOP: ",InpUseUnifiedStopManager," secure=",InpUseSecureTrail," (ATRtrail=",InpSecureTrailUseAtr," x",InpSecureTrailAtrMult,") quickR=",InpQuickBEAtR," trailR=",InpTrailAtR," hardLock=",InpHardLockPips,"p | STACK max=",EffectiveMaxOpenTrades());
    if(!InpTradingEnabled) Print(">>> REPORT-ONLY MODE: no orders will be placed. <<<");

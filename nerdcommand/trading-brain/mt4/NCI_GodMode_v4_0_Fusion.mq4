@@ -1072,9 +1072,9 @@ void ComputePortSLTP(int direction,int port,double entry,double &sl,double &tp)
    }
    if(port==PORT_ZONE)
    {
-      double d=atr*InpZoneSLAtrMult;
-      if(direction>0){ sl=entry-d; tp=entry+d*InpZoneRR; }
-      else           { sl=entry+d; tp=entry-d*InpZoneRR; }
+      double dz=atr*InpZoneSLAtrMult;
+      if(direction>0){ sl=entry-dz; tp=entry+dz*InpZoneRR; }
+      else           { sl=entry+dz; tp=entry-dz*InpZoneRR; }
       return;
    }
    if(direction>0) ComputeBuySLTP(entry,sl,tp); else ComputeSellSLTP(entry,sl,tp);
@@ -1188,8 +1188,8 @@ void ManageChandelier()
       else if(OrderType()==OP_SELL)
       {
          if((op-Ask)/PipPoint < InpTrailTriggerPips) continue;
-         double nSL=lo+atr*mult;
-         if(nSL<op && (cSL==0||nSL<cSL-Point)) SafeOrderModify(OrderTicket(),op,nSL,cTP,0,clrYellow);
+         double nSLs=lo+atr*mult;
+         if(nSLs<op && (cSL==0||nSLs<cSL-Point)) SafeOrderModify(OrderTicket(),op,nSLs,cTP,0,clrYellow);
       }
    }
 }
@@ -1221,8 +1221,8 @@ void ManageSecureTrail()
       }
       else
       {
-         double nSL=Ask+trail;
-         if(cSL==0||nSL<cSL-Point) SafeOrderModify(OrderTicket(),op,nSL,cTP,0,clrAqua);
+         double nSLs=Ask+trail;
+         if(cSL==0||nSLs<cSL-Point) SafeOrderModify(OrderTicket(),op,nSLs,cTP,0,clrAqua);
       }
    }
 }
@@ -1367,8 +1367,8 @@ void ManageUnifiedStops()
       // Quick R-based break-even from ScalpBot.
       if(InpUseQuickRBE && riskPips>0 && rNow>=InpQuickBEAtR)
       {
-         double be=isBuy?(entry+InpBEPlusPips*PipPoint):(entry-InpBEPlusPips*PipPoint);
-         if(StopImproves(type,be,bestSL,0.0)) bestSL=be;
+         double beq=isBuy?(entry+InpBEPlusPips*PipPoint):(entry-InpBEPlusPips*PipPoint);
+         if(StopImproves(type,beq,bestSL,0.0)) bestSL=beq;
       }
 
       // USD-trigger secure trail from GodMode v3.1 (v4.0: ATR-adaptive distance).

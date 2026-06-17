@@ -1,0 +1,5710 @@
+{
+  "package_name": "Salazar Roofing OS - DevOps Demo Build Package",
+  "version": "1.0-demo-build",
+  "created_date": "2026-06-16",
+  "prepared_for": "DevOps / product demo build team",
+  "app": {
+    "working_name": "Salazar Roofing OS",
+    "product_positioning": "Roofing/remodeling CRM + insurance-support system + crew operations app + customer portal + StormLoop growth engine.",
+    "north_star": "One connected flow from storm event to lead, inspection, claim-support file, job production, customer update, payment, warranty, review, referral, and repeat revenue.",
+    "demo_tagline": "Normal CRMs manage jobs after you get them. This system helps find storm opportunities, win the job, run the job, update the customer, collect the money, and turn the customer into future referrals.",
+    "primary_client": "Salazar Roofing & Remodeling",
+    "mvp_release_goal": "Clickable working demo showing owner dashboard, job detail, ClaimDesk, CrewDesk, customer portal, StormLoop, and referrals using seeded data."
+  },
+  "uploaded_source_materials_reviewed": [
+    {
+      "file_name": "Pasted text (2).txt",
+      "size_bytes": 42269,
+      "line_count": 429,
+      "purpose": "Working HTML prototype/demo: dashboard, jobs board, job detail, insurance tab, crew view, notification history, customer list, and reports."
+    },
+    {
+      "file_name": "Pasted text (3).txt",
+      "size_bytes": 12626,
+      "line_count": 196,
+      "purpose": "Crew manager role model and permission matrix artifact."
+    },
+    {
+      "file_name": "Pasted text (4).txt",
+      "size_bytes": 19834,
+      "line_count": 277,
+      "purpose": "Operational needs breakdown, roofing/remodeling software landscape, feature gap analysis, insurance workflow, and customer notification strategy."
+    },
+    {
+      "file_name": "Pasted text.txt",
+      "size_bytes": 67916,
+      "line_count": 610,
+      "purpose": "Original interactive database schema artifact: core CRM, insurance, operations, crew, communications, billing, relationships, and tech stack."
+    }
+  ],
+  "research_sources": [
+    {
+      "id": "S1",
+      "title": "Texas Department of Insurance - Roofing and insurance: Know the law",
+      "url": "https://www.tdi.texas.gov/consumer/storms/roofing-and-insurance-know-the-law.html",
+      "used_for": "Texas insurance-claim language, public adjuster prohibition, deductible-waiver guardrails."
+    },
+    {
+      "id": "S2",
+      "title": "National Weather Service - Alerts API documentation",
+      "url": "https://www.weather.gov/documentation/services-web-alerts",
+      "used_for": "Storm alert integration design and polling guidance."
+    },
+    {
+      "id": "S3",
+      "title": "National Weather Service - Severe Thunderstorm Warning damage threat categories",
+      "url": "https://www.weather.gov/lot/SevereThunderstormWarningsUpdate",
+      "used_for": "StormLoop severity thresholds: 1.00 in hail/58 mph wind; 1.75 in/70 mph; 2.75 in/80 mph."
+    },
+    {
+      "id": "S4",
+      "title": "NOAA NCEI - Storm Events Database",
+      "url": "https://www.ncei.noaa.gov/stormevents/",
+      "used_for": "Historical storm event verification and later reporting."
+    },
+    {
+      "id": "S5",
+      "title": "Twilio - A2P 10DLC campaign approval best practices",
+      "url": "https://help.twilio.com/articles/11847054539547-A2P-10DLC-Campaign-Approval-Best-Practices",
+      "used_for": "SMS consent, opt-in, opt-out, HELP/STOP, campaign registration requirements."
+    },
+    {
+      "id": "S6",
+      "title": "Twilio - How to collect customer consent in A2P 10DLC campaigns",
+      "url": "https://help.twilio.com/articles/26147853183259-How-to-collect-customer-consent-in-A2P-10DLC-campaigns",
+      "used_for": "Consent capture design for transactional vs marketing messages."
+    },
+    {
+      "id": "S7",
+      "title": "Federal Trade Commission - Consumer Reviews and Testimonials Rule Q&A",
+      "url": "https://www.ftc.gov/business-guidance/resources/consumer-reviews-testimonials-rule-questions-answers",
+      "used_for": "Referral/review incentive rules and anti-fake-review guardrails."
+    },
+    {
+      "id": "S8",
+      "title": "AccuLynx - Roofing customer portal software",
+      "url": "https://acculynx.com/features/customer-portal-software/",
+      "used_for": "Customer portal feature validation: status, appointments, documents, billing, payments, messages."
+    },
+    {
+      "id": "S9",
+      "title": "AccuLynx - Plan options",
+      "url": "https://acculynx.com/plan-options/",
+      "used_for": "Market baseline for roofing CRM pricing and core features."
+    },
+    {
+      "id": "S10",
+      "title": "JobNimbus - Pricing and packages",
+      "url": "https://www.jobnimbus.com/pricing/",
+      "used_for": "Competitor packaging, user tiers, boards, automations, mobile app, integrations."
+    },
+    {
+      "id": "S11",
+      "title": "QuickBooks - Job and project costing software",
+      "url": "https://quickbooks.intuit.com/accounting/job-costing/",
+      "used_for": "Accounting/job-costing integration requirements."
+    },
+    {
+      "id": "S12",
+      "title": "Texas Attorney General - Door-to-door sales and 3-day right of rescission",
+      "url": "https://www.texasattorneygeneral.gov/consumer-protection/home-real-estate-and-travel/door-door-sales-3-day-right-rescission",
+      "used_for": "Canvassing/door-to-door compliance requirements."
+    },
+    {
+      "id": "S13",
+      "title": "Data.gov/Census - ZCTA boundaries are approximate ZIP representations",
+      "url": "https://catalog.data.gov/dataset/tiger-line-shapefile-2019-2010-nation-u-s-2010-census-5-digit-zip-code-tabulation-area-zcta5-na",
+      "used_for": "ZIP/ZCTA caveat for StormLoop affected-area mapping."
+    }
+  ],
+  "roles": [
+    {
+      "id": "owner_admin",
+      "tier": 1,
+      "label": "Owner / Admin",
+      "description": "Full company control. Owns settings, users, roles, billing, all jobs, claims, reports, and compliance templates.",
+      "data_scope": "All company records.",
+      "default_permissions": [
+        "all_modules_full_access",
+        "manage_users",
+        "manage_settings",
+        "view_financials",
+        "approve_rewards"
+      ]
+    },
+    {
+      "id": "office_manager",
+      "tier": 2,
+      "label": "Office Manager",
+      "description": "Runs daily admin, documents, customer communications, scheduling, materials approval, invoices, and portal updates.",
+      "data_scope": "All active company records except restricted admin settings.",
+      "default_permissions": [
+        "crm_full",
+        "jobs_full",
+        "claims_full",
+        "schedule_full",
+        "materials_approve",
+        "portal_manage",
+        "finance_view_edit"
+      ]
+    },
+    {
+      "id": "production_manager",
+      "tier": 2,
+      "label": "Production Manager",
+      "description": "Owns job schedules, crews, materials, production boards, field issues, punch lists, and warranty closeout.",
+      "data_scope": "Production-related records and job details. Limited financial summary only.",
+      "default_permissions": [
+        "jobs_production_full",
+        "crew_full",
+        "materials_full",
+        "punch_list_full",
+        "portal_progress_updates"
+      ]
+    },
+    {
+      "id": "insurance_coordinator",
+      "tier": 3,
+      "label": "Insurance Coordinator",
+      "description": "Organizes claim-support paperwork, adjuster appointments, carrier scopes, estimate versions, supplements, and ACV/RCV tracking.",
+      "data_scope": "Claims and related jobs/documents only. No payroll or crew performance access.",
+      "default_permissions": [
+        "claims_full",
+        "documents_claims",
+        "payments_claim_view",
+        "portal_claim_docs",
+        "approved_claim_scripts_only"
+      ]
+    },
+    {
+      "id": "sales_rep_estimator",
+      "tier": 3,
+      "label": "Sales Rep / Estimator",
+      "description": "Works assigned leads, inspections, estimates, proposals, signatures, and follow-ups.",
+      "data_scope": "Assigned leads, customers, inspections, jobs, and basic claim summary for assigned jobs.",
+      "default_permissions": [
+        "crm_assigned",
+        "inspections_full_assigned",
+        "estimates_full_assigned",
+        "portal_assigned_customer_updates"
+      ]
+    },
+    {
+      "id": "crew_manager",
+      "tier": 3,
+      "label": "Crew Manager",
+      "description": "Field supervisor. Can manage assigned crews and assigned jobs in the field but cannot see insurance/financial details.",
+      "data_scope": "Jobs explicitly granted through crew_manager_job_access and crews assigned through crew_manager_assignments.",
+      "default_permissions": [
+        "view_assigned_jobs",
+        "manage_assigned_crew",
+        "submit_daily_logs",
+        "complete_safety_checklists",
+        "request_materials",
+        "upload_progress_photos",
+        "update_progress_percent"
+      ]
+    },
+    {
+      "id": "crew_lead",
+      "tier": 4,
+      "label": "Crew Lead",
+      "description": "On-site leader for a single assignment/day. Handles safety checklist, photos, progress notes, and issue reporting.",
+      "data_scope": "Assigned schedules only.",
+      "default_permissions": [
+        "view_schedule",
+        "upload_photos",
+        "submit_field_issue",
+        "complete_checklist"
+      ]
+    },
+    {
+      "id": "crew_member",
+      "tier": 5,
+      "label": "Crew Member",
+      "description": "Field worker with minimal access: today schedule, scope, safety acknowledgement, and photo upload if enabled.",
+      "data_scope": "Own assigned work items only.",
+      "default_permissions": [
+        "view_today_job",
+        "acknowledge_safety",
+        "upload_limited_photos"
+      ]
+    },
+    {
+      "id": "marketing_manager",
+      "tier": 3,
+      "label": "Marketing Manager",
+      "description": "Owns StormLoop, canvassing missions, referral campaigns, customer check-ins, and lead-source reporting.",
+      "data_scope": "StormLoop records, referrals, leads from marketing, and opted-in customer lists.",
+      "default_permissions": [
+        "stormloop_full",
+        "referrals_full",
+        "campaigns_manage",
+        "canvassing_manage",
+        "do_not_knock_manage"
+      ]
+    },
+    {
+      "id": "canvasser",
+      "tier": 4,
+      "label": "Canvasser / Field Marketer",
+      "description": "Works assigned canvassing route, logs door outcomes, captures consent, and creates inspection leads.",
+      "data_scope": "Assigned route and leads they create. No job financials or claim information.",
+      "default_permissions": [
+        "view_assigned_route",
+        "create_door_knock",
+        "create_lead",
+        "book_inspection",
+        "capture_referral_source"
+      ]
+    },
+    {
+      "id": "accountant",
+      "tier": 3,
+      "label": "Accountant",
+      "description": "Handles invoices, payments, QuickBooks sync, job costing, and financial reporting.",
+      "data_scope": "Finance records and job financial summaries. No crew performance reviews unless explicitly granted.",
+      "default_permissions": [
+        "invoices_full",
+        "payments_full",
+        "job_costs_full",
+        "quickbooks_sync",
+        "finance_reports"
+      ]
+    },
+    {
+      "id": "customer",
+      "tier": 6,
+      "label": "Customer / Homeowner",
+      "description": "Portal user. Sees only their own job status, documents shared to portal, invoices, warranty, messages, and referral wallet.",
+      "data_scope": "Single job/property accessed through valid portal token or customer login.",
+      "default_permissions": [
+        "portal_view_own_job",
+        "portal_message",
+        "portal_pay_invoice",
+        "portal_referral_link"
+      ]
+    }
+  ],
+  "permission_matrix": [
+    {
+      "module": "CRM",
+      "owner_admin": "Full",
+      "office_manager": "Full",
+      "sales_rep_estimator": "Assigned",
+      "insurance_coordinator": "View claim jobs",
+      "production_manager": "View jobs",
+      "crew_manager": "Limited assigned job",
+      "crew_member": "No",
+      "marketing_manager": "Marketing leads",
+      "canvasser": "Create only",
+      "accountant": "View billing contacts",
+      "customer": "Own portal"
+    },
+    {
+      "module": "Jobs",
+      "owner_admin": "Full",
+      "office_manager": "Full",
+      "sales_rep_estimator": "Assigned",
+      "insurance_coordinator": "Claim jobs",
+      "production_manager": "Production full",
+      "crew_manager": "Assigned field only",
+      "crew_member": "Assigned schedule only",
+      "marketing_manager": "Source reporting",
+      "canvasser": "No",
+      "accountant": "Financial job view",
+      "customer": "Own job status"
+    },
+    {
+      "module": "Claims",
+      "owner_admin": "Full",
+      "office_manager": "Full",
+      "sales_rep_estimator": "Assigned summary",
+      "insurance_coordinator": "Full",
+      "production_manager": "Limited production readiness",
+      "crew_manager": "No",
+      "crew_member": "No",
+      "marketing_manager": "No",
+      "canvasser": "No",
+      "accountant": "Claim payments",
+      "customer": "Limited customer view"
+    },
+    {
+      "module": "CrewDesk",
+      "owner_admin": "Full",
+      "office_manager": "View/approve",
+      "sales_rep_estimator": "No",
+      "insurance_coordinator": "No",
+      "production_manager": "Full",
+      "crew_manager": "Assigned full",
+      "crew_member": "Own tasks",
+      "marketing_manager": "No",
+      "canvasser": "No",
+      "accountant": "Labor cost only",
+      "customer": "No"
+    },
+    {
+      "module": "StormLoop",
+      "owner_admin": "Full",
+      "office_manager": "View",
+      "sales_rep_estimator": "Leads assigned",
+      "insurance_coordinator": "No",
+      "production_manager": "No",
+      "crew_manager": "No",
+      "crew_member": "No",
+      "marketing_manager": "Full",
+      "canvasser": "Assigned route",
+      "accountant": "ROI reports",
+      "customer": "No"
+    },
+    {
+      "module": "Referrals",
+      "owner_admin": "Full",
+      "office_manager": "Full",
+      "sales_rep_estimator": "View assigned",
+      "insurance_coordinator": "No",
+      "production_manager": "No",
+      "crew_manager": "No",
+      "crew_member": "No",
+      "marketing_manager": "Full",
+      "canvasser": "Capture source",
+      "accountant": "Reward payouts",
+      "customer": "Own referrals"
+    },
+    {
+      "module": "Finance",
+      "owner_admin": "Full",
+      "office_manager": "Full",
+      "sales_rep_estimator": "Limited assigned",
+      "insurance_coordinator": "Claim payments",
+      "production_manager": "Limited budget",
+      "crew_manager": "No",
+      "crew_member": "No",
+      "marketing_manager": "ROI summary",
+      "canvasser": "No",
+      "accountant": "Full",
+      "customer": "Own invoice"
+    }
+  ],
+  "modules": [
+    {
+      "id": "crm_command_center",
+      "name": "CRM Command Center",
+      "mvp": true,
+      "objective": "Capture, qualify, assign, and convert leads into inspections and jobs.",
+      "primary_users": [
+        "owner_admin",
+        "office_manager",
+        "sales_rep_estimator",
+        "marketing_manager"
+      ],
+      "features": [
+        "Lead inbox",
+        "Customer profile",
+        "Property profile",
+        "Sales pipeline",
+        "Follow-up tasks",
+        "Lead source attribution",
+        "Lost reason tracking",
+        "Referral/storm source tags"
+      ],
+      "desktop_screens": [
+        "Lead Inbox",
+        "Customer Detail",
+        "Property Detail",
+        "Sales Pipeline Board",
+        "Follow-up Queue"
+      ],
+      "mobile_screens": [
+        "Today",
+        "Quick Lead",
+        "Customer Lookup",
+        "Inspection Booking"
+      ],
+      "data_entities": [
+        "customers",
+        "properties",
+        "leads",
+        "jobs",
+        "appointments",
+        "activity_logs"
+      ],
+      "acceptance_criteria": [
+        "Create lead in under 60 seconds from desktop or mobile.",
+        "Assign lead to rep and schedule inspection.",
+        "Convert lead to job while preserving source, storm event, and referral attribution."
+      ]
+    },
+    {
+      "id": "inspection_app",
+      "name": "Inspection App",
+      "mvp": true,
+      "objective": "Give reps a mobile-first inspection workflow with structured checklists, tagged photos, and inspection reports.",
+      "primary_users": [
+        "sales_rep_estimator",
+        "office_manager"
+      ],
+      "features": [
+        "Inspection checklist",
+        "Photo capture and tagging",
+        "Damage annotations",
+        "Measurement report upload",
+        "Customer signature",
+        "Inspection summary PDF",
+        "Estimate handoff"
+      ],
+      "desktop_screens": [
+        "Inspection Review",
+        "Photo Gallery",
+        "Documents"
+      ],
+      "mobile_screens": [
+        "Inspection Checklist",
+        "Camera Capture",
+        "Photo Tags",
+        "Customer Signature"
+      ],
+      "data_entities": [
+        "inspections",
+        "inspection_checklist_items",
+        "photos",
+        "documents",
+        "estimate_versions"
+      ],
+      "acceptance_criteria": [
+        "Inspection can be completed from a phone.",
+        "Photos attach to the correct job/property and support tags.",
+        "Inspection completion triggers customer update and office task."
+      ]
+    },
+    {
+      "id": "claimdesk",
+      "name": "ClaimDesk Insurance-Support Module",
+      "mvp": true,
+      "objective": "Track claim-related paperwork and payment milestones while keeping contractor language compliant.",
+      "primary_users": [
+        "office_manager",
+        "insurance_coordinator",
+        "owner_admin",
+        "sales_rep_estimator"
+      ],
+      "features": [
+        "Carrier and claim number",
+        "Date of loss",
+        "Adjuster contact",
+        "Adjuster appointment",
+        "Carrier scope upload",
+        "Estimate versions",
+        "Supplement tracker",
+        "ACV/RCV/deductible/payment tracker",
+        "Claim timeline",
+        "Compliance disclaimer"
+      ],
+      "desktop_screens": [
+        "Claims Dashboard",
+        "Claim Detail",
+        "Payment Tracker",
+        "Supplement Tracker",
+        "Missing Documents"
+      ],
+      "mobile_screens": [
+        "Claim Summary",
+        "Adjuster Appointment",
+        "Upload Claim Doc"
+      ],
+      "data_entities": [
+        "insurance_claims",
+        "claim_contacts",
+        "estimate_versions",
+        "supplements",
+        "claim_payments",
+        "documents",
+        "approved_scripts"
+      ],
+      "acceptance_criteria": [
+        "User can view all claim details for a job in one tab.",
+        "ACV, RCV, deductible, supplement, and final balance are tracked as separate records.",
+        "Risky phrases like claim negotiation and deductible waiver are blocked in templates."
+      ]
+    },
+    {
+      "id": "production_board",
+      "name": "Production Board",
+      "mvp": true,
+      "objective": "Move contracted roofing/remodeling jobs through materials, scheduling, crew assignment, QC, invoice, and warranty.",
+      "primary_users": [
+        "production_manager",
+        "office_manager",
+        "owner_admin"
+      ],
+      "features": [
+        "Roofing board",
+        "Remodeling board",
+        "Job status changes",
+        "Material readiness",
+        "Crew assignment",
+        "Weather delay status",
+        "Final QC",
+        "Warranty closeout"
+      ],
+      "desktop_screens": [
+        "Roofing Production Board",
+        "Remodeling Production Board",
+        "Production Calendar",
+        "Material Readiness Queue"
+      ],
+      "mobile_screens": [
+        "Production Job Summary",
+        "Issue Log"
+      ],
+      "data_entities": [
+        "jobs",
+        "job_schedules",
+        "material_orders",
+        "punch_list_items",
+        "warranties",
+        "activity_logs"
+      ],
+      "acceptance_criteria": [
+        "Job status changes are logged.",
+        "Production manager can see jobs stuck by stage.",
+        "Status changes can trigger customer notifications."
+      ]
+    },
+    {
+      "id": "crewdesk",
+      "name": "CrewDesk Operations",
+      "mvp": true,
+      "objective": "Give crew managers controlled field authority for assigned crews and jobs without exposing financial/claim data.",
+      "primary_users": [
+        "crew_manager",
+        "crew_lead",
+        "crew_member",
+        "production_manager"
+      ],
+      "features": [
+        "Assigned crew schedule",
+        "GPS clock-in/out",
+        "Safety checklist",
+        "Daily job log",
+        "Progress percent",
+        "Progress photos",
+        "Material request",
+        "Punch list",
+        "Certification alerts",
+        "Crew performance review"
+      ],
+      "desktop_screens": [
+        "Crew Dashboard",
+        "Crew Schedule",
+        "Certification Alerts",
+        "Material Approval Queue"
+      ],
+      "mobile_screens": [
+        "My Crew",
+        "Today Job",
+        "Safety Checklist",
+        "Daily Log",
+        "Material Request",
+        "Progress Photos"
+      ],
+      "data_entities": [
+        "crews",
+        "crew_members",
+        "crew_manager_assignments",
+        "crew_manager_job_access",
+        "daily_job_logs",
+        "safety_checklists",
+        "material_orders",
+        "material_order_items",
+        "crew_certifications",
+        "crew_performance_reviews"
+      ],
+      "acceptance_criteria": [
+        "Crew manager sees only assigned jobs and crews.",
+        "Daily job log can trigger a customer progress notification if approved.",
+        "Safety checklist must pass before job is moved to in_progress."
+      ]
+    },
+    {
+      "id": "customer_portal",
+      "name": "Customer Portal",
+      "mvp": true,
+      "objective": "Reduce check-in calls by giving homeowners a secure magic-link portal for job status, next steps, docs, invoices, warranty, and referrals.",
+      "primary_users": [
+        "customer",
+        "office_manager",
+        "sales_rep_estimator"
+      ],
+      "features": [
+        "Magic link access",
+        "Project timeline",
+        "Current status",
+        "Next step",
+        "Shared photos",
+        "Shared documents",
+        "Invoice/payment link",
+        "Warranty docs",
+        "Message thread",
+        "Referral link and QR"
+      ],
+      "desktop_screens": [
+        "Portal Preview",
+        "Portal Share Controls"
+      ],
+      "mobile_screens": [
+        "Customer Portal Home",
+        "Timeline",
+        "Documents",
+        "Invoice",
+        "Referral Wallet"
+      ],
+      "data_entities": [
+        "portal_tokens",
+        "notifications",
+        "messages",
+        "documents",
+        "photos",
+        "invoices",
+        "referrals"
+      ],
+      "acceptance_criteria": [
+        "Customer can open portal without app download.",
+        "Portal view is limited to one job/token.",
+        "Portal views are audited with timestamp and IP/device metadata."
+      ]
+    },
+    {
+      "id": "notification_engine",
+      "name": "Notification Engine",
+      "mvp": true,
+      "objective": "Centralize SMS/email/portal updates with consent tracking, approved templates, delivery logs, and automation triggers.",
+      "primary_users": [
+        "office_manager",
+        "owner_admin",
+        "marketing_manager"
+      ],
+      "features": [
+        "Transactional templates",
+        "Marketing templates",
+        "SMS consent capture",
+        "STOP/HELP handling",
+        "Delivery status",
+        "Internal alerts",
+        "Approval rules",
+        "Template variables"
+      ],
+      "desktop_screens": [
+        "Template Manager",
+        "Message Audit Log",
+        "Consent Center",
+        "Campaigns"
+      ],
+      "mobile_screens": [
+        "Send Approved Update",
+        "Customer Reply Inbox"
+      ],
+      "data_entities": [
+        "notification_templates",
+        "notifications",
+        "sms_consents",
+        "message_campaigns",
+        "message_audit_logs",
+        "approved_scripts"
+      ],
+      "acceptance_criteria": [
+        "No marketing SMS sends without marketing consent.",
+        "Transactional messages include brand and opt-out language where needed.",
+        "Each outbound/inbound message is logged."
+      ]
+    },
+    {
+      "id": "stormloop",
+      "name": "StormLoop Growth Engine",
+      "mvp": true,
+      "objective": "Turn severe weather into organized, ethical, measurable sales activity: affected ZIPs, missions, routes, door knocks, leads, referrals, and revenue attribution.",
+      "primary_users": [
+        "marketing_manager",
+        "canvasser",
+        "sales_rep_estimator",
+        "owner_admin"
+      ],
+      "features": [
+        "Weather alert ingest",
+        "Affected ZIP/ZCTA impact scoring",
+        "Past customer impact list",
+        "Storm mission builder",
+        "Canvassing route assignment",
+        "Door knock outcomes",
+        "Lead capture",
+        "Do-not-knock list",
+        "Storm-to-revenue attribution"
+      ],
+      "desktop_screens": [
+        "Storm Dashboard",
+        "Storm Event Detail",
+        "Mission Builder",
+        "Canvassing Manager",
+        "Storm Revenue Report"
+      ],
+      "mobile_screens": [
+        "My Mission",
+        "Route Map",
+        "Door Pin",
+        "Quick Lead",
+        "Book Inspection"
+      ],
+      "data_entities": [
+        "service_areas",
+        "storm_events",
+        "storm_zip_impacts",
+        "storm_customer_impacts",
+        "marketing_missions",
+        "canvassing_routes",
+        "door_knocks",
+        "do_not_knock_addresses"
+      ],
+      "acceptance_criteria": [
+        "Simulated or live weather event creates affected ZIP records.",
+        "Marketing manager can launch a mission and assign routes.",
+        "Canvasser can create a lead from a door knock with consent status and storm attribution."
+      ]
+    },
+    {
+      "id": "referral_rewards",
+      "name": "Referral Rewards Engine",
+      "mvp": true,
+      "objective": "Track referrals from customer share link to job completion and reward approval, creating long-term customer loyalty.",
+      "primary_users": [
+        "customer",
+        "marketing_manager",
+        "office_manager",
+        "owner_admin"
+      ],
+      "features": [
+        "Customer referral link",
+        "Referral QR code",
+        "Referral status tracking",
+        "Reward approval workflow",
+        "Loyalty tiers",
+        "VIP benefits",
+        "Top referrers report"
+      ],
+      "desktop_screens": [
+        "Referral Dashboard",
+        "Reward Approval Queue",
+        "Loyalty Accounts"
+      ],
+      "mobile_screens": [
+        "Portal Referral Wallet",
+        "Share Referral Link"
+      ],
+      "data_entities": [
+        "referrals",
+        "referral_rewards",
+        "customer_loyalty_accounts",
+        "loyalty_ledger"
+      ],
+      "acceptance_criteria": [
+        "Referral source follows lead through job and payment.",
+        "Reward remains pending until job is complete and paid.",
+        "Review incentives cannot require positive sentiment."
+      ]
+    },
+    {
+      "id": "finance_reporting",
+      "name": "Finance, Job Costing, and Reports",
+      "mvp": false,
+      "objective": "Track invoices, claim payments, job costs, QuickBooks sync, revenue by source, and operational KPIs.",
+      "primary_users": [
+        "accountant",
+        "owner_admin",
+        "office_manager"
+      ],
+      "features": [
+        "Invoice tracker",
+        "Payments",
+        "Claim check tracker",
+        "Job costing",
+        "QuickBooks sync",
+        "Lead source ROI",
+        "Storm revenue attribution",
+        "Crew productivity",
+        "A/R report"
+      ],
+      "desktop_screens": [
+        "Reports Dashboard",
+        "Finance Dashboard",
+        "Job Cost Detail",
+        "QuickBooks Sync Queue"
+      ],
+      "mobile_screens": [
+        "Payment Status Summary"
+      ],
+      "data_entities": [
+        "invoices",
+        "payments",
+        "claim_payments",
+        "job_costs",
+        "activity_logs"
+      ],
+      "acceptance_criteria": [
+        "Revenue can be reported by job type, storm event, ZIP, rep, and referral source.",
+        "QuickBooks integration can be mocked in demo and enabled later."
+      ]
+    },
+    {
+      "id": "remodeling_expansion",
+      "name": "Remodeling Expansion",
+      "mvp": false,
+      "objective": "Support longer remodel jobs with selections, allowances, permits, change orders, subs, daily logs, client approvals, and punch lists.",
+      "primary_users": [
+        "production_manager",
+        "office_manager",
+        "sales_rep_estimator",
+        "customer"
+      ],
+      "features": [
+        "Selections",
+        "Allowances",
+        "Change orders",
+        "Permit tracker",
+        "Subcontractor schedule",
+        "Customer approvals",
+        "Punch lists",
+        "Daily logs"
+      ],
+      "desktop_screens": [
+        "Remodeling Board",
+        "Selections",
+        "Change Orders",
+        "Permits",
+        "Punch List"
+      ],
+      "mobile_screens": [
+        "Remodeling Job Summary",
+        "Customer Approval",
+        "Punch List Photos"
+      ],
+      "data_entities": [
+        "remodeling_selections",
+        "change_orders",
+        "permits",
+        "punch_list_items",
+        "daily_job_logs"
+      ],
+      "acceptance_criteria": [
+        "Remodeling jobs use a separate pipeline from roofing.",
+        "Change orders require approval and preserve audit history."
+      ]
+    }
+  ],
+  "workflows": [
+    {
+      "id": "storm_to_sale",
+      "name": "Storm-to-Sale Growth Flow",
+      "steps": [
+        "Storm alert ingested or simulated",
+        "Affected ZIP/ZCTA records scored",
+        "Past customer impact list created",
+        "Marketing manager launches mission",
+        "Canvasser gets mobile route",
+        "Door knock creates lead with consent and attribution",
+        "Inspection scheduled",
+        "Inspection completed with photos",
+        "Lead converted to job",
+        "Job revenue tied back to storm event, ZIP, route, rep, and referral source"
+      ],
+      "success_metrics": [
+        "Time from storm alert to mission launch",
+        "Doors knocked",
+        "Conversations",
+        "Inspections booked",
+        "Contracts signed",
+        "Revenue by storm/ZIP/rep"
+      ]
+    },
+    {
+      "id": "insurance_support",
+      "name": "Homeowner-Owned Insurance-Support Flow",
+      "steps": [
+        "Lead/inspection indicates insurance-related job",
+        "Compliance disclaimer displayed",
+        "Homeowner files claim and provides claim number",
+        "ClaimDesk stores carrier, claim number, date of loss, adjuster",
+        "Carrier scope and contractor estimate uploaded",
+        "ACV/RCV/deductible/supplement tracked separately",
+        "Approved job moves to production",
+        "Final invoice and warranty uploaded",
+        "RCV/depreciation/payment status tracked until closed"
+      ],
+      "success_metrics": [
+        "Claims missing scope",
+        "Claims waiting on carrier response",
+        "RCV pending dollars",
+        "Average claim cycle time"
+      ]
+    },
+    {
+      "id": "crew_daily_progress",
+      "name": "Crew Daily Progress Flow",
+      "steps": [
+        "Production manager assigns crew to job schedule",
+        "Crew manager opens Today Job",
+        "Safety checklist completed",
+        "Crew clocks in",
+        "Progress photos uploaded",
+        "Material issues requested if needed",
+        "Daily log submitted",
+        "If notify_customer=true, customer receives progress update",
+        "Office sees progress and issues on dashboard"
+      ],
+      "success_metrics": [
+        "Daily logs submitted",
+        "Safety check pass rate",
+        "Progress photo completion",
+        "Material delays",
+        "Customer update rate"
+      ]
+    },
+    {
+      "id": "customer_portal",
+      "name": "Customer Portal Flow",
+      "steps": [
+        "Portal token generated for job",
+        "Customer receives secure link",
+        "Customer sees status, next step, timeline, shared photos/docs, invoice/warranty",
+        "Customer messages office or pays invoice",
+        "Portal views/messages logged",
+        "After job complete, review request and referral link are shown"
+      ],
+      "success_metrics": [
+        "Portal views per job",
+        "Reduction in check-in calls",
+        "Payments via portal",
+        "Review/referral conversion"
+      ]
+    },
+    {
+      "id": "referral_rewards",
+      "name": "Referral Reward Flow",
+      "steps": [
+        "Customer shares referral link/QR",
+        "Referral form creates new lead",
+        "Referral status follows lead and job",
+        "Reward remains pending until job complete and paid",
+        "Admin approves reward",
+        "Customer loyalty ledger updates",
+        "Referral revenue attribution appears in reports"
+      ],
+      "success_metrics": [
+        "Referrals submitted",
+        "Referral close rate",
+        "Reward approval time",
+        "Lifetime value by referrer"
+      ]
+    }
+  ],
+  "screen_map": {
+    "desktop": [
+      {
+        "screen": "Owner Dashboard",
+        "purpose": "KPI cards, stuck claims, storm alerts, crews, revenue, referrals."
+      },
+      {
+        "screen": "Jobs Board",
+        "purpose": "Kanban board by job status and job type."
+      },
+      {
+        "screen": "Job Detail",
+        "purpose": "Overview, insurance, crew/schedule, photos, notifications, documents."
+      },
+      {
+        "screen": "ClaimDesk",
+        "purpose": "Claim list, adjuster info, payment tracker, supplement status."
+      },
+      {
+        "screen": "CrewDesk",
+        "purpose": "Crews, schedules, safety, daily logs, cert alerts, material requests."
+      },
+      {
+        "screen": "StormLoop Dashboard",
+        "purpose": "Active storm events, ZIP impacts, missions, affected customers, attribution."
+      },
+      {
+        "screen": "Mission Builder",
+        "purpose": "Create canvassing/check-in missions, assign routes and goals."
+      },
+      {
+        "screen": "Referral Dashboard",
+        "purpose": "Referral pipeline, rewards, loyalty tiers, top referrers."
+      },
+      {
+        "screen": "Customer Portal Preview",
+        "purpose": "Review customer-facing portal before sending link."
+      },
+      {
+        "screen": "Reports",
+        "purpose": "Revenue by job type/source/storm/rep/ZIP/referral."
+      },
+      {
+        "screen": "Compliance Center",
+        "purpose": "SMS consent, approved scripts, do-not-knock, deductible/claim language rules."
+      }
+    ],
+    "mobile_staff": [
+      {
+        "screen": "Today",
+        "purpose": "Inspections, route, crew schedule, tasks."
+      },
+      {
+        "screen": "Quick Lead",
+        "purpose": "Create lead from phone; supports storm/referral source."
+      },
+      {
+        "screen": "Inspection Checklist",
+        "purpose": "Field inspection and tagged photos."
+      },
+      {
+        "screen": "My Mission",
+        "purpose": "Canvasser route, door script, storm summary, property pins."
+      },
+      {
+        "screen": "Door Pin",
+        "purpose": "Log knock, outcome, consent, appointment, referral source."
+      },
+      {
+        "screen": "Today Job",
+        "purpose": "Crew scope, safety checklist, daily log, material request."
+      },
+      {
+        "screen": "Progress Photos",
+        "purpose": "Upload before/during/after/final cleanup photos."
+      }
+    ],
+    "customer_portal": [
+      {
+        "screen": "Portal Home",
+        "purpose": "Current status, next step, timeline."
+      },
+      {
+        "screen": "Documents",
+        "purpose": "Contract, estimate, invoice, warranty, claim-support docs shared by staff."
+      },
+      {
+        "screen": "Photos",
+        "purpose": "Shared progress photos only."
+      },
+      {
+        "screen": "Messages",
+        "purpose": "Customer/staff thread."
+      },
+      {
+        "screen": "Invoice/Payments",
+        "purpose": "Payment link and balance."
+      },
+      {
+        "screen": "Referral Wallet",
+        "purpose": "Referral link, QR, reward status, loyalty tier."
+      }
+    ]
+  },
+  "database_schema": {
+    "database": "PostgreSQL",
+    "security_model": "tenant_id/company_id + role-based access + row-level security policies",
+    "entities": [
+      {
+        "name": "companies",
+        "module": "core",
+        "purpose": "Tenant/company record for single or multi-company support.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "legal_name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)"
+          },
+          {
+            "name": "email",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "website",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "primary_address",
+            "type": "text"
+          },
+          {
+            "name": "timezone",
+            "type": "varchar(60)"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [],
+        "indexes": [
+          "name"
+        ],
+        "rls_scope": "Tenant root. Users may only access their company_id records."
+      },
+      {
+        "name": "users",
+        "module": "identity",
+        "purpose": "Internal staff, crew, canvassers, and external limited-access users.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "first_name",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "last_name",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "email",
+            "type": "varchar(255)",
+            "unique": true
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)"
+          },
+          {
+            "name": "role",
+            "type": "user_role enum"
+          },
+          {
+            "name": "is_active",
+            "type": "boolean"
+          },
+          {
+            "name": "last_login_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "users.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, role",
+          "email"
+        ],
+        "rls_scope": "Admin sees company users; users see own profile; managers see users they supervise."
+      },
+      {
+        "name": "role_permissions",
+        "module": "identity",
+        "purpose": "Permission matrix for module/action/data-scope control.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "role",
+            "type": "user_role enum"
+          },
+          {
+            "name": "module",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "action",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "scope",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "is_allowed",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "role_permissions.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, role, module"
+        ],
+        "rls_scope": "Only admin can edit."
+      },
+      {
+        "name": "customers",
+        "module": "crm",
+        "purpose": "Homeowners/customers and referrers.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "first_name",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "last_name",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "email",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)"
+          },
+          {
+            "name": "preferred_language",
+            "type": "varchar(20)"
+          },
+          {
+            "name": "sms_transactional_opt_in",
+            "type": "boolean"
+          },
+          {
+            "name": "sms_marketing_opt_in",
+            "type": "boolean"
+          },
+          {
+            "name": "do_not_call",
+            "type": "boolean"
+          },
+          {
+            "name": "lifetime_value",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "customers.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, phone",
+          "company_id, email"
+        ],
+        "rls_scope": "Staff by role/scope; customer only via portal token or authenticated own record."
+      },
+      {
+        "name": "properties",
+        "module": "crm",
+        "purpose": "Physical service locations; one customer can have multiple properties.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "address_line1",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "address_line2",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "city",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "state",
+            "type": "char(2)"
+          },
+          {
+            "name": "zip_code",
+            "type": "varchar(10)"
+          },
+          {
+            "name": "county",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "lat",
+            "type": "numeric(10,7)"
+          },
+          {
+            "name": "lng",
+            "type": "numeric(10,7)"
+          },
+          {
+            "name": "roof_type",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "roof_age_estimate",
+            "type": "integer"
+          },
+          {
+            "name": "hoa_notes",
+            "type": "text"
+          },
+          {
+            "name": "access_notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "properties.customer_id -> customers.id"
+        ],
+        "indexes": [
+          "company_id, zip_code",
+          "lat, lng"
+        ],
+        "rls_scope": "Inherited from customer/job access."
+      },
+      {
+        "name": "leads",
+        "module": "crm",
+        "purpose": "Pre-job opportunities from web, phone, door knock, storm, referral, repeat customer, or yard sign.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id",
+            "nullable": true
+          },
+          {
+            "name": "property_id",
+            "type": "uuid",
+            "fk": "properties.id",
+            "nullable": true
+          },
+          {
+            "name": "assigned_rep_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "source",
+            "type": "lead_source enum"
+          },
+          {
+            "name": "source_detail",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "storm_event_id",
+            "type": "uuid",
+            "fk": "storm_events.id",
+            "nullable": true
+          },
+          {
+            "name": "referral_id",
+            "type": "uuid",
+            "fk": "referrals.id",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "lead_status enum"
+          },
+          {
+            "name": "service_type",
+            "type": "service_type enum"
+          },
+          {
+            "name": "priority",
+            "type": "varchar(20)"
+          },
+          {
+            "name": "next_followup_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "lost_reason",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "leads.customer_id -> customers.id",
+          "leads.storm_event_id -> storm_events.id",
+          "leads.referral_id -> referrals.id"
+        ],
+        "indexes": [
+          "company_id, status",
+          "assigned_rep_id, status",
+          "storm_event_id",
+          "referral_id"
+        ],
+        "rls_scope": "Sales reps see assigned leads; marketing sees marketing/canvassing leads; office/admin see all."
+      },
+      {
+        "name": "jobs",
+        "module": "jobs",
+        "purpose": "Central hub. Every claim, schedule, photo, invoice, notification, crew log, and warranty keys back to jobs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "property_id",
+            "type": "uuid",
+            "fk": "properties.id"
+          },
+          {
+            "name": "lead_id",
+            "type": "uuid",
+            "fk": "leads.id",
+            "nullable": true
+          },
+          {
+            "name": "assigned_rep_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "job_type",
+            "type": "job_type enum"
+          },
+          {
+            "name": "status",
+            "type": "job_status enum"
+          },
+          {
+            "name": "contract_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "insurance_related",
+            "type": "boolean"
+          },
+          {
+            "name": "storm_event_id",
+            "type": "uuid",
+            "fk": "storm_events.id",
+            "nullable": true
+          },
+          {
+            "name": "referral_id",
+            "type": "uuid",
+            "fk": "referrals.id",
+            "nullable": true
+          },
+          {
+            "name": "progress_percent",
+            "type": "integer"
+          },
+          {
+            "name": "production_manager_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "crew_id",
+            "type": "uuid",
+            "fk": "crews.id",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "jobs.customer_id -> customers.id",
+          "jobs.property_id -> properties.id",
+          "jobs.lead_id -> leads.id"
+        ],
+        "indexes": [
+          "company_id, status",
+          "assigned_rep_id",
+          "storm_event_id",
+          "referral_id",
+          "crew_id"
+        ],
+        "rls_scope": "Role-based. Crew access only through schedules/crew_manager_job_access; customer via portal token."
+      },
+      {
+        "name": "appointments",
+        "module": "crm",
+        "purpose": "Inspections, adjuster meetings, customer meetings, deliveries, final walkthroughs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "lead_id",
+            "type": "uuid",
+            "fk": "leads.id",
+            "nullable": true
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "appointment_type",
+            "type": "appointment_type enum"
+          },
+          {
+            "name": "starts_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "ends_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "assigned_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "location",
+            "type": "text"
+          },
+          {
+            "name": "status",
+            "type": "appointment_status enum"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "appointments.job_id -> jobs.id",
+          "appointments.lead_id -> leads.id"
+        ],
+        "indexes": [
+          "company_id, starts_at",
+          "assigned_user_id, starts_at"
+        ],
+        "rls_scope": "Assigned staff and office/admin."
+      },
+      {
+        "name": "inspections",
+        "module": "inspection",
+        "purpose": "Structured inspection record for roofing/remodeling inspections.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "lead_id",
+            "type": "uuid",
+            "fk": "leads.id",
+            "nullable": true
+          },
+          {
+            "name": "property_id",
+            "type": "uuid",
+            "fk": "properties.id"
+          },
+          {
+            "name": "inspector_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "inspection_type",
+            "type": "inspection_type enum"
+          },
+          {
+            "name": "damage_found",
+            "type": "boolean"
+          },
+          {
+            "name": "summary",
+            "type": "text"
+          },
+          {
+            "name": "customer_signature_url",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "completed_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "inspections.job_id -> jobs.id",
+          "inspections.property_id -> properties.id"
+        ],
+        "indexes": [
+          "company_id, completed_at",
+          "inspector_user_id"
+        ],
+        "rls_scope": "Assigned sales/office/admin."
+      },
+      {
+        "name": "inspection_checklist_items",
+        "module": "inspection",
+        "purpose": "Checklist answers for each inspection.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "inspection_id",
+            "type": "uuid",
+            "fk": "inspections.id"
+          },
+          {
+            "name": "section",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "item_key",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "label",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "value",
+            "type": "jsonb"
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "requires_photo",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "inspection_checklist_items.inspection_id -> inspections.id"
+        ],
+        "indexes": [
+          "inspection_id, section"
+        ],
+        "rls_scope": "Inherited from inspection."
+      },
+      {
+        "name": "photos",
+        "module": "documents",
+        "purpose": "Tagged job/property photos: before, during, after, damage, cleanup, warranty proof.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "inspection_id",
+            "type": "uuid",
+            "fk": "inspections.id",
+            "nullable": true
+          },
+          {
+            "name": "uploaded_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "storage_url",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "thumbnail_url",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "tags",
+            "type": "text[]"
+          },
+          {
+            "name": "caption",
+            "type": "text"
+          },
+          {
+            "name": "lat",
+            "type": "numeric(10,7)"
+          },
+          {
+            "name": "lng",
+            "type": "numeric(10,7)"
+          },
+          {
+            "name": "taken_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "shared_to_portal",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "photos.job_id -> jobs.id",
+          "photos.inspection_id -> inspections.id"
+        ],
+        "indexes": [
+          "company_id, job_id",
+          "tags"
+        ],
+        "rls_scope": "Crew can upload on assigned jobs; portal sees only shared_to_portal."
+      },
+      {
+        "name": "documents",
+        "module": "documents",
+        "purpose": "Estimates, contracts, insurance scopes, PDFs, warranties, invoices, permits, reports.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id",
+            "nullable": true
+          },
+          {
+            "name": "doc_type",
+            "type": "document_type enum"
+          },
+          {
+            "name": "title",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "storage_url",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "version",
+            "type": "integer"
+          },
+          {
+            "name": "uploaded_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "shared_to_portal",
+            "type": "boolean"
+          },
+          {
+            "name": "requires_signature",
+            "type": "boolean"
+          },
+          {
+            "name": "signed_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "documents.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "company_id, job_id, doc_type"
+        ],
+        "rls_scope": "Portal sees only shared docs; role-based internal access."
+      },
+      {
+        "name": "insurance_claims",
+        "module": "claimdesk",
+        "purpose": "Claim-support record for insurance-related jobs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "carrier",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "claim_number",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "policyholder_name",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "date_of_loss",
+            "type": "date"
+          },
+          {
+            "name": "loss_type",
+            "type": "loss_type enum"
+          },
+          {
+            "name": "status",
+            "type": "claim_status enum"
+          },
+          {
+            "name": "deductible_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "acv_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "rcv_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "depreciation_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "mortgage_company",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "compliance_acknowledged",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "insurance_claims.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "company_id, status",
+          "claim_number",
+          "job_id"
+        ],
+        "rls_scope": "Admin/office/insurance coordinator. Sales assigned limited. Crew no access. Portal limited summary only."
+      },
+      {
+        "name": "claim_contacts",
+        "module": "claimdesk",
+        "purpose": "Adjusters, desk adjusters, claim reps, mortgage contacts, supplement partners.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "claim_id",
+            "type": "uuid",
+            "fk": "insurance_claims.id"
+          },
+          {
+            "name": "contact_type",
+            "type": "claim_contact_type enum"
+          },
+          {
+            "name": "name",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "company",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)"
+          },
+          {
+            "name": "email",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "claim_contacts.claim_id -> insurance_claims.id"
+        ],
+        "indexes": [
+          "claim_id, contact_type"
+        ],
+        "rls_scope": "Inherited from claim."
+      },
+      {
+        "name": "estimate_versions",
+        "module": "claimdesk",
+        "purpose": "Contractor estimates, carrier scopes, Xactimate PDFs, proposal versions.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "claim_id",
+            "type": "uuid",
+            "fk": "insurance_claims.id",
+            "nullable": true
+          },
+          {
+            "name": "estimate_type",
+            "type": "estimate_type enum"
+          },
+          {
+            "name": "version",
+            "type": "integer"
+          },
+          {
+            "name": "amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "document_id",
+            "type": "uuid",
+            "fk": "documents.id"
+          },
+          {
+            "name": "status",
+            "type": "estimate_status enum"
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "estimate_versions.job_id -> jobs.id",
+          "estimate_versions.document_id -> documents.id"
+        ],
+        "indexes": [
+          "job_id, version"
+        ],
+        "rls_scope": "Role-based; crew no access."
+      },
+      {
+        "name": "supplements",
+        "module": "claimdesk",
+        "purpose": "Supplement request tracker and outcome history.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "claim_id",
+            "type": "uuid",
+            "fk": "insurance_claims.id"
+          },
+          {
+            "name": "estimate_version_id",
+            "type": "uuid",
+            "fk": "estimate_versions.id",
+            "nullable": true
+          },
+          {
+            "name": "amount_requested",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "amount_approved",
+            "type": "numeric(12,2)",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "supplement_status enum"
+          },
+          {
+            "name": "sent_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "responded_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "supplements.claim_id -> insurance_claims.id"
+        ],
+        "indexes": [
+          "claim_id, status"
+        ],
+        "rls_scope": "Admin/office/insurance coordinator."
+      },
+      {
+        "name": "claim_payments",
+        "module": "claimdesk_finance",
+        "purpose": "Separate check/payment milestones for ACV, deductible, RCV, supplement, upgrade, and final balance.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "claim_id",
+            "type": "uuid",
+            "fk": "insurance_claims.id"
+          },
+          {
+            "name": "payment_type",
+            "type": "claim_payment_type enum"
+          },
+          {
+            "name": "expected_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "received_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "status",
+            "type": "payment_status enum"
+          },
+          {
+            "name": "received_at",
+            "type": "date",
+            "nullable": true
+          },
+          {
+            "name": "check_number",
+            "type": "varchar(80)",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "claim_payments.claim_id -> insurance_claims.id",
+          "claim_payments.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, payment_type",
+          "status"
+        ],
+        "rls_scope": "Admin/office/accountant/insurance coordinator. Crew no access. Portal own invoice only."
+      },
+      {
+        "name": "crews",
+        "module": "crewdesk",
+        "purpose": "Crew groups for roofing/remodeling production.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "name",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "crew_type",
+            "type": "crew_type enum"
+          },
+          {
+            "name": "primary_manager_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "is_active",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "crews.primary_manager_id -> users.id"
+        ],
+        "indexes": [
+          "company_id, is_active"
+        ],
+        "rls_scope": "Production/admin all; crew managers assigned crews."
+      },
+      {
+        "name": "crew_members",
+        "module": "crewdesk",
+        "purpose": "Users assigned to crews plus worker metadata.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "crew_id",
+            "type": "uuid",
+            "fk": "crews.id"
+          },
+          {
+            "name": "user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "worker_role",
+            "type": "crew_worker_role enum"
+          },
+          {
+            "name": "is_subcontractor",
+            "type": "boolean"
+          },
+          {
+            "name": "hourly_rate",
+            "type": "numeric(10,2)",
+            "nullable": true
+          },
+          {
+            "name": "active_from",
+            "type": "date"
+          },
+          {
+            "name": "active_to",
+            "type": "date",
+            "nullable": true
+          }
+        ],
+        "relationships": [
+          "crew_members.crew_id -> crews.id",
+          "crew_members.user_id -> users.id"
+        ],
+        "indexes": [
+          "crew_id, user_id"
+        ],
+        "rls_scope": "Production/admin; crew manager sees assigned crew. Hourly_rate hidden from crew manager unless granted."
+      },
+      {
+        "name": "crew_manager_assignments",
+        "module": "crewdesk",
+        "purpose": "Map crew managers to one or more crews; supports primary/backup managers.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "crew_id",
+            "type": "uuid",
+            "fk": "crews.id"
+          },
+          {
+            "name": "manager_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "is_primary",
+            "type": "boolean"
+          },
+          {
+            "name": "active_from",
+            "type": "date"
+          },
+          {
+            "name": "active_to",
+            "type": "date",
+            "nullable": true
+          }
+        ],
+        "relationships": [
+          "crew_manager_assignments.crew_id -> crews.id",
+          "crew_manager_assignments.manager_user_id -> users.id"
+        ],
+        "indexes": [
+          "manager_user_id, crew_id"
+        ],
+        "rls_scope": "Admin/production edit; manager can view own assignments."
+      },
+      {
+        "name": "crew_manager_job_access",
+        "module": "crewdesk",
+        "purpose": "Explicit grants that control which jobs a crew manager can access and at what level.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "manager_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "access_level",
+            "type": "crew_job_access_level enum"
+          },
+          {
+            "name": "granted_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "expires_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "crew_manager_job_access.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "manager_user_id, job_id"
+        ],
+        "rls_scope": "This table drives crew manager RLS."
+      },
+      {
+        "name": "job_schedules",
+        "module": "crewdesk",
+        "purpose": "Crew/day assignments for jobs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "crew_id",
+            "type": "uuid",
+            "fk": "crews.id"
+          },
+          {
+            "name": "scheduled_date",
+            "type": "date"
+          },
+          {
+            "name": "start_time",
+            "type": "time"
+          },
+          {
+            "name": "end_time",
+            "type": "time"
+          },
+          {
+            "name": "work_scope",
+            "type": "text"
+          },
+          {
+            "name": "status",
+            "type": "schedule_status enum"
+          },
+          {
+            "name": "weather_delay_reason",
+            "type": "text",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "job_schedules.job_id -> jobs.id",
+          "job_schedules.crew_id -> crews.id"
+        ],
+        "indexes": [
+          "crew_id, scheduled_date",
+          "job_id"
+        ],
+        "rls_scope": "Production/admin all; assigned crew/manager limited."
+      },
+      {
+        "name": "daily_job_logs",
+        "module": "crewdesk",
+        "purpose": "End-of-day or progress logs submitted by crew manager/lead.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "schedule_id",
+            "type": "uuid",
+            "fk": "job_schedules.id"
+          },
+          {
+            "name": "submitted_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "log_date",
+            "type": "date"
+          },
+          {
+            "name": "summary",
+            "type": "text"
+          },
+          {
+            "name": "progress_percent",
+            "type": "integer"
+          },
+          {
+            "name": "weather_delay",
+            "type": "boolean"
+          },
+          {
+            "name": "issues",
+            "type": "text"
+          },
+          {
+            "name": "notify_customer",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "daily_job_logs.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, log_date"
+        ],
+        "rls_scope": "Assigned crew manager/lead create; office/admin/prod view."
+      },
+      {
+        "name": "safety_checklists",
+        "module": "crewdesk",
+        "purpose": "Daily pre-work signoff; can gate job start.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "schedule_id",
+            "type": "uuid",
+            "fk": "job_schedules.id"
+          },
+          {
+            "name": "submitted_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "ppe_checked",
+            "type": "boolean"
+          },
+          {
+            "name": "fall_protection_checked",
+            "type": "boolean"
+          },
+          {
+            "name": "ladder_checked",
+            "type": "boolean"
+          },
+          {
+            "name": "weather_safe",
+            "type": "boolean"
+          },
+          {
+            "name": "site_hazards_reviewed",
+            "type": "boolean"
+          },
+          {
+            "name": "all_passed",
+            "type": "boolean",
+            "generated": true
+          },
+          {
+            "name": "submitted_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "safety_checklists.schedule_id -> job_schedules.id"
+        ],
+        "indexes": [
+          "schedule_id"
+        ],
+        "rls_scope": "Assigned crew create/view; production/admin view."
+      },
+      {
+        "name": "material_orders",
+        "module": "crewdesk",
+        "purpose": "Material requests and order tracking.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "requested_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "supplier_name",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "status",
+            "type": "material_order_status enum"
+          },
+          {
+            "name": "needed_by",
+            "type": "date"
+          },
+          {
+            "name": "approved_by_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "approved_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "delivery_date",
+            "type": "date",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "material_orders.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, status"
+        ],
+        "rls_scope": "Crew manager request; office/production approve."
+      },
+      {
+        "name": "material_order_items",
+        "module": "crewdesk",
+        "purpose": "Line items for material orders/requests.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "material_order_id",
+            "type": "uuid",
+            "fk": "material_orders.id"
+          },
+          {
+            "name": "sku",
+            "type": "varchar(80)",
+            "nullable": true
+          },
+          {
+            "name": "name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "quantity",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "unit",
+            "type": "varchar(40)"
+          },
+          {
+            "name": "unit_cost",
+            "type": "numeric(10,2)",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          }
+        ],
+        "relationships": [
+          "material_order_items.material_order_id -> material_orders.id"
+        ],
+        "indexes": [
+          "material_order_id"
+        ],
+        "rls_scope": "Inherited from material_order. Unit cost hidden for crew unless granted."
+      },
+      {
+        "name": "crew_certifications",
+        "module": "crewdesk",
+        "purpose": "OSHA, fall protection, manufacturer certifications, expiration alerts.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "cert_type",
+            "type": "certification_type enum"
+          },
+          {
+            "name": "cert_number",
+            "type": "varchar(120)",
+            "nullable": true
+          },
+          {
+            "name": "issued_at",
+            "type": "date"
+          },
+          {
+            "name": "expires_at",
+            "type": "date"
+          },
+          {
+            "name": "document_id",
+            "type": "uuid",
+            "fk": "documents.id",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "cert_status enum"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "crew_certifications.user_id -> users.id"
+        ],
+        "indexes": [
+          "user_id, expires_at",
+          "company_id, status"
+        ],
+        "rls_scope": "Production/admin; crew manager sees assigned crew cert status."
+      },
+      {
+        "name": "crew_performance_reviews",
+        "module": "crewdesk",
+        "purpose": "Optional job-level or periodic worker scorecards.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "crew_member_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "reviewer_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "quality_score",
+            "type": "integer"
+          },
+          {
+            "name": "safety_score",
+            "type": "integer"
+          },
+          {
+            "name": "timeliness_score",
+            "type": "integer"
+          },
+          {
+            "name": "communication_score",
+            "type": "integer"
+          },
+          {
+            "name": "avg_score",
+            "type": "numeric(4,2)",
+            "generated": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "crew_performance_reviews.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "crew_member_user_id, created_at"
+        ],
+        "rls_scope": "Admin/production. Crew manager can review own crew, but not company-wide reports."
+      },
+      {
+        "name": "portal_tokens",
+        "module": "portal",
+        "purpose": "Secure magic-link access for customer portal without app download.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "token_hash",
+            "type": "varchar(255)",
+            "unique": true
+          },
+          {
+            "name": "expires_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "last_viewed_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "view_count",
+            "type": "integer"
+          },
+          {
+            "name": "revoked_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "portal_tokens.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "token_hash",
+          "job_id"
+        ],
+        "rls_scope": "Public portal only via token validation; internal staff by role."
+      },
+      {
+        "name": "notification_templates",
+        "module": "notifications",
+        "purpose": "Approved SMS/email/portal templates with variables.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "template_key",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "channel",
+            "type": "notification_channel enum"
+          },
+          {
+            "name": "purpose",
+            "type": "notification_purpose enum"
+          },
+          {
+            "name": "subject",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "body",
+            "type": "text"
+          },
+          {
+            "name": "requires_approval",
+            "type": "boolean"
+          },
+          {
+            "name": "active",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "notification_templates.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, template_key"
+        ],
+        "rls_scope": "Admin/office edit. Others send only approved active templates."
+      },
+      {
+        "name": "notifications",
+        "module": "notifications",
+        "purpose": "Outbound and inbound communication records.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "template_id",
+            "type": "uuid",
+            "fk": "notification_templates.id",
+            "nullable": true
+          },
+          {
+            "name": "channel",
+            "type": "notification_channel enum"
+          },
+          {
+            "name": "direction",
+            "type": "message_direction enum"
+          },
+          {
+            "name": "body",
+            "type": "text"
+          },
+          {
+            "name": "status",
+            "type": "delivery_status enum"
+          },
+          {
+            "name": "provider_message_id",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "sent_by_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "sent_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "notifications.customer_id -> customers.id"
+        ],
+        "indexes": [
+          "customer_id, sent_at",
+          "job_id, sent_at"
+        ],
+        "rls_scope": "Staff role-based; portal own job messages."
+      },
+      {
+        "name": "sms_consents",
+        "module": "compliance",
+        "purpose": "Consent evidence for transactional and marketing SMS.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)"
+          },
+          {
+            "name": "consent_type",
+            "type": "sms_consent_type enum"
+          },
+          {
+            "name": "consent_source",
+            "type": "consent_source enum"
+          },
+          {
+            "name": "consent_text",
+            "type": "text"
+          },
+          {
+            "name": "consented_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "revoked_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "ip_address",
+            "type": "inet",
+            "nullable": true
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          }
+        ],
+        "relationships": [
+          "sms_consents.customer_id -> customers.id"
+        ],
+        "indexes": [
+          "customer_id, consent_type",
+          "phone"
+        ],
+        "rls_scope": "Admin/office/marketing. Auditable."
+      },
+      {
+        "name": "approved_scripts",
+        "module": "compliance",
+        "purpose": "Approved canvassing scripts, insurance disclaimers, deductible warnings, SMS snippets, review/referral language.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "script_type",
+            "type": "script_type enum"
+          },
+          {
+            "name": "title",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "body",
+            "type": "text"
+          },
+          {
+            "name": "blocked_terms",
+            "type": "text[]"
+          },
+          {
+            "name": "approved_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "approved_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "active",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "approved_scripts.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, script_type, active"
+        ],
+        "rls_scope": "Admin/office edit; staff can use active only."
+      },
+      {
+        "name": "invoices",
+        "module": "finance",
+        "purpose": "Customer invoices and payment status.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "invoice_number",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "balance_due",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "status",
+            "type": "invoice_status enum"
+          },
+          {
+            "name": "due_date",
+            "type": "date"
+          },
+          {
+            "name": "quickbooks_id",
+            "type": "varchar(120)",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "invoices.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "company_id, status",
+          "job_id"
+        ],
+        "rls_scope": "Accounting/office/admin; portal own invoice."
+      },
+      {
+        "name": "payments",
+        "module": "finance",
+        "purpose": "Non-claim payment transactions, payment links, card/ACH/check status.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "invoice_id",
+            "type": "uuid",
+            "fk": "invoices.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "payment_method",
+            "type": "payment_method enum"
+          },
+          {
+            "name": "amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "status",
+            "type": "payment_status enum"
+          },
+          {
+            "name": "processor_payment_id",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "received_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "payments.invoice_id -> invoices.id"
+        ],
+        "indexes": [
+          "invoice_id",
+          "job_id"
+        ],
+        "rls_scope": "Accounting/office/admin; portal own payments."
+      },
+      {
+        "name": "job_costs",
+        "module": "finance",
+        "purpose": "Cost tracking for labor, materials, subcontractors, permits, overhead, and gross margin.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "cost_type",
+            "type": "job_cost_type enum"
+          },
+          {
+            "name": "description",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "estimated_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "actual_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "vendor",
+            "type": "varchar(160)",
+            "nullable": true
+          },
+          {
+            "name": "quickbooks_ref",
+            "type": "varchar(120)",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "job_costs.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, cost_type"
+        ],
+        "rls_scope": "Accounting/admin. Production sees limited budget vs actual if granted."
+      },
+      {
+        "name": "service_areas",
+        "module": "stormloop",
+        "purpose": "Configured cities, ZIPs/ZCTAs, counties, and radius markets monitored for weather events.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "name",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "zip_codes",
+            "type": "text[]"
+          },
+          {
+            "name": "counties",
+            "type": "text[]"
+          },
+          {
+            "name": "center_lat",
+            "type": "numeric(10,7)",
+            "nullable": true
+          },
+          {
+            "name": "center_lng",
+            "type": "numeric(10,7)",
+            "nullable": true
+          },
+          {
+            "name": "radius_miles",
+            "type": "integer",
+            "nullable": true
+          },
+          {
+            "name": "priority",
+            "type": "integer"
+          },
+          {
+            "name": "active",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "service_areas.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, active"
+        ],
+        "rls_scope": "Marketing/admin edit; staff view."
+      },
+      {
+        "name": "storm_events",
+        "module": "stormloop",
+        "purpose": "Detected or simulated hail/wind/tornado/severe storm events.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "event_name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "event_type",
+            "type": "storm_event_type enum"
+          },
+          {
+            "name": "source",
+            "type": "weather_source enum"
+          },
+          {
+            "name": "started_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "ended_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "max_hail_size_in",
+            "type": "numeric(4,2)",
+            "nullable": true
+          },
+          {
+            "name": "max_wind_speed_mph",
+            "type": "integer",
+            "nullable": true
+          },
+          {
+            "name": "severity_level",
+            "type": "storm_severity enum"
+          },
+          {
+            "name": "raw_alert_payload",
+            "type": "jsonb"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "storm_events.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, started_at",
+          "severity_level"
+        ],
+        "rls_scope": "Marketing/admin all; sales view."
+      },
+      {
+        "name": "storm_zip_impacts",
+        "module": "stormloop",
+        "purpose": "Impact ranking by affected marketing ZIP/ZCTA.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "storm_event_id",
+            "type": "uuid",
+            "fk": "storm_events.id"
+          },
+          {
+            "name": "zip_code",
+            "type": "varchar(10)"
+          },
+          {
+            "name": "city",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "county",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "hail_size_estimate_in",
+            "type": "numeric(4,2)",
+            "nullable": true
+          },
+          {
+            "name": "wind_speed_estimate_mph",
+            "type": "integer",
+            "nullable": true
+          },
+          {
+            "name": "impact_score",
+            "type": "integer"
+          },
+          {
+            "name": "priority",
+            "type": "impact_priority enum"
+          },
+          {
+            "name": "geometry",
+            "type": "geometry",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "storm_zip_impacts.storm_event_id -> storm_events.id"
+        ],
+        "indexes": [
+          "storm_event_id, impact_score",
+          "zip_code"
+        ],
+        "rls_scope": "Marketing/admin all; sales view."
+      },
+      {
+        "name": "storm_customer_impacts",
+        "module": "stormloop",
+        "purpose": "Past/existing customers located in a storm impact area for check-in campaigns.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "storm_event_id",
+            "type": "uuid",
+            "fk": "storm_events.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "property_id",
+            "type": "uuid",
+            "fk": "properties.id"
+          },
+          {
+            "name": "zip_code",
+            "type": "varchar(10)"
+          },
+          {
+            "name": "last_job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "recommended_action",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "contacted_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "storm_customer_impacts.customer_id -> customers.id"
+        ],
+        "indexes": [
+          "storm_event_id, zip_code"
+        ],
+        "rls_scope": "Marketing/admin. Message send constrained by consent."
+      },
+      {
+        "name": "marketing_missions",
+        "module": "stormloop",
+        "purpose": "Canvassing/customer-check-in missions launched from storm events.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "storm_event_id",
+            "type": "uuid",
+            "fk": "storm_events.id",
+            "nullable": true
+          },
+          {
+            "name": "mission_name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "mission_type",
+            "type": "mission_type enum"
+          },
+          {
+            "name": "target_zip_codes",
+            "type": "text[]"
+          },
+          {
+            "name": "goal_doors",
+            "type": "integer"
+          },
+          {
+            "name": "goal_inspections",
+            "type": "integer"
+          },
+          {
+            "name": "goal_contracts",
+            "type": "integer"
+          },
+          {
+            "name": "status",
+            "type": "mission_status enum"
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "started_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "ended_at",
+            "type": "timestamptz",
+            "nullable": true
+          }
+        ],
+        "relationships": [
+          "marketing_missions.storm_event_id -> storm_events.id"
+        ],
+        "indexes": [
+          "company_id, status",
+          "storm_event_id"
+        ],
+        "rls_scope": "Marketing/admin edit; canvasser sees assigned routes only."
+      },
+      {
+        "name": "canvassing_routes",
+        "module": "stormloop",
+        "purpose": "Territory/route assigned to a canvasser.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "mission_id",
+            "type": "uuid",
+            "fk": "marketing_missions.id"
+          },
+          {
+            "name": "assigned_user_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "route_name",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "zip_code",
+            "type": "varchar(10)"
+          },
+          {
+            "name": "territory_polygon",
+            "type": "geometry",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "route_status enum"
+          },
+          {
+            "name": "doors_targeted",
+            "type": "integer"
+          },
+          {
+            "name": "doors_completed",
+            "type": "integer"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "canvassing_routes.mission_id -> marketing_missions.id"
+        ],
+        "indexes": [
+          "assigned_user_id, status",
+          "mission_id"
+        ],
+        "rls_scope": "Canvasser sees assigned routes; marketing/admin all."
+      },
+      {
+        "name": "door_knocks",
+        "module": "stormloop",
+        "purpose": "Property-level canvassing interaction log and lead creation source.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "route_id",
+            "type": "uuid",
+            "fk": "canvassing_routes.id"
+          },
+          {
+            "name": "property_address",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "lat",
+            "type": "numeric(10,7)",
+            "nullable": true
+          },
+          {
+            "name": "lng",
+            "type": "numeric(10,7)",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "door_status enum"
+          },
+          {
+            "name": "homeowner_name",
+            "type": "varchar(160)",
+            "nullable": true
+          },
+          {
+            "name": "phone",
+            "type": "varchar(30)",
+            "nullable": true
+          },
+          {
+            "name": "email",
+            "type": "varchar(255)",
+            "nullable": true
+          },
+          {
+            "name": "consent_to_contact",
+            "type": "boolean"
+          },
+          {
+            "name": "outcome",
+            "type": "door_outcome enum"
+          },
+          {
+            "name": "appointment_id",
+            "type": "uuid",
+            "fk": "appointments.id",
+            "nullable": true
+          },
+          {
+            "name": "lead_id",
+            "type": "uuid",
+            "fk": "leads.id",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "door_knocks.route_id -> canvassing_routes.id",
+          "door_knocks.lead_id -> leads.id"
+        ],
+        "indexes": [
+          "route_id, status",
+          "lead_id"
+        ],
+        "rls_scope": "Canvasser own route; marketing/admin all."
+      },
+      {
+        "name": "do_not_knock_addresses",
+        "module": "compliance",
+        "purpose": "Addresses where canvassers should not knock or solicit.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "address_line1",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "city",
+            "type": "varchar(100)"
+          },
+          {
+            "name": "state",
+            "type": "char(2)"
+          },
+          {
+            "name": "zip_code",
+            "type": "varchar(10)"
+          },
+          {
+            "name": "reason",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "source",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "do_not_knock_addresses.company_id -> companies.id"
+        ],
+        "indexes": [
+          "company_id, zip_code",
+          "address_line1"
+        ],
+        "rls_scope": "Marketing/admin edit; canvasser route app consumes read-only."
+      },
+      {
+        "name": "referrals",
+        "module": "referrals",
+        "purpose": "Tracks referred customers from link/QR/manual entry through lead, job, payment, reward.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "referrer_customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "referred_customer_id",
+            "type": "uuid",
+            "fk": "customers.id",
+            "nullable": true
+          },
+          {
+            "name": "lead_id",
+            "type": "uuid",
+            "fk": "leads.id",
+            "nullable": true
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "referral_code",
+            "type": "varchar(40)",
+            "unique": true
+          },
+          {
+            "name": "status",
+            "type": "referral_status enum"
+          },
+          {
+            "name": "reward_status",
+            "type": "reward_status enum"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "referrals.referrer_customer_id -> customers.id",
+          "referrals.lead_id -> leads.id"
+        ],
+        "indexes": [
+          "referral_code",
+          "status",
+          "referrer_customer_id"
+        ],
+        "rls_scope": "Marketing/admin all; referrer portal sees own referrals without private referred customer details."
+      },
+      {
+        "name": "referral_rewards",
+        "module": "referrals",
+        "purpose": "Reward approval and issue tracking.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "referral_id",
+            "type": "uuid",
+            "fk": "referrals.id"
+          },
+          {
+            "name": "reward_type",
+            "type": "reward_type enum"
+          },
+          {
+            "name": "reward_amount",
+            "type": "numeric(12,2)",
+            "nullable": true
+          },
+          {
+            "name": "reward_description",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "approved_by_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "approved_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "issued_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "payment_reference",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "text"
+          }
+        ],
+        "relationships": [
+          "referral_rewards.referral_id -> referrals.id"
+        ],
+        "indexes": [
+          "referral_id"
+        ],
+        "rls_scope": "Admin/marketing/office; customer sees status only."
+      },
+      {
+        "name": "customer_loyalty_accounts",
+        "module": "referrals",
+        "purpose": "Lifetime referral wallet and VIP status for customers.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id"
+          },
+          {
+            "name": "tier",
+            "type": "loyalty_tier enum"
+          },
+          {
+            "name": "points",
+            "type": "integer"
+          },
+          {
+            "name": "lifetime_referrals",
+            "type": "integer"
+          },
+          {
+            "name": "lifetime_revenue_referred",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "vip_status",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "customer_loyalty_accounts.customer_id -> customers.id"
+        ],
+        "indexes": [
+          "customer_id",
+          "tier"
+        ],
+        "rls_scope": "Customer own account via portal; marketing/admin all."
+      },
+      {
+        "name": "loyalty_ledger",
+        "module": "referrals",
+        "purpose": "Points/reward ledger events.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "loyalty_account_id",
+            "type": "uuid",
+            "fk": "customer_loyalty_accounts.id"
+          },
+          {
+            "name": "event_type",
+            "type": "loyalty_event_type enum"
+          },
+          {
+            "name": "points_change",
+            "type": "integer"
+          },
+          {
+            "name": "description",
+            "type": "varchar(255)"
+          },
+          {
+            "name": "referral_id",
+            "type": "uuid",
+            "fk": "referrals.id",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "loyalty_ledger.loyalty_account_id -> customer_loyalty_accounts.id"
+        ],
+        "indexes": [
+          "loyalty_account_id, created_at"
+        ],
+        "rls_scope": "Inherited from loyalty account."
+      },
+      {
+        "name": "remodeling_selections",
+        "module": "remodeling",
+        "purpose": "Selections and allowance tracking for remodeling jobs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "category",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "item_name",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "allowance_amount",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "selected_vendor",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "selected_option",
+            "type": "varchar(180)",
+            "nullable": true
+          },
+          {
+            "name": "customer_approved",
+            "type": "boolean"
+          },
+          {
+            "name": "approved_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "remodeling_selections.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, category"
+        ],
+        "rls_scope": "Production/office/sales; portal sees own selections pending approval."
+      },
+      {
+        "name": "change_orders",
+        "module": "remodeling",
+        "purpose": "Cost/schedule changes needing approval.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "title",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "description",
+            "type": "text"
+          },
+          {
+            "name": "cost_change",
+            "type": "numeric(12,2)"
+          },
+          {
+            "name": "schedule_change_days",
+            "type": "integer"
+          },
+          {
+            "name": "status",
+            "type": "change_order_status enum"
+          },
+          {
+            "name": "customer_approved_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_by_id",
+            "type": "uuid",
+            "fk": "users.id"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "change_orders.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, status"
+        ],
+        "rls_scope": "Production/office; customer own approval via portal."
+      },
+      {
+        "name": "permits",
+        "module": "remodeling_production",
+        "purpose": "Permit and inspection tracker.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "permit_type",
+            "type": "varchar(80)"
+          },
+          {
+            "name": "jurisdiction",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "permit_number",
+            "type": "varchar(120)",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "permit_status enum"
+          },
+          {
+            "name": "submitted_at",
+            "type": "date",
+            "nullable": true
+          },
+          {
+            "name": "approved_at",
+            "type": "date",
+            "nullable": true
+          },
+          {
+            "name": "inspection_date",
+            "type": "date",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "permits.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, status"
+        ],
+        "rls_scope": "Production/office/admin; portal limited status."
+      },
+      {
+        "name": "punch_list_items",
+        "module": "production",
+        "purpose": "Final punch list and cleanup/QC tasks.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "title",
+            "type": "varchar(180)"
+          },
+          {
+            "name": "description",
+            "type": "text"
+          },
+          {
+            "name": "assigned_to_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "punch_status enum"
+          },
+          {
+            "name": "photo_required",
+            "type": "boolean"
+          },
+          {
+            "name": "completed_at",
+            "type": "timestamptz",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "punch_list_items.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, status"
+        ],
+        "rls_scope": "Production/crew assigned/customer portal limited if shared."
+      },
+      {
+        "name": "warranties",
+        "module": "production",
+        "purpose": "Workmanship/manufacturer warranty records and portal docs.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id"
+          },
+          {
+            "name": "warranty_type",
+            "type": "warranty_type enum"
+          },
+          {
+            "name": "provider",
+            "type": "varchar(160)"
+          },
+          {
+            "name": "start_date",
+            "type": "date"
+          },
+          {
+            "name": "end_date",
+            "type": "date"
+          },
+          {
+            "name": "document_id",
+            "type": "uuid",
+            "fk": "documents.id",
+            "nullable": true
+          },
+          {
+            "name": "shared_to_portal",
+            "type": "boolean"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "warranties.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "job_id, warranty_type"
+        ],
+        "rls_scope": "Office/production/admin; portal shared own."
+      },
+      {
+        "name": "activity_logs",
+        "module": "audit",
+        "purpose": "Immutable timeline/audit log for important actions.",
+        "fields": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "pk": true
+          },
+          {
+            "name": "company_id",
+            "type": "uuid",
+            "fk": "companies.id"
+          },
+          {
+            "name": "actor_user_id",
+            "type": "uuid",
+            "fk": "users.id",
+            "nullable": true
+          },
+          {
+            "name": "customer_id",
+            "type": "uuid",
+            "fk": "customers.id",
+            "nullable": true
+          },
+          {
+            "name": "job_id",
+            "type": "uuid",
+            "fk": "jobs.id",
+            "nullable": true
+          },
+          {
+            "name": "entity_name",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "entity_id",
+            "type": "uuid"
+          },
+          {
+            "name": "action",
+            "type": "varchar(120)"
+          },
+          {
+            "name": "metadata",
+            "type": "jsonb"
+          },
+          {
+            "name": "ip_address",
+            "type": "inet",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz"
+          }
+        ],
+        "relationships": [
+          "activity_logs.job_id -> jobs.id"
+        ],
+        "indexes": [
+          "company_id, created_at",
+          "job_id, created_at",
+          "entity_name, entity_id"
+        ],
+        "rls_scope": "Admin/office; role-specific audit views. Append-only."
+      }
+    ]
+  },
+  "api_spec": {
+    "base_url": "/api/v1",
+    "format": "REST JSON for demo; can be converted to OpenAPI later",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/v1/me",
+        "module": "identity",
+        "roles": [
+          "authenticated"
+        ],
+        "description": "Return current user, role, company, and permissions."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/dashboard/owner",
+        "module": "dashboard",
+        "roles": [
+          "owner_admin",
+          "office_manager"
+        ],
+        "description": "Owner KPI cards, stuck jobs, claims needing attention, crew status, storm alerts, and referral revenue."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/leads",
+        "module": "crm",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator",
+          "marketing_manager"
+        ],
+        "description": "List leads filtered by status, source, assigned rep, storm, referral."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/leads",
+        "module": "crm",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator",
+          "marketing_manager",
+          "canvasser"
+        ],
+        "description": "Create lead; supports storm_event_id and referral_id attribution."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/leads/{lead_id}",
+        "module": "crm",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator",
+          "marketing_manager"
+        ],
+        "description": "Update lead status, assignment, follow-up, lost reason."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/leads/{lead_id}/convert-to-job",
+        "module": "crm",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator"
+        ],
+        "description": "Convert lead into job while preserving attribution."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/jobs",
+        "module": "jobs",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "production_manager",
+          "sales_rep_estimator",
+          "insurance_coordinator"
+        ],
+        "description": "List jobs by board/status/job_type/assigned user."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/jobs/{job_id}",
+        "module": "jobs",
+        "roles": [
+          "role_scoped"
+        ],
+        "description": "Read job detail respecting RLS scope."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/jobs/{job_id}/status",
+        "module": "jobs",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "production_manager",
+          "crew_manager"
+        ],
+        "description": "Update job stage; may trigger notification and audit log."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/jobs/{job_id}/photos",
+        "module": "documents",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator",
+          "crew_manager",
+          "crew_lead",
+          "crew_member"
+        ],
+        "description": "Upload/tag job photos."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/claims",
+        "module": "claimdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "insurance_coordinator"
+        ],
+        "description": "Claims dashboard with filters and missing docs."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/jobs/{job_id}/claim",
+        "module": "claimdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "insurance_coordinator"
+        ],
+        "description": "Create claim-support record for job."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/claims/{claim_id}",
+        "module": "claimdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "insurance_coordinator"
+        ],
+        "description": "Update carrier, claim number, status, adjuster, amounts, compliance acknowledgement."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/claims/{claim_id}/payments",
+        "module": "claimdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "insurance_coordinator",
+          "accountant"
+        ],
+        "description": "Add ACV, RCV, deductible, supplement, or final payment milestone."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/claims/{claim_id}/supplements",
+        "module": "claimdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "insurance_coordinator"
+        ],
+        "description": "Create supplement tracker entry."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crews",
+        "module": "crewdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "production_manager",
+          "crew_manager"
+        ],
+        "description": "List crews with role scope."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/jobs/{job_id}/schedule",
+        "module": "crewdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "production_manager"
+        ],
+        "description": "Assign crew/date/scope to job."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/schedules/{schedule_id}/safety-checklist",
+        "module": "crewdesk",
+        "roles": [
+          "crew_manager",
+          "crew_lead"
+        ],
+        "description": "Submit safety checklist. Can gate job start."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/jobs/{job_id}/daily-log",
+        "module": "crewdesk",
+        "roles": [
+          "crew_manager",
+          "crew_lead"
+        ],
+        "description": "Submit daily progress log; optional customer notification."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/jobs/{job_id}/material-requests",
+        "module": "crewdesk",
+        "roles": [
+          "crew_manager",
+          "production_manager"
+        ],
+        "description": "Request missing materials from field."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/material-requests/{order_id}/approve",
+        "module": "crewdesk",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "production_manager"
+        ],
+        "description": "Approve/reject material request."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/portal/{token}",
+        "module": "portal",
+        "roles": [
+          "public_token"
+        ],
+        "description": "Return customer-safe portal view for one job."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/portal/{token}/messages",
+        "module": "portal",
+        "roles": [
+          "public_token"
+        ],
+        "description": "Customer sends message to office."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notifications/send",
+        "module": "notifications",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "sales_rep_estimator",
+          "production_manager",
+          "marketing_manager"
+        ],
+        "description": "Send approved template via SMS/email/portal after consent checks."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/consents/{customer_id}",
+        "module": "compliance",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "marketing_manager"
+        ],
+        "description": "Read SMS consent/opt-out history."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/storms/simulate",
+        "module": "stormloop",
+        "roles": [
+          "owner_admin",
+          "marketing_manager"
+        ],
+        "description": "Demo endpoint to create a simulated storm alert and ZIP impacts."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/storms",
+        "module": "stormloop",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "marketing_manager",
+          "sales_rep_estimator"
+        ],
+        "description": "List storm events and severity."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/storms/{storm_id}/impacts",
+        "module": "stormloop",
+        "roles": [
+          "owner_admin",
+          "marketing_manager",
+          "sales_rep_estimator"
+        ],
+        "description": "Return ZIP impacts, past customers, open leads, and opportunity scores."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/missions",
+        "module": "stormloop",
+        "roles": [
+          "owner_admin",
+          "marketing_manager"
+        ],
+        "description": "Create canvassing/customer check-in mission."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/missions/{mission_id}/routes",
+        "module": "stormloop",
+        "roles": [
+          "owner_admin",
+          "marketing_manager"
+        ],
+        "description": "Assign route to canvasser."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/routes/{route_id}/door-knocks",
+        "module": "stormloop",
+        "roles": [
+          "canvasser",
+          "marketing_manager"
+        ],
+        "description": "Log door knock and optionally create a lead/appointment."
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/referrals",
+        "module": "referrals",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "marketing_manager"
+        ],
+        "description": "Referral dashboard and statuses."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/referrals",
+        "module": "referrals",
+        "roles": [
+          "public_portal",
+          "owner_admin",
+          "office_manager",
+          "marketing_manager"
+        ],
+        "description": "Create referral from portal link, QR, or manual entry."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/referral-rewards/{reward_id}/approve",
+        "module": "referrals",
+        "roles": [
+          "owner_admin",
+          "office_manager",
+          "marketing_manager"
+        ],
+        "description": "Approve referral reward after completion/payment checks."
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/dev/simulate/status-change",
+        "module": "demo",
+        "roles": [
+          "owner_admin"
+        ],
+        "description": "Demo-only: change status and generate sample notification/audit record."
+      }
+    ]
+  },
+  "notifications": {
+    "templates": [
+      {
+        "id": "appointment_confirmed",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "appointment.created",
+        "body": "Salazar Roofing & Remodeling: Your {appointment_type} is scheduled for {appointment_datetime}. Reply STOP to opt out."
+      },
+      {
+        "id": "inspection_complete",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "inspection.completed",
+        "body": "Salazar Roofing & Remodeling: Your inspection is complete. We uploaded your inspection summary to your project portal: {portal_link}. Reply STOP to opt out."
+      },
+      {
+        "id": "claim_docs_received",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "claim.scope_uploaded",
+        "body": "Salazar Roofing & Remodeling: We received your insurance scope/document. Our team is reviewing the construction details and will update your portal with next steps."
+      },
+      {
+        "id": "install_scheduled",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "job.status.install_scheduled",
+        "body": "Salazar Roofing & Remodeling: Your roof installation is scheduled for {install_date}. Materials are planned for {delivery_date}. Weather may affect timing."
+      },
+      {
+        "id": "crew_on_site",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "crew.clocked_in",
+        "body": "Salazar Roofing & Remodeling: Our crew has arrived and started your project. Progress photos will be added to your portal."
+      },
+      {
+        "id": "daily_progress",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "daily_job_log.notify_customer_true",
+        "body": "Salazar Roofing & Remodeling: Today progress update: {progress_summary}. Your project is {progress_percent}% complete. View details: {portal_link}."
+      },
+      {
+        "id": "weather_delay",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "job.weather_delay",
+        "body": "Salazar Roofing & Remodeling: Weather has delayed today work. We will update your schedule as soon as conditions allow. View updates: {portal_link}."
+      },
+      {
+        "id": "warranty_uploaded",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "warranty.created",
+        "body": "Salazar Roofing & Remodeling: Your warranty documents are now available in your portal. Thank you for trusting us with your home."
+      },
+      {
+        "id": "storm_check_in",
+        "purpose": "marketing_or_existing_customer_checkin",
+        "channel": "sms",
+        "trigger": "storm_customer_impact.approved_campaign",
+        "body": "Salazar Roofing & Remodeling: We saw severe weather reported near your area. We hope your home is safe. Reply INSPECT if you want a no-pressure roof check. Reply STOP to opt out."
+      },
+      {
+        "id": "referral_status_update",
+        "purpose": "transactional",
+        "channel": "sms",
+        "trigger": "referral.status_changed",
+        "body": "Salazar Roofing & Remodeling: Your referral status changed to {referral_status}. Track rewards here: {portal_link}."
+      },
+      {
+        "id": "review_request",
+        "purpose": "transactional_review_request",
+        "channel": "sms",
+        "trigger": "job.closed",
+        "body": "Salazar Roofing & Remodeling: Thank you for choosing us. Share an honest review here: {review_link}. Your feedback helps local homeowners."
+      }
+    ],
+    "consent_model": [
+      "transactional_sms_consent",
+      "marketing_sms_consent",
+      "email_consent",
+      "opt_out_log",
+      "message_audit_log"
+    ]
+  },
+  "automations": [
+    {
+      "id": "lead_assignment",
+      "trigger": "lead.created",
+      "conditions": [
+        "assigned_rep_id is null"
+      ],
+      "actions": [
+        "assign default rep or queue owner",
+        "create follow-up task",
+        "log activity"
+      ]
+    },
+    {
+      "id": "inspection_reminder",
+      "trigger": "appointment.starts_at - 24h",
+      "conditions": [
+        "appointment_type=inspection",
+        "customer has transactional consent"
+      ],
+      "actions": [
+        "send appointment_confirmed/reminder"
+      ]
+    },
+    {
+      "id": "claim_missing_scope",
+      "trigger": "claim.status=claim_number_received for 7 days",
+      "conditions": [
+        "no carrier_scope document"
+      ],
+      "actions": [
+        "create office task",
+        "show on claims needing attention"
+      ]
+    },
+    {
+      "id": "safety_gate",
+      "trigger": "job_schedule.start_day",
+      "conditions": [
+        "no passed safety_checklist"
+      ],
+      "actions": [
+        "block job status move to in_progress",
+        "alert production manager"
+      ]
+    },
+    {
+      "id": "daily_log_customer_update",
+      "trigger": "daily_job_log.created",
+      "conditions": [
+        "notify_customer=true",
+        "portal token valid",
+        "customer transactional consent"
+      ],
+      "actions": [
+        "send daily_progress template",
+        "update portal timeline",
+        "log audit"
+      ]
+    },
+    {
+      "id": "material_request_approval",
+      "trigger": "material_order.created",
+      "conditions": [
+        "status=requested"
+      ],
+      "actions": [
+        "notify office/production",
+        "add to material approval queue"
+      ]
+    },
+    {
+      "id": "cert_expiry_warning",
+      "trigger": "daily 8am",
+      "conditions": [
+        "crew_certification.expires_at within 30 days"
+      ],
+      "actions": [
+        "alert production manager",
+        "show certification badge"
+      ]
+    },
+    {
+      "id": "storm_alert_ingest",
+      "trigger": "weather_worker.alert_received",
+      "conditions": [
+        "alert intersects service_area",
+        "severity >= configured threshold"
+      ],
+      "actions": [
+        "create storm_event",
+        "calculate storm_zip_impacts",
+        "create storm_customer_impacts",
+        "notify marketing manager"
+      ]
+    },
+    {
+      "id": "mission_created",
+      "trigger": "marketing_mission.created",
+      "conditions": [
+        "status=draft or active"
+      ],
+      "actions": [
+        "assign canvasser routes",
+        "notify canvassers",
+        "add mission KPIs"
+      ]
+    },
+    {
+      "id": "door_knock_to_lead",
+      "trigger": "door_knock.outcome=wants_inspection",
+      "conditions": [
+        "consent_to_contact=true"
+      ],
+      "actions": [
+        "create customer/property/lead",
+        "book appointment if selected",
+        "preserve route/storm/referral attribution"
+      ]
+    },
+    {
+      "id": "referral_reward_pending",
+      "trigger": "referred job status=paid_closed",
+      "conditions": [
+        "referral exists",
+        "reward_status not issued"
+      ],
+      "actions": [
+        "mark reward pending approval",
+        "notify marketing manager",
+        "update loyalty ledger pending"
+      ]
+    },
+    {
+      "id": "warranty_review_referral",
+      "trigger": "warranty.created",
+      "conditions": [
+        "job.status=closed"
+      ],
+      "actions": [
+        "send warranty_uploaded",
+        "send review_request",
+        "show referral link in portal"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "name": "National Weather Service Alerts API",
+      "phase": "MVP",
+      "mode": "live or mocked",
+      "purpose": "Storm alert ingest for service areas.",
+      "notes": "Poll conservatively; use simulated alert endpoint for demo."
+    },
+    {
+      "name": "NOAA/NCEI Storm Events Database",
+      "phase": "Phase 2",
+      "mode": "historical data",
+      "purpose": "Historical verification and reporting.",
+      "notes": "Not instant; better for historical records than same-day canvassing."
+    },
+    {
+      "name": "ZCTA boundary data",
+      "phase": "MVP",
+      "mode": "static geo dataset",
+      "purpose": "Approximate ZIP/ZCTA mapping from alert polygons.",
+      "notes": "Label outputs as marketing ZIP/ZCTA areas, not guaranteed USPS ZIP impact."
+    },
+    {
+      "name": "Twilio or messaging provider",
+      "phase": "MVP mock, Phase 2 live",
+      "mode": "mock first",
+      "purpose": "SMS notifications, replies, STOP/HELP handling.",
+      "notes": "A2P 10DLC registration and consent evidence required before production marketing SMS."
+    },
+    {
+      "name": "SendGrid/Postmark",
+      "phase": "MVP mock, Phase 2 live",
+      "mode": "mock first",
+      "purpose": "Email notifications and portal link delivery.",
+      "notes": "Use transactional domain auth before production."
+    },
+    {
+      "name": "QuickBooks Online",
+      "phase": "Phase 2",
+      "mode": "integration",
+      "purpose": "Invoices, payments, job costs, project profitability.",
+      "notes": "MVP can export CSV or mock sync queue."
+    },
+    {
+      "name": "CompanyCam",
+      "phase": "Phase 2",
+      "mode": "optional integration",
+      "purpose": "Photo documentation sync.",
+      "notes": "MVP should provide native photo upload/tagging."
+    },
+    {
+      "name": "EagleView / HOVER / Roofr reports",
+      "phase": "Phase 2",
+      "mode": "upload first, API later",
+      "purpose": "Measurement report storage and estimate inputs.",
+      "notes": "Do not rebuild roof measurements in MVP."
+    },
+    {
+      "name": "Xactimate / ESX files",
+      "phase": "Phase 3",
+      "mode": "file storage/import",
+      "purpose": "Carrier/contractor estimate records.",
+      "notes": "MVP stores PDFs/files and estimate version metadata."
+    },
+    {
+      "name": "Supplier APIs (ABC/SRS/QXO)",
+      "phase": "Phase 3",
+      "mode": "integration",
+      "purpose": "Material pricing/order delivery status.",
+      "notes": "MVP material requests and PDF uploads are enough."
+    }
+  ],
+  "compliance_guardrails": [
+    {
+      "area": "Insurance language",
+      "source": "S1",
+      "rule": "Use insurance-support documentation wording. Do not say the contractor files, negotiates, adjusts, or settles claims for homeowners."
+    },
+    {
+      "area": "Deductibles",
+      "source": "S1",
+      "rule": "Block language that waives, rebates, absorbs, discounts, or offsets insurance deductibles. Rewards must not reduce deductible obligations."
+    },
+    {
+      "area": "Door-to-door canvassing",
+      "source": "S12",
+      "rule": "Support approved scripts, rep ID, do-not-knock list, no high-pressure language, and right-to-cancel form workflow when contracts are signed at a home."
+    },
+    {
+      "area": "SMS consent",
+      "source": "S5/S6",
+      "rule": "Store transactional and marketing consent separately. Respect STOP/HELP and never send marketing SMS without documented consent."
+    },
+    {
+      "area": "Reviews and incentives",
+      "source": "S7",
+      "rule": "Do not condition rewards on positive reviews. Use honest review language and disclose incentives where applicable."
+    },
+    {
+      "area": "Storm impact claims",
+      "source": "S2/S3/S13",
+      "rule": "Say affected marketing ZIP/ZCTA or elevated inspection opportunity. Do not claim a specific home is damaged without inspection."
+    },
+    {
+      "area": "Privacy and access",
+      "source": "Internal design",
+      "rule": "Apply RLS/role-based access. Crew/canvassers should not see financial or insurance details they do not need."
+    }
+  ],
+  "demo_seed_data": {
+    "company": {
+      "name": "Salazar Roofing & Remodeling",
+      "timezone": "America/Chicago",
+      "service_area": [
+        "75087",
+        "75189",
+        "75132",
+        "75126",
+        "75032",
+        "75201"
+      ]
+    },
+    "users": [
+      {
+        "name": "Danny Salazar",
+        "role": "owner_admin",
+        "initials": "DS"
+      },
+      {
+        "name": "Alicia Moreno",
+        "role": "office_manager",
+        "initials": "AM"
+      },
+      {
+        "name": "Carlos Rivera",
+        "role": "sales_rep_estimator",
+        "initials": "CR"
+      },
+      {
+        "name": "Nina Patel",
+        "role": "insurance_coordinator",
+        "initials": "NP"
+      },
+      {
+        "name": "Roberto Fuentes",
+        "role": "crew_manager",
+        "initials": "RF"
+      },
+      {
+        "name": "Jorge Gutierrez",
+        "role": "crew_lead",
+        "initials": "JG"
+      },
+      {
+        "name": "Luis Serrano",
+        "role": "crew_member",
+        "initials": "LS"
+      },
+      {
+        "name": "Maya Brooks",
+        "role": "marketing_manager",
+        "initials": "MB"
+      },
+      {
+        "name": "Elena Torres",
+        "role": "canvasser",
+        "initials": "ET"
+      },
+      {
+        "name": "Omar Price",
+        "role": "accountant",
+        "initials": "OP"
+      }
+    ],
+    "storm_event": {
+      "event_name": "Rockwall-Fate Hail/Wind Event",
+      "event_type": "hail_wind",
+      "source": "demo_simulated_nws",
+      "started_at": "2026-06-15T19:20:00-05:00",
+      "max_hail_size_in": 1.75,
+      "max_wind_speed_mph": 70,
+      "severity_level": "considerable",
+      "zip_impacts": [
+        {
+          "zip_code": "75087",
+          "city": "Rockwall",
+          "hail_size_estimate_in": 1.75,
+          "wind_speed_estimate_mph": 68,
+          "impact_score": 92,
+          "priority": "high"
+        },
+        {
+          "zip_code": "75189",
+          "city": "Royse City",
+          "hail_size_estimate_in": 1.25,
+          "wind_speed_estimate_mph": 62,
+          "impact_score": 76,
+          "priority": "medium_high"
+        },
+        {
+          "zip_code": "75132",
+          "city": "Fate",
+          "hail_size_estimate_in": 1.0,
+          "wind_speed_estimate_mph": 58,
+          "impact_score": 64,
+          "priority": "medium"
+        }
+      ]
+    },
+    "customers_jobs": [
+      {
+        "customer": "Maria Chen",
+        "address": "4521 Ridgecrest Dr, Rockwall, TX 75087",
+        "job_type": "roofing",
+        "status": "in_progress",
+        "amount": 18400,
+        "insurance_related": true,
+        "carrier": "State Farm",
+        "claim_number": "SF-2026-089234",
+        "progress_percent": 65,
+        "crew": "Crew A",
+        "lead_source": "StormLoop Mission"
+      },
+      {
+        "customer": "Robert Vasquez",
+        "address": "892 Pine Valley Rd, Fate, TX 75132",
+        "job_type": "roofing",
+        "status": "approved",
+        "amount": 23100,
+        "insurance_related": true,
+        "carrier": "Allstate",
+        "claim_number": "AL-2026-441902",
+        "progress_percent": 15,
+        "crew": null,
+        "lead_source": "Referral"
+      },
+      {
+        "customer": "Sandra Kim",
+        "address": "2201 Elm Creek Dr, Royse City, TX 75189",
+        "job_type": "remodeling",
+        "status": "scheduled",
+        "amount": 28500,
+        "insurance_related": false,
+        "progress_percent": 0,
+        "crew": "Crew B",
+        "lead_source": "Web Form"
+      },
+      {
+        "customer": "James Thompson",
+        "address": "567 Maple Court, Rockwall, TX 75032",
+        "job_type": "roofing",
+        "status": "estimate_sent",
+        "amount": 26000,
+        "insurance_related": true,
+        "carrier": "USAA",
+        "claim_number": "US-2026-202212",
+        "progress_percent": 0,
+        "crew": null,
+        "lead_source": "Past Customer Storm Check-in"
+      },
+      {
+        "customer": "Patricia Morales",
+        "address": "334 Cedar Lane, Forney, TX 75126",
+        "job_type": "gutters",
+        "status": "lead",
+        "amount": null,
+        "insurance_related": false,
+        "progress_percent": 0,
+        "crew": null,
+        "lead_source": "Door Knock"
+      }
+    ],
+    "claim_payments_maria": [
+      {
+        "payment_type": "ACV",
+        "expected_amount": 14200,
+        "received_amount": 14200,
+        "status": "received"
+      },
+      {
+        "payment_type": "RCV_holdback",
+        "expected_amount": 3800,
+        "received_amount": 0,
+        "status": "pending"
+      },
+      {
+        "payment_type": "supplement",
+        "expected_amount": 1400,
+        "received_amount": 0,
+        "status": "submitted"
+      },
+      {
+        "payment_type": "deductible",
+        "expected_amount": 2500,
+        "received_amount": 2500,
+        "status": "received"
+      }
+    ],
+    "crews": [
+      {
+        "crew": "Crew A",
+        "manager": "Roberto Fuentes",
+        "members": [
+          "Jorge Gutierrez",
+          "Miguel Arredondo",
+          "Luis Serrano"
+        ],
+        "job": "Maria Chen roof replacement",
+        "status": "on_site",
+        "members_on_site": "3 of 4"
+      },
+      {
+        "crew": "Crew B",
+        "manager": "Pedro Hernandez",
+        "members": [
+          "Andres Nieto",
+          "Carlos Rios"
+        ],
+        "job": "Sandra Kim remodeling",
+        "status": "on_site",
+        "members_on_site": "2 of 3"
+      }
+    ],
+    "kpi_cards": [
+      {
+        "label": "Active leads",
+        "value": 18,
+        "subtext": "+6 from StormLoop"
+      },
+      {
+        "label": "In production",
+        "value": 12,
+        "subtext": "4 roofs, 2 remodels this week"
+      },
+      {
+        "label": "Claims needing attention",
+        "value": 3,
+        "subtext": "2 missing scopes, 1 RCV pending"
+      },
+      {
+        "label": "Crew on-site today",
+        "value": 7,
+        "subtext": "2 crews deployed"
+      }
+    ]
+  },
+  "demo_build_plan": {
+    "recommended_stack": {
+      "frontend": "Next.js + TypeScript + Tailwind/shadcn or equivalent component library",
+      "backend": "Next.js API routes or NestJS/Node API for demo",
+      "database": "PostgreSQL/Supabase with row-level security design",
+      "storage": "S3-compatible storage or local mock storage for demo files/photos",
+      "maps": "Mapbox or Google Maps for StormLoop route mock; can start with static map/pins",
+      "messaging": "Mock SMS/email provider in demo; provider adapter for Twilio/SendGrid later",
+      "weather": "Simulated storm endpoint first; NWS Alerts API worker adapter behind feature flag",
+      "deployment": "Vercel/Render/Fly.io for demo app; Supabase for database; seed script included"
+    },
+    "repo_structure": [
+      "/apps/web - Next.js dashboard and portal",
+      "/apps/api - API service or route handlers",
+      "/packages/ui - shared UI components",
+      "/packages/shared - types, enums, validation schemas",
+      "/packages/db - migrations, RLS policies, seed scripts",
+      "/packages/integrations - weather, SMS, email, accounting adapters",
+      "/docs - demo script, API spec, screenshots"
+    ],
+    "epics": [
+      {
+        "epic": "Foundation",
+        "tickets": [
+          "Create app shell/navigation",
+          "Implement auth role switcher for demo",
+          "Create database migrations for core entities",
+          "Load seed data",
+          "Create owner dashboard cards"
+        ]
+      },
+      {
+        "epic": "CRM and Jobs",
+        "tickets": [
+          "Lead inbox",
+          "Jobs board",
+          "Job detail overview",
+          "Activity timeline",
+          "Document/photo mock upload"
+        ]
+      },
+      {
+        "epic": "ClaimDesk",
+        "tickets": [
+          "Insurance tab",
+          "Claim payment cards",
+          "Adjuster panel",
+          "Supplement tracker",
+          "Compliance disclaimer"
+        ]
+      },
+      {
+        "epic": "CrewDesk",
+        "tickets": [
+          "Crew dashboard",
+          "Crew manager role scope",
+          "Safety checklist",
+          "Daily log",
+          "Material request approval"
+        ]
+      },
+      {
+        "epic": "Customer Portal",
+        "tickets": [
+          "Magic link token route",
+          "Portal timeline",
+          "Shared docs/photos",
+          "Invoice status",
+          "Referral wallet"
+        ]
+      },
+      {
+        "epic": "StormLoop",
+        "tickets": [
+          "Storm event dashboard",
+          "Affected ZIP impact table",
+          "Mission builder",
+          "Canvasser mobile route",
+          "Door knock to lead"
+        ]
+      },
+      {
+        "epic": "Referrals and Reports",
+        "tickets": [
+          "Referral dashboard",
+          "Reward queue",
+          "Revenue by source",
+          "Storm attribution report"
+        ]
+      },
+      {
+        "epic": "Demo Polish",
+        "tickets": [
+          "Guided demo script path",
+          "Clickable Maria Chen story",
+          "Role-switcher",
+          "Mock notification log",
+          "PDF/JSON handoff loaded into repo docs"
+        ]
+      }
+    ],
+    "demo_definition_of_done": [
+      "User can complete the demo story from storm alert to lead, inspection, claim, crew update, portal view, and referral.",
+      "Role switcher proves crew/canvasser/customer cannot see restricted financial/claim data.",
+      "All KPI cards and dashboards use seeded data.",
+      "Status changes create activity log and mock notification records.",
+      "No production SMS, weather, accounting, or payment calls are required for demo; all external providers can be mocked."
+    ]
+  },
+  "non_goals_for_mvp": [
+    "Do not rebuild Xactimate or claim-adjusting tools.",
+    "Do not process real insurance claims in demo.",
+    "Do not send production marketing SMS before A2P 10DLC approval and consent flows are complete.",
+    "Do not claim a specific home has storm damage without an inspection.",
+    "Do not build direct supplier ordering before material request workflow is proven.",
+    "Do not build native iOS/Android for demo unless responsive web/PWA fails field use case."
+  ],
+  "glossary": {
+    "ACV": "Actual Cash Value - initial claim value after depreciation in many property claims.",
+    "RCV": "Replacement Cost Value - value used for replacement cost coverage, often involving recoverable depreciation after work completion.",
+    "Supplement": "Additional documentation/estimate item used when the original scope misses code-required or damage-related work. In this app, tracked as contractor documentation, not claim negotiation.",
+    "ZCTA": "ZIP Code Tabulation Area; approximate Census representation of ZIP areas, not official USPS delivery boundary.",
+    "StormLoop": "Growth module for weather alerts, ZIP impacts, canvassing missions, lead capture, customer check-ins, and attribution."
+  }
+}

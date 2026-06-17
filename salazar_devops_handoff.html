@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Salazar Roofing OS — Dev Handoff</title>
+<style>
+@media print{
+  .no-print{display:none!important}
+  .page-break{page-break-before:always}
+  body{font-size:11px}
+  .cover{min-height:100vh}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:13px;color:#1a1a18;background:#f5f4f0;line-height:1.6}
+.no-print{position:fixed;top:12px;right:12px;z-index:999;display:flex;gap:8px}
+.btn-print{padding:8px 16px;background:#1a1a18;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500}
+.btn-json{padding:8px 16px;background:#7F77DD;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500}
+.cover{background:linear-gradient(135deg,#1a1a18 0%,#2d2b24 60%,#3a3530 100%);color:#fff;padding:60px 48px;min-height:380px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;background:rgba(127,119,221,.15);pointer-events:none}
+.cover::after{content:'';position:absolute;bottom:-40px;left:80px;width:200px;height:200px;border-radius:50%;background:rgba(29,158,117,.1);pointer-events:none}
+.cover-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#9A9690;margin-bottom:16px}
+.cover-title{font-size:32px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.cover-sub{font-size:15px;color:#C8C4BC;margin-bottom:32px}
+.cover-meta{display:flex;gap:24px;flex-wrap:wrap}
+.cm{font-size:11px;color:#9A9690}
+.cm strong{display:block;font-size:13px;color:#fff;margin-bottom:2px}
+.toc{background:#fff;border:1px solid #e0dfd7;border-radius:12px;padding:24px;margin:20px;max-width:860px;margin:20px auto}
+.toc-title{font-size:14px;font-weight:600;margin-bottom:14px;color:#1a1a18}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.toc-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:#444}
+.toc-item:hover{background:#f5f4f0;color:#1a1a18}
+.toc-num{font-size:10px;font-weight:700;color:#7F77DD;width:20px;flex-shrink:0}
+.doc{max-width:860px;margin:0 auto;padding:0 20px 40px}
+.section{background:#fff;border:1px solid #e0dfd7;border-radius:12px;padding:24px;margin-bottom:16px}
+.sec-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0efe8}
+.sec-num{width:32px;height:32px;border-radius:8px;background:#7F77DD;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sec-num.teal{background:#1D9E75}
+.sec-num.coral{background:#D85A30}
+.sec-num.navy{background:#1a1a18}
+.sec-num.gold{background:#C87930}
+.sec-title{font-size:16px;font-weight:600}
+.sec-desc{font-size:12px;color:#6b6a65;margin-top:2px}
+h3{font-size:13px;font-weight:600;margin:16px 0 8px;color:#1a1a18}
+h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:12px 0 6px}
+p{font-size:12px;color:#444;margin-bottom:8px}
+ul,ol{padding-left:18px;margin-bottom:8px}
+li{font-size:12px;color:#444;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.box{background:#f8f7f4;border:1px solid #e8e7df;border-radius:8px;padding:12px}
+.box-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px}
+.box-val{font-size:13px;font-weight:500}
+.box-sub{font-size:11px;color:#6b6a65;margin-top:2px}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px}
+.b-p{background:#eeedfe;color:#3c3489}
+.b-g{background:#e1f5ee;color:#0f6e56}
+.b-o{background:#faece7;color:#712b13}
+.b-y{background:#faeeda;color:#633806}
+.b-r{background:#fdeaea;color:#7a1010}
+.b-blue{background:#e6f1fb;color:#0c447c}
+.b-gray{background:#f1efe8;color:#444441}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:11px}
+th{background:#f5f4f0;font-weight:600;color:#444;text-align:left;padding:7px 10px;border:1px solid #e0dfd7}
+td{padding:6px 10px;border:1px solid #e0dfd7;vertical-align:top;color:#333}
+tr:nth-child(even) td{background:#fafaf8}
+.check{color:#1D9E75;font-weight:700}
+.cross{color:#999}
+.warn{color:#C87930;font-weight:600}
+.flow{display:flex;flex-wrap:wrap;gap:0;margin:10px 0}
+.step{background:#f5f4f0;border:1px solid #e0dfd7;padding:7px 10px;font-size:11px;font-weight:500;position:relative;flex:1;min-width:80px;text-align:center}
+.step::after{content:'›';position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;z-index:1}
+.step:last-child::after{display:none}
+.step:first-child{border-radius:6px 0 0 6px}
+.step:last-child{border-radius:0 6px 6px 0}
+.step.hi{background:#eeedfe;border-color:#a19ce8;color:#3c3489}
+.step.hg{background:#e1f5ee;border-color:#7acbaf;color:#0f6e56}
+.step.ho{background:#faece7;border-color:#e8a48a;color:#712b13}
+code{font-family:monospace;font-size:11px;background:#f5f4f0;padding:1px 5px;border-radius:4px;color:#444}
+.code-block{background:#1a1a18;color:#e8e6df;border-radius:8px;padding:14px;font-family:monospace;font-size:11px;overflow-x:auto;margin:8px 0;line-height:1.7}
+.kw{color:#7F77DD}.st{color:#1D9E75}.cm-code{color:#666}.key{color:#C87930}.val{color:#D85A30}
+.compliance-box{background:#faeeda;border:1px solid #e8c998;border-radius:8px;padding:12px;margin:10px 0}
+.compliance-box .cb-title{font-size:11px;font-weight:700;color:#633806;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.compliance-box p,.compliance-box li{color:#633806}
+.danger-box{background:#fdeaea;border:1px solid #e8b4b4;border-radius:8px;padding:12px;margin:10px 0}
+.danger-box .cb-title{font-size:11px;font-weight:700;color:#7a1010;margin-bottom:4px}
+.danger-box p,.danger-box li{color:#7a1010}
+.success-box{background:#e1f5ee;border:1px solid #7acbaf;border-radius:8px;padding:12px;margin:10px 0}
+.success-box .cb-title{font-size:11px;font-weight:700;color:#0f6e56;margin-bottom:4px}
+.api-row{display:grid;grid-template-columns:80px 220px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid #f0efe8;font-size:11px;align-items:start}
+.api-row:last-child{border-bottom:none}
+.method{font-family:monospace;font-weight:700;padding:2px 6px;border-radius:4px;font-size:10px}
+.get{background:#e6f1fb;color:#0c447c}
+.post{background:#e1f5ee;color:#0f6e56}
+.put{background:#faeeda;color:#633806}
+.del{background:#fdeaea;color:#7a1010}
+.endpoint{font-family:monospace;color:#444;font-size:11px}
+.api-desc{color:#6b6a65;font-size:11px}
+.mvp-card{border:1px solid #e0dfd7;border-radius:8px;padding:12px;background:#fafaf8}
+.mvp-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.mvp-title{font-size:13px;font-weight:600;margin-bottom:6px}
+.mvp-items{list-style:none;padding:0}
+.mvp-items li{font-size:11px;color:#444;padding:2px 0;display:flex;align-items:center;gap:6px}
+.mvp-items li::before{content:'✓';color:#1D9E75;font-weight:700;flex-shrink:0}
+.seed-block{background:#1a1a18;color:#e8e6df;border-radius:8px;padding:14px;font-family:monospace;font-size:10px;overflow-x:auto;margin:8px 0;line-height:1.8;max-height:320px;overflow-y:auto}
+.divider{height:1px;background:#e0dfd7;margin:16px 0}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.stat{text-align:center;padding:10px;background:#f8f7f4;border-radius:8px;border:1px solid #e0dfd7}
+.stat-n{font-size:22px;font-weight:700;color:#1a1a18}
+.stat-l{font-size:10px;color:#888;margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn-json" onclick="downloadJSON()">⬇ JSON Spec</button>
+  <button class="btn-print" onclick="window.print()">🖨 Export PDF</button>
+</div>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-tag">Dev Ops Build Handoff — Confidential</div>
+  <div class="cover-title">Salazar Roofing OS</div>
+  <div class="cover-sub">Complete product specification for roofing + remodeling CRM, insurance-support workflow, crew operations, customer portal, storm-response engine, and referral rewards system.</div>
+  <div class="cover-meta">
+    <div class="cm"><strong>Client</strong>Salazar Roofing &amp; Remodeling</div>
+    <div class="cm"><strong>Territory</strong>Dallas / Rockwall / DFW Metro, TX</div>
+    <div class="cm"><strong>Version</strong>1.0 — MVP Build Package</div>
+    <div class="cm"><strong>Date</strong>June 2026</div>
+    <div class="cm"><strong>Prepared by</strong>Product &amp; Dev Team</div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <div class="toc-title">Table of Contents</div>
+  <div class="toc-grid">
+    <div class="toc-item"><span class="toc-num">01</span>Product vision &amp; positioning</div>
+    <div class="toc-item"><span class="toc-num">02</span>App architecture &amp; modules</div>
+    <div class="toc-item"><span class="toc-num">03</span>Role model &amp; permissions</div>
+    <div class="toc-item"><span class="toc-num">04</span>Database schema — all tables</div>
+    <div class="toc-item"><span class="toc-num">05</span>Insurance-support workflow</div>
+    <div class="toc-item"><span class="toc-num">06</span>Crew operations module</div>
+    <div class="toc-item"><span class="toc-num">07</span>Customer portal &amp; notifications</div>
+    <div class="toc-item"><span class="toc-num">08</span>StormLoop growth engine</div>
+    <div class="toc-item"><span class="toc-num">09</span>Referral &amp; loyalty engine</div>
+    <div class="toc-item"><span class="toc-num">10</span>API endpoint spec</div>
+    <div class="toc-item"><span class="toc-num">11</span>Tech stack &amp; integrations</div>
+    <div class="toc-item"><span class="toc-num">12</span>Compliance guardrails</div>
+    <div class="toc-item"><span class="toc-num">13</span>Demo seed data</div>
+    <div class="toc-item"><span class="toc-num">14</span>MVP build order &amp; acceptance criteria</div>
+  </div>
+</div>
+
+<div class="doc">
+
+<!-- S1: PRODUCT VISION -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num teal">01</div>
+    <div><div class="sec-title">Product Vision &amp; Positioning</div><div class="sec-desc">What we're building, who it's for, and why it wins</div></div>
+  </div>
+
+  <div class="success-box">
+    <div class="cb-title">Product statement</div>
+    <p><strong>Salazar Roofing OS</strong> is a mobile-first roofing and remodeling operating system that replaces scattered texts, spreadsheets, paper claim folders, and phone call updates with one connected platform for leads, inspections, insurance-support documentation, crew operations, customer progress updates, payments, storm-response marketing, and referral rewards.</p>
+  </div>
+
+  <h3>Target company profile</h3>
+  <div class="grid2">
+    <div class="box"><div class="box-label">Company</div><div class="box-val">Salazar Roofing &amp; Remodeling</div><div class="box-sub">Texas storm-restoration + remodeling contractor</div></div>
+    <div class="box"><div class="box-label">Service area</div><div class="box-val">Rockwall, Fate, Garland, Sachse, Plano, Anna, Dallas, Carrollton, Denton, Little Elm + DFW</div></div>
+    <div class="box"><div class="box-label">Services</div><div class="box-val">Roof inspection, repair, replacement, storm/hail damage, kitchen remodel, bathroom remodel, gutters, siding</div></div>
+    <div class="box"><div class="box-label">Users</div><div class="box-val">Owner, office manager, sales reps, insurance coordinator, crew managers, crew members, canvassers</div></div>
+  </div>
+
+  <h3>The 7 pain points we solve</h3>
+  <table>
+    <tr><th>Pain today</th><th>App solution</th><th>Impact</th></tr>
+    <tr><td>Leads in texts &amp; sticky notes</td><td>CRM with pipeline board</td><td>No missed leads</td></tr>
+    <tr><td>Inspection photos in camera rolls</td><td>Tagged, geo-stamped photo module</td><td>Proof for adjusters</td></tr>
+    <tr><td>Claims tracked in spreadsheets</td><td>Insurance-support desk</td><td>Faster ACV/RCV collection</td></tr>
+    <tr><td>Customer updates via phone call</td><td>SMS + customer portal magic link</td><td>Fewer check-in calls, more reviews</td></tr>
+    <tr><td>Crew updates via text thread</td><td>Daily job log + crew app</td><td>Office knows field status instantly</td></tr>
+    <tr><td>Storm response by gut feeling</td><td>StormLoop: ZIP alerts + missions</td><td>First mover advantage after events</td></tr>
+    <tr><td>Referrals tracked in someone's head</td><td>Referral wallet + loyalty tiers</td><td>Trackable referral revenue</td></tr>
+  </table>
+
+  <h3>Competitive positioning</h3>
+  <table>
+    <tr><th>Feature</th><th>JobNimbus</th><th>AccuLynx</th><th>Roofr</th><th class="check">Salazar OS</th></tr>
+    <tr><td>Insurance claim support desk</td><td class="warn">Basic</td><td class="warn">Partial</td><td class="cross">✗</td><td class="check">✓ Full</td></tr>
+    <tr><td>ACV / RCV / supplement tracking</td><td class="warn">Basic</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓ Full</td></tr>
+    <tr><td>Customer SMS + magic link portal</td><td class="warn">Email only</td><td class="warn">Email only</td><td class="cross">✗</td><td class="check">✓ SMS + portal</td></tr>
+    <tr><td>Remodeling workflow</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓ Included</td></tr>
+    <tr><td>Storm alert + canvassing map</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓ StormLoop</td></tr>
+    <tr><td>Crew GPS clock-in / offline app</td><td class="warn">Partial</td><td class="warn">Partial</td><td class="cross">✗</td><td class="check">✓ Offline-first</td></tr>
+    <tr><td>Referral wallet + loyalty tiers</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓ Built-in</td></tr>
+    <tr><td>Texas compliance guardrails</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓ Baked in</td></tr>
+  </table>
+
+  <h3>Pricing target</h3>
+  <div class="grid3">
+    <div class="box"><div class="box-label">Pilot (first 90 days)</div><div class="box-val">$250–$350 / mo</div><div class="box-sub">No annual contract. Includes all users.</div></div>
+    <div class="box"><div class="box-label">Onboarding fee</div><div class="box-val">$750–$1,500</div><div class="box-sub">Data migration, templates, training</div></div>
+    <div class="box"><div class="box-label">After pilot</div><div class="box-val">SaaS or build fee</div><div class="box-sub">Convert to monthly SaaS or custom license</div></div>
+  </div>
+</div>
+
+<!-- S2: ARCHITECTURE -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num coral">02</div>
+    <div><div class="sec-title">App Architecture &amp; Modules</div><div class="sec-desc">System structure, data flow, and all 9 product modules</div></div>
+  </div>
+
+  <h3>System overview</h3>
+  <p>The app is organized around a central <code>jobs</code> table. Every module — claims, schedules, photos, invoices, crew logs, notifications — joins outward from a single job record. This enables a complete job history in one query and ensures no data is orphaned.</p>
+
+  <div class="flow">
+    <div class="step hi">Lead in</div>
+    <div class="step">Inspection</div>
+    <div class="step hi">Claim filed</div>
+    <div class="step">Adjuster</div>
+    <div class="step hg">Approved</div>
+    <div class="step hg">Scheduled</div>
+    <div class="step hi">Crew on site</div>
+    <div class="step">Daily log</div>
+    <div class="step hi">Customer SMS</div>
+    <div class="step">Invoice</div>
+    <div class="step hg">Warranty</div>
+    <div class="step ho">Referral</div>
+  </div>
+
+  <h3>9 core modules</h3>
+  <table>
+    <tr><th>#</th><th>Module</th><th>Primary user</th><th>Platform</th><th>MVP?</th></tr>
+    <tr><td>1</td><td><strong>CRM &amp; Lead Pipeline</strong> — contacts, properties, lead stages, rep assignment, follow-up tasks</td><td>Sales rep, Owner</td><td>Mobile + Desktop</td><td class="check">✓ MVP 1</td></tr>
+    <tr><td>2</td><td><strong>Inspection App</strong> — mobile checklist, tagged photo capture, customer signature, inspection report PDF</td><td>Sales rep, Field</td><td>Mobile-first</td><td class="check">✓ MVP 1</td></tr>
+    <tr><td>3</td><td><strong>Insurance-Support Desk</strong> — claim tracker, adjuster info, ACV/RCV/supplement, document packet, compliance guardrails</td><td>Office, Insurance coord.</td><td>Desktop + Mobile</td><td class="check">✓ MVP 2</td></tr>
+    <tr><td>4</td><td><strong>Production Board</strong> — roofing kanban, remodeling board, job status, permit tracking, job costing</td><td>Office, Production mgr</td><td>Desktop</td><td class="check">✓ MVP 1</td></tr>
+    <tr><td>5</td><td><strong>Crew Operations</strong> — crew manager role, GPS clock-in/out, daily logs, safety checklists, material requests, certifications</td><td>Crew manager, Crew</td><td>Mobile-first</td><td class="check">✓ MVP 4</td></tr>
+    <tr><td>6</td><td><strong>Customer Portal &amp; Notifications</strong> — magic link portal, SMS/email milestones, progress timeline, shared photos, documents, invoice, warranty</td><td>Office, Customer</td><td>Mobile browser</td><td class="check">✓ MVP 3</td></tr>
+    <tr><td>7</td><td><strong>Estimating &amp; Proposals</strong> — line-item builder, PDF proposals, e-sign, Xactimate PDF upload, change orders</td><td>Sales rep, Office</td><td>Mobile + Desktop</td><td class="warn">Phase 2</td></tr>
+    <tr><td>8</td><td><strong>StormLoop Growth Engine</strong> — NWS storm alerts, affected ZIP scoring, canvassing missions, door-knock tracking, storm attribution</td><td>Marketing mgr, Canvasser</td><td>Mobile + Desktop</td><td class="check">✓ MVP 5</td></tr>
+    <tr><td>9</td><td><strong>Referral &amp; Loyalty Engine</strong> — referral links/QR, wallet, reward tracking, loyalty tiers, VIP benefits</td><td>All users, Customer</td><td>Portal + Desktop</td><td class="check">✓ MVP 6</td></tr>
+  </table>
+
+  <h3>External integrations</h3>
+  <div class="grid4">
+    <div class="box"><div class="box-label">SMS</div><div class="box-val">Twilio A2P</div><div class="box-sub">10DLC registered, opt-out handling, delivery receipts</div></div>
+    <div class="box"><div class="box-label">Email</div><div class="box-val">Resend / SendGrid</div><div class="box-sub">Transactional + marketing, open tracking</div></div>
+    <div class="box"><div class="box-label">Payments</div><div class="box-val">Stripe</div><div class="box-sub">ACH + card, payment intents, webhook status</div></div>
+    <div class="box"><div class="box-label">Accounting</div><div class="box-val">QuickBooks Online</div><div class="box-sub">Invoice sync, job costing (Phase 2)</div></div>
+    <div class="box"><div class="box-label">Weather</div><div class="box-val">NWS Alerts API</div><div class="box-sub">Free, public — no polling &lt;30s</div></div>
+    <div class="box"><div class="box-label">Storm data</div><div class="box-val">Xweather (paid)</div><div class="box-sub">Hail swath, storm cell, Phase 2</div></div>
+    <div class="box"><div class="box-label">Measurement</div><div class="box-val">EagleView / HOVER</div><div class="box-sub">PDF upload MVP; direct API Phase 3</div></div>
+    <div class="box"><div class="box-label">Maps</div><div class="box-val">Google Maps API</div><div class="box-sub">Canvassing map, GPS clock-in, job location</div></div>
+  </div>
+</div>
+
+<!-- S3: ROLES -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num">03</div>
+    <div><div class="sec-title">Role Model &amp; Permissions</div><div class="sec-desc">12 system roles with row-level security enforced at the database layer</div></div>
+  </div>
+
+  <h3>Role hierarchy</h3>
+  <table>
+    <tr><th>Tier</th><th>Role</th><th>Description</th><th>RLS scope</th></tr>
+    <tr><td>1</td><td><strong>Admin / Owner</strong></td><td>Full system access, user management, settings, all financial data</td><td>All records</td></tr>
+    <tr><td>2</td><td><strong>Office Manager</strong></td><td>All jobs, claims, invoices, notifications, scheduling — no user management or pricing edit</td><td>All records (read/write)</td></tr>
+    <tr><td>2</td><td><strong>Production Manager</strong></td><td>Full production board, crew assignment, scheduling, material approvals</td><td>All jobs + crew</td></tr>
+    <tr><td>3</td><td><strong>Insurance Coordinator</strong></td><td>Full claim desk access, supplement tracking, ACV/RCV, claim documents</td><td>Insurance jobs only</td></tr>
+    <tr><td>3</td><td><strong>Sales Rep / Estimator</strong></td><td>Own contacts, leads, estimates, proposals — no other reps' data</td><td>assigned_rep_id = self</td></tr>
+    <tr><td>3</td><td><strong>Marketing Manager</strong></td><td>StormLoop, canvassing missions, referral dashboard, lead sources</td><td>Storm + leads + referrals</td></tr>
+    <tr><td>3</td><td><strong>Crew Manager</strong></td><td>Assigned crews + jobs — daily logs, safety checklists, material requests, crew performance. No financials, no claims.</td><td>crew_id IN assigned_crews</td></tr>
+    <tr><td>4</td><td><strong>Crew Lead</strong></td><td>Assigned job details, own clock-in/out, progress photos, daily log, safety checklist, material order view</td><td>job_id IN assigned</td></tr>
+    <tr><td>4</td><td><strong>Canvasser / Field Marketer</strong></td><td>Canvassing map, door pins, lead capture, appointment booking only</td><td>assigned mission only</td></tr>
+    <tr><td>5</td><td><strong>Crew Member</strong></td><td>Clock in/out, today's job address, photo upload, safety sign-off only</td><td>own entries only</td></tr>
+    <tr><td>6</td><td><strong>Customer</strong></td><td>Own portal only — job status, photos, documents, invoice, warranty, referral link</td><td>portal_token job only</td></tr>
+    <tr><td>6</td><td><strong>External Partner</strong></td><td>Limited read access to assigned claim or job documents (public adjuster, supplement firm)</td><td>explicit grant only</td></tr>
+  </table>
+
+  <h3>Permission matrix — by module</h3>
+  <table>
+    <tr><th>Module</th><th>Admin</th><th>Office</th><th>Crew Mgr</th><th>Sales</th><th>Crew Lead</th><th>Crew</th><th>Customer</th></tr>
+    <tr><td>View all jobs</td><td class="check">✓</td><td class="check">✓</td><td class="warn">Own crew</td><td class="warn">Own only</td><td class="warn">Assigned</td><td class="cross">–</td><td class="warn">Own</td></tr>
+    <tr><td>Edit job record</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="warn">Own leads</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Insurance claim — view</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="warn">Own</td><td class="cross">–</td><td class="cross">–</td><td class="warn">Status only</td></tr>
+    <tr><td>Insurance claim — edit</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Crew scheduling</td><td class="check">✓</td><td class="check">✓</td><td class="warn">Own crew</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Submit daily log</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Safety checklist</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td></tr>
+    <tr><td>Material request</td><td class="check">✓</td><td class="check">Approve</td><td class="check">✓ Request</td><td class="cross">–</td><td class="warn">View</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Upload photos</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td></tr>
+    <tr><td>Invoices / payments</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="warn">Own</td></tr>
+    <tr><td>StormLoop / missions</td><td class="check">✓</td><td class="warn">View</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>Referral tracking</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="warn">Own</td></tr>
+    <tr><td>Financial reports</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td><td class="warn">Own</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+    <tr><td>User management</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+  </table>
+  <p><strong>Implementation note:</strong> All RLS policies should be enforced at the PostgreSQL/Supabase layer, not the API or UI layer alone. UI visibility is secondary to database-level access control.</p>
+</div>
+
+<!-- S4: DATABASE SCHEMA -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num navy">04</div>
+    <div><div class="sec-title">Database Schema — All Tables</div><div class="sec-desc">PostgreSQL 16. UUID PKs. All timestamps in timestamptz. Enums enforced at DB level.</div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-n">38</div><div class="stat-l">Total tables</div></div>
+    <div class="stat"><div class="stat-n">12</div><div class="stat-l">Enum types</div></div>
+    <div class="stat"><div class="stat-n">9</div><div class="stat-l">Schema modules</div></div>
+    <div class="stat"><div class="stat-n">200+</div><div class="stat-l">Fields defined</div></div>
+  </div>
+
+  <h4>Core — CRM &amp; Identity</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>companies</code></td><td>id, name, subdomain, logo_url, settings_json, created_at</td><td>Multi-tenant root. Every record scoped to company_id.</td></tr>
+    <tr><td><code>users</code></td><td>id, company_id, first_name, last_name, email UQ, phone, role ENUM, is_active, created_at</td><td>role: admin | office | production_mgr | insurance_coord | sales_rep | marketing_mgr | crew_manager | crew_lead | canvasser | crew_member</td></tr>
+    <tr><td><code>contacts</code></td><td>id, company_id, first_name, last_name, email, phone, address, city, state, zip, lead_source ENUM, preferred_language, assigned_rep_id FK, sms_consent BOOL, notes, created_at</td><td>lead_source: referral | storm_chase | web_form | door_knock | yard_sign | google | facebook | repeat | other</td></tr>
+    <tr><td><code>properties</code></td><td>id, contact_id FK, address, city, state, zip, roof_type, stories, pitch, shingle_type, roof_age_years, insurance_carrier, mortgage_company, hoa_notes, permit_jurisdiction, access_notes, lat, lng</td><td>One contact can own multiple properties</td></tr>
+    <tr><td><code>leads</code></td><td>id, contact_id FK, property_id FK, company_id, service_type ENUM, urgency, assigned_rep_id FK, status ENUM, source_detail, storm_event_id FK nullable, referral_id FK nullable, lost_reason, created_at</td><td>status: new | contacted | appt_scheduled | inspection_done | estimate_needed | proposal_sent | follow_up | won | lost</td></tr>
+    <tr><td><code>jobs</code></td><td>id, contact_id FK, property_id FK, lead_id FK, assigned_rep_id FK, job_type ENUM, status ENUM, contract_amount NUMERIC, is_insurance_claim BOOL, storm_event_id FK nullable, referral_id FK nullable, internal_notes, created_at, updated_at</td><td><strong>Central hub table.</strong> job_type: roofing | remodeling | gutters | siding | repair. status: 13-stage pipeline.</td></tr>
+    <tr><td><code>activity_logs</code></td><td>id, company_id, job_id FK nullable, user_id FK, event_type, entity_table, entity_id, old_value_json, new_value_json, ip_address, created_at</td><td>Immutable audit trail. Every status change, document upload, message send, and payment event logged here.</td></tr>
+  </table>
+
+  <h4>Insurance-Support Module</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>insurance_claims</code></td><td>id, job_id FK, carrier_name, policy_number, claim_number UQ, date_filed, status ENUM, damage_type ENUM, storm_date, adjuster_name, adjuster_phone, adjuster_email, adjuster_appt_at, carrier_estimate_amt, contractor_estimate_amt, scope_pdf_url, notes, created_at</td><td>status: filed | adjuster_scheduled | approved | supplementing | paid | closed_denied. damage_type: hail | wind | hail_wind | water | fire | other</td></tr>
+    <tr><td><code>claim_supplements</code></td><td>id, claim_id FK, description, amount_requested, submitted_at, responded_at, status ENUM, approved_amount, denial_reason</td><td>status: pending | approved | partial | denied</td></tr>
+    <tr><td><code>claim_payments</code></td><td>id, claim_id FK, payment_type ENUM, amount, check_number, received_at, mortgagee_name, mortgagee_endorsed_at, deposited_at, notes</td><td>payment_type: ACV | RCV | supplement | depreciation_release</td></tr>
+    <tr><td><code>claim_documents</code></td><td>id, claim_id FK, doc_type ENUM, file_name, storage_url, uploaded_by_id FK, created_at</td><td>doc_type: scope_pdf | xactimate | contractor_estimate | supplement | carrier_letter | adjuster_report | photo_report</td></tr>
+  </table>
+
+  <h4>Estimating &amp; Proposals</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>estimates</code></td><td>id, job_id FK, version INT, status ENUM, subtotal, tax_amount, total_amount, pdf_url, sent_at, signed_at, signed_by_ip, created_at</td><td>status: draft | sent | approved | rejected | expired</td></tr>
+    <tr><td><code>estimate_line_items</code></td><td>id, estimate_id FK, sort_order, category, description, qty, unit, unit_price, line_total</td><td>Generated line_total = qty × unit_price</td></tr>
+    <tr><td><code>change_orders</code></td><td>id, job_id FK, title, description, cost_change NUMERIC, schedule_change_days INT, status ENUM, customer_approved_at, created_by FK</td><td>status: draft | sent | approved | rejected</td></tr>
+  </table>
+
+  <h4>Crew Operations</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>crews</code></td><td>id, company_id, name, lead_user_id FK, is_active, created_at</td><td></td></tr>
+    <tr><td><code>crew_members</code></td><td>id, crew_id FK, user_id FK, pay_rate, pay_type ENUM, is_subcontractor, coi_url, coi_expires_at</td><td>pay_type: hourly | per_square | flat</td></tr>
+    <tr><td><code>crew_manager_assignments</code></td><td>id, manager_user_id FK, crew_id FK, is_primary BOOL, assigned_at, assigned_by_id FK</td><td>Manager can oversee multiple crews</td></tr>
+    <tr><td><code>crew_manager_job_access</code></td><td>id, manager_user_id FK, job_id FK, access_level ENUM, granted_at, granted_by_id FK</td><td>access_level: full | field_only | read_only</td></tr>
+    <tr><td><code>job_schedules</code></td><td>id, job_id FK, crew_id FK, scheduled_date, start_time, status ENUM, notes, created_at</td><td>status: scheduled | in_progress | complete | weather_hold | cancelled</td></tr>
+    <tr><td><code>time_entries</code></td><td>id, job_id FK, user_id FK, clock_in_at, clock_in_lat, clock_in_lng, clock_out_at, clock_out_lat, clock_out_lng, hours_worked GENERATED</td><td>hours_worked computed from clock delta</td></tr>
+    <tr><td><code>daily_job_logs</code></td><td>id, job_id FK, submitted_by_id FK, log_date, crew_count, weather_condition ENUM, work_completed, pct_complete SMALLINT, issues_noted, material_used, next_day_plan, notify_customer BOOL, created_at</td><td>notify_customer = true triggers SMS to homeowner with pct_complete</td></tr>
+    <tr><td><code>safety_checklists</code></td><td>id, job_id FK, submitted_by_id FK, checklist_date, ppe_verified, ladders_secured, fall_protection_set, hazards_cleared, crew_briefed, all_passed GENERATED, notes, created_at</td><td>all_passed = ppe AND ladders AND fall AND hazards AND crew. Job cannot move to in_progress without all_passed = true.</td></tr>
+    <tr><td><code>material_orders</code></td><td>id, job_id FK, requested_by_id FK, approved_by_id FK nullable, status ENUM, supplier_name, po_number, total_cost, needed_by_date, delivery_confirmed_at, notes, created_at</td><td>status: requested | approved | ordered | delivered | cancelled</td></tr>
+    <tr><td><code>material_order_items</code></td><td>id, order_id FK, item_name, sku, qty, unit, unit_cost, line_total</td><td></td></tr>
+    <tr><td><code>crew_certifications</code></td><td>id, user_id FK, cert_type ENUM, issuing_body, cert_number, issued_at, expires_at, doc_url, is_verified</td><td>cert_type: osha_10 | osha_30 | fall_protection | first_aid | manufacturer | other. Alert fires 30 days before expiry.</td></tr>
+    <tr><td><code>crew_performance_reviews</code></td><td>id, reviewer_id FK, reviewed_user_id FK, job_id FK nullable, review_period, quality_score, punctuality_score, safety_score, teamwork_score, avg_score GENERATED, notes, created_at</td><td>Scores 1–5. avg_score computed from four dimensions.</td></tr>
+    <tr><td><code>crew_availability</code></td><td>id, user_id FK, date, status ENUM, reason, set_by_id FK</td><td>status: available | unavailable | pto | weather | sick</td></tr>
+    <tr><td><code>safety_incidents</code></td><td>id, job_id FK, reported_by_id FK, involved_user_id FK, severity ENUM, description, corrective_action, osha_reportable BOOL, incident_at, created_at</td><td>severity: near_miss | minor | recordable | lost_time</td></tr>
+    <tr><td><code>punch_list_items</code></td><td>id, job_id FK, title, description, assigned_to FK, status ENUM, photo_required, completed_at</td><td></td></tr>
+  </table>
+
+  <h4>Photos &amp; Documents</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>job_photos</code></td><td>id, job_id FK, uploaded_by_id FK, stage ENUM, storage_url, thumbnail_url, lat, lng, caption, is_customer_visible BOOL, created_at</td><td>stage: damage | pre_job | during | post_job | permit | material. is_customer_visible controls portal display.</td></tr>
+    <tr><td><code>documents</code></td><td>id, job_id FK, uploaded_by_id FK, doc_type ENUM, file_name, storage_url, is_customer_visible BOOL, created_at</td><td>doc_type: permit | warranty | contract | w9 | coi | supplement | measurement | other</td></tr>
+  </table>
+
+  <h4>Notifications &amp; Portal</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>notification_templates</code></td><td>id, company_id, trigger_event ENUM, channel ENUM, subject_template, body_template, is_active, approved_by FK, updated_at</td><td>trigger_event: 13 milestone events. channel: sms | email | in_app</td></tr>
+    <tr><td><code>notifications</code></td><td>id, job_id FK, contact_id FK, template_id FK, channel, rendered_body, status ENUM, external_id, sent_at, error_message</td><td>status: queued | sent | delivered | failed</td></tr>
+    <tr><td><code>portal_tokens</code></td><td>id, job_id FK, contact_id FK, token VARCHAR(128) UQ, expires_at, last_viewed_at, view_count INT, created_at</td><td>Magic link. No login. Token refreshed on each milestone SMS send.</td></tr>
+    <tr><td><code>sms_consents</code></td><td>id, contact_id FK, phone, consent_type ENUM, consent_source, consent_text, consented_at, revoked_at, ip_address, created_by FK</td><td>consent_type: transactional | marketing. Required before any campaign SMS.</td></tr>
+  </table>
+
+  <h4>Invoicing &amp; Payments</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>invoices</code></td><td>id, job_id FK, invoice_number UQ, milestone ENUM, amount, status ENUM, due_date, sent_at, paid_at, stripe_payment_intent_id, qbo_invoice_id, lien_waiver_url, created_at</td><td>milestone: deposit | acv_draw | rcv_draw | supplement | final</td></tr>
+    <tr><td><code>remodeling_selections</code></td><td>id, job_id FK, category, item_name, allowance_amount, selected_vendor, selected_option, customer_approved, approved_at</td><td>Tile, countertop, cabinets, fixtures, paint selections</td></tr>
+    <tr><td><code>permits</code></td><td>id, job_id FK, permit_type, jurisdiction, permit_number, status ENUM, submitted_at, approved_at, inspection_date</td><td></td></tr>
+  </table>
+
+  <h4>StormLoop Tables</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>storm_events</code></td><td>id, company_id, event_name, event_type ENUM, source, started_at, ended_at, max_hail_size NUMERIC, max_wind_speed INT, severity_level ENUM, raw_alert_payload JSONB, created_at</td><td>event_type: hail | wind | tornado | severe_storm. Ingest from NWS Alerts API.</td></tr>
+    <tr><td><code>storm_zip_impacts</code></td><td>id, storm_event_id FK, zip_code, city, county, hail_size_estimate, wind_speed_estimate, impact_score INT (0–100), priority ENUM, created_at</td><td>priority: critical | high | medium | monitor</td></tr>
+    <tr><td><code>storm_customer_impacts</code></td><td>id, storm_event_id FK, customer_id FK, property_id FK, zip_code, last_job_id FK, recommended_action, contacted_at</td><td>Auto-generated when storm_zip_impacts created</td></tr>
+    <tr><td><code>marketing_missions</code></td><td>id, company_id, storm_event_id FK nullable, mission_name, mission_type ENUM, target_zip_codes TEXT[], goal_doors INT, goal_inspections INT, goal_contracts INT, status ENUM, created_by FK, started_at, ended_at</td><td></td></tr>
+    <tr><td><code>canvassing_routes</code></td><td>id, mission_id FK, assigned_user_id FK, route_name, zip_code, territory_polygon GEOMETRY, status ENUM, doors_targeted INT, doors_completed INT</td><td>PostGIS extension for polygon support</td></tr>
+    <tr><td><code>door_knocks</code></td><td>id, route_id FK, property_address, lat, lng, status ENUM, homeowner_name, phone, email, consent_to_contact BOOL, outcome ENUM, appointment_id FK nullable, lead_id FK nullable, notes, created_by FK, created_at</td><td>status: not_visited | no_answer | spoke | not_interested | callback | wants_inspection | existing_customer | do_not_knock</td></tr>
+    <tr><td><code>do_not_knock_addresses</code></td><td>id, company_id, address, reason, source, created_by FK, created_at</td><td>Protected list — field app must check before showing door as available</td></tr>
+  </table>
+
+  <h4>Referral &amp; Loyalty Tables</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>referrals</code></td><td>id, company_id, referrer_customer_id FK, referred_contact_id FK, lead_id FK nullable, job_id FK nullable, referral_code, status ENUM, reward_status ENUM, created_at</td><td>status: submitted | lead_created | inspection_scheduled | job_won | job_complete | paid</td></tr>
+    <tr><td><code>referral_rewards</code></td><td>id, referral_id FK, reward_type ENUM, reward_amount NUMERIC, reward_description, approved_by FK, approved_at, issued_at, payment_reference, notes</td><td>reward_type: gift_card | cash | service_credit | vip_upgrade</td></tr>
+    <tr><td><code>customer_loyalty_accounts</code></td><td>id, customer_id FK, tier ENUM, points INT, lifetime_referrals INT, lifetime_revenue_referred NUMERIC, vip_status BOOL, created_at</td><td>tier: standard | silver | gold | vip</td></tr>
+    <tr><td><code>loyalty_ledger</code></td><td>id, customer_loyalty_account_id FK, event_type, points_change INT, description, created_at</td><td>Immutable ledger of all point events</td></tr>
+  </table>
+
+  <h4>Compliance Tables</h4>
+  <table>
+    <tr><th>Table</th><th>Key fields</th><th>Notes</th></tr>
+    <tr><td><code>approved_scripts</code></td><td>id, company_id, script_type ENUM, script_title, script_body, approved_by FK, approved_at, active</td><td>script_type: door_knock | insurance_disclaimer | deductible_warning | sms_template | review_request</td></tr>
+    <tr><td><code>compliance_audit_logs</code></td><td>id, company_id, user_id FK, event_type, entity_table, entity_id, details_json, created_at</td><td>Tracks deductible warnings, consent captures, script approvals</td></tr>
+    <tr><td><code>opt_outs</code></td><td>id, contact_id FK, phone, channel, opted_out_at, opt_out_source</td><td>STOP handling. Must be checked before every campaign send.</td></tr>
+  </table>
+</div>
+
+<!-- S5: INSURANCE WORKFLOW -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num teal">05</div>
+    <div><div class="sec-title">Insurance-Support Workflow</div><div class="sec-desc">Full claim lifecycle — homeowner-owned, contractor-documented</div></div>
+  </div>
+
+  <div class="compliance-box">
+    <div class="cb-title">⚖ Texas compliance — critical framing</div>
+    <p>The Texas Department of Insurance prohibits a roofing contractor from acting as a public adjuster on a claim for a property where they may also do the work. Salazar may provide contractor estimates, photos, and technical information. The homeowner owns and manages the insurance claim.</p>
+    <p style="margin-top:6px"><strong>All app UI language must reflect:</strong> "Insurance-support documentation" — NOT "claim filing," "claim negotiation," or "claim settlement."</p>
+  </div>
+
+  <h3>Full claim lifecycle — 18 stages</h3>
+  <div class="flow">
+    <div class="step">Lead in</div>
+    <div class="step hi">Inspection</div>
+    <div class="step hi">HO files claim</div>
+    <div class="step">Claim # received</div>
+    <div class="step hi">Adjuster appt</div>
+    <div class="step">Scope received</div>
+    <div class="step hi">Contractor estimate</div>
+    <div class="step">Supplement prep</div>
+    <div class="step hg">Approved</div>
+    <div class="step hg">Contract signed</div>
+    <div class="step hg">Materials ordered</div>
+    <div class="step hg">Installed</div>
+    <div class="step ho">Final invoice</div>
+    <div class="step ho">RCV pending</div>
+    <div class="step ho">Paid / closed</div>
+    <div class="step hg">Warranty issued</div>
+  </div>
+
+  <h3>Claim payment tracking — 4-payment model</h3>
+  <table>
+    <tr><th>Payment type</th><th>Timing</th><th>Tracked fields</th><th>Action trigger</th></tr>
+    <tr><td><strong>ACV check</strong></td><td>After carrier approves, before work</td><td>amount, check_number, received_at, deposited_at</td><td>Notify office, enable job to proceed</td></tr>
+    <tr><td><strong>RCV / holdback</strong></td><td>After job completion</td><td>amount, received_at, mortgagee_endorsed_at</td><td>Trigger final invoice, depreciation release reminder</td></tr>
+    <tr><td><strong>Supplement</strong></td><td>Any time — often post-install</td><td>claim_supplement_id FK, amount, submitted_at, status</td><td>Track open supplement until resolved</td></tr>
+    <tr><td><strong>Depreciation release</strong></td><td>After job complete + depreciation holdback released</td><td>amount, released_at</td><td>Final job close trigger</td></tr>
+  </table>
+
+  <h3>Document packet — required per claim</h3>
+  <div class="pill-row">
+    <span class="badge b-blue">Inspection report PDF</span>
+    <span class="badge b-blue">Damage photo set (tagged)</span>
+    <span class="badge b-blue">Contractor estimate</span>
+    <span class="badge b-blue">Carrier scope PDF</span>
+    <span class="badge b-blue">Supplement letter</span>
+    <span class="badge b-blue">Xactimate ESX / PDF</span>
+    <span class="badge b-blue">Signed contract</span>
+    <span class="badge b-blue">Signed invoice</span>
+    <span class="badge b-blue">Lien waiver</span>
+    <span class="badge b-blue">Manufacturer warranty</span>
+    <span class="badge b-blue">Workmanship warranty</span>
+  </div>
+
+  <div class="danger-box">
+    <div class="cb-title">🚫 Blocked language — never appear in app UI, scripts, or templates</div>
+    <ul>
+      <li>"We will file your insurance claim"</li>
+      <li>"We negotiate with your carrier"</li>
+      <li>"We recover every dollar"</li>
+      <li>"Free roof — paid by insurance"</li>
+      <li>"We waive your deductible"</li>
+      <li>"We represent you against the insurance company"</li>
+      <li>"We guarantee insurance approval"</li>
+    </ul>
+  </div>
+</div>
+
+<!-- S6: CREW OPS -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num gold">06</div>
+    <div><div class="sec-title">Crew Operations Module</div><div class="sec-desc">Field management, safety, materials, and daily reporting</div></div>
+  </div>
+
+  <h3>Crew manager capabilities</h3>
+  <div class="grid2">
+    <div>
+      <h4>Can do</h4>
+      <ul>
+        <li>View and manage assigned crew schedules</li>
+        <li>Submit and review daily job logs</li>
+        <li>Complete and enforce safety checklists</li>
+        <li>Request materials from the field</li>
+        <li>Upload progress photos to job record</li>
+        <li>Clock crew in/out with GPS verification</li>
+        <li>Edit crew members' time entries (own crew only)</li>
+        <li>Submit crew performance reviews</li>
+        <li>View crew certifications and expiry dates</li>
+        <li>Flag safety incidents</li>
+        <li>Create and manage punch lists</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Cannot do</h4>
+      <ul>
+        <li>View financial data (ACV, RCV, invoices, payments)</li>
+        <li>View insurance claim details</li>
+        <li>See other crews' jobs or schedules</li>
+        <li>Send customer notifications directly</li>
+        <li>Approve material orders (office only)</li>
+        <li>Edit job records or contracts</li>
+        <li>Access reports outside own crew</li>
+        <li>Manage user accounts or permissions</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Key automation triggers</h3>
+  <table>
+    <tr><th>Trigger event</th><th>Action</th><th>Who is notified</th></tr>
+    <tr><td>daily_job_logs.notify_customer = true</td><td>Fire customer SMS with pct_complete + portal link</td><td>Homeowner (SMS), Office (in-app)</td></tr>
+    <tr><td>safety_checklists.all_passed = false</td><td>Block job status from moving to in_progress. Flag for office.</td><td>Crew manager (push), Office (in-app)</td></tr>
+    <tr><td>crew_certifications.expires_at &lt; NOW() + 30 days</td><td>Alert admin and crew manager</td><td>Admin (email), Crew manager (in-app)</td></tr>
+    <tr><td>material_orders.status = requested</td><td>Create approval task for office manager</td><td>Office manager (push + in-app)</td></tr>
+    <tr><td>safety_incidents created</td><td>Alert admin immediately. Log to compliance audit.</td><td>Admin (email + push)</td></tr>
+    <tr><td>crew_members.coi_expires_at &lt; NOW() + 14 days</td><td>Alert admin. Block scheduling of this member.</td><td>Admin (email)</td></tr>
+  </table>
+
+  <h3>Mobile crew app screens</h3>
+  <div class="grid3">
+    <div class="box"><div class="box-label">Today</div><div class="box-val">Today's jobs</div><div class="box-sub">Assigned jobs, address &amp; map, scope, start/complete buttons</div></div>
+    <div class="box"><div class="box-label">Safety</div><div class="box-val">Morning checklist</div><div class="box-sub">5-item safety sign-off. Blocks job start if any fail.</div></div>
+    <div class="box"><div class="box-label">Photos</div><div class="box-val">Camera + tags</div><div class="box-sub">Photo stage selector, caption, GPS auto-stamp, upload to job</div></div>
+    <div class="box"><div class="box-label">Clock</div><div class="box-val">Clock in / out</div><div class="box-sub">GPS captured on both events. Offline queued.</div></div>
+    <div class="box"><div class="box-label">Log</div><div class="box-val">Daily job log</div><div class="box-sub">% complete, weather, work done, issues, materials used</div></div>
+    <div class="box"><div class="box-label">Materials</div><div class="box-val">Material request</div><div class="box-sub">Item, qty, needed by date, notes. Sent to office for approval.</div></div>
+  </div>
+</div>
+
+<!-- S7: CUSTOMER PORTAL -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num teal">07</div>
+    <div><div class="sec-title">Customer Portal &amp; Notification Engine</div><div class="sec-desc">Magic link portal, 13 automated milestones, SMS + email delivery</div></div>
+  </div>
+
+  <h3>Portal access model</h3>
+  <p>No app download. No password. Office or automation generates a <code>portal_token</code> UUID, attached to the job and contact. Token is embedded in a short-link SMS. When homeowner taps the link, they see their branded job tracker. Token rotates on each new milestone notification. Expiry default: 180 days.</p>
+
+  <h3>What the homeowner sees in the portal</h3>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li>Current job status with visual stage progress</li>
+        <li>Next step description</li>
+        <li>Upcoming appointment dates</li>
+        <li>Job timeline with completed / active / pending markers</li>
+        <li>Photos shared by Salazar (is_customer_visible = true)</li>
+        <li>Documents: contract, estimate, invoice, warranty</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li>Payment link (Stripe checkout)</li>
+        <li>Message thread (read + optional reply)</li>
+        <li>Insurance claim status (if applicable)</li>
+        <li>Change order approvals (remodeling)</li>
+        <li>Final walkthrough checklist</li>
+        <li>Referral link + QR code + reward status</li>
+        <li>Review request (after warranty upload)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>13 automated notification triggers</h3>
+  <table>
+    <tr><th>#</th><th>Trigger event</th><th>Channel</th><th>Template variables</th></tr>
+    <tr><td>1</td><td>Appointment confirmed</td><td>SMS + Email</td><td>{{customer_name}}, {{date}}, {{time}}, {{rep_name}}</td></tr>
+    <tr><td>2</td><td>Inspection completed</td><td>SMS</td><td>{{customer_name}}, {{portal_link}}</td></tr>
+    <tr><td>3</td><td>Claim number received</td><td>SMS</td><td>{{customer_name}}, {{claim_number}}, {{carrier}}</td></tr>
+    <tr><td>4</td><td>Adjuster appointment set</td><td>SMS + Email</td><td>{{customer_name}}, {{adjuster_name}}, {{appt_date}}</td></tr>
+    <tr><td>5</td><td>Claim approved</td><td>SMS</td><td>{{customer_name}}, {{portal_link}}</td></tr>
+    <tr><td>6</td><td>Install scheduled</td><td>SMS + Email</td><td>{{customer_name}}, {{install_date}}, {{crew_lead_name}}</td></tr>
+    <tr><td>7</td><td>Crew on site (day start)</td><td>SMS</td><td>{{customer_name}}, {{crew_lead_name}}, {{portal_link}}</td></tr>
+    <tr><td>8</td><td>Daily progress update</td><td>SMS</td><td>{{customer_name}}, {{pct_complete}}, {{next_day_plan}}, {{portal_link}}</td></tr>
+    <tr><td>9</td><td>Weather delay</td><td>SMS</td><td>{{customer_name}}, {{new_date}}</td></tr>
+    <tr><td>10</td><td>Job complete</td><td>SMS + Email</td><td>{{customer_name}}, {{portal_link}}</td></tr>
+    <tr><td>11</td><td>Invoice sent</td><td>SMS + Email</td><td>{{customer_name}}, {{amount}}, {{pay_link}}</td></tr>
+    <tr><td>12</td><td>Warranty uploaded</td><td>SMS + Email</td><td>{{customer_name}}, {{portal_link}}, {{review_link}}</td></tr>
+    <tr><td>13</td><td>Referral reward approved</td><td>SMS</td><td>{{customer_name}}, {{reward_amount}}, {{portal_link}}</td></tr>
+  </table>
+
+  <div class="compliance-box">
+    <div class="cb-title">⚖ SMS compliance requirements</div>
+    <p>All SMS must use Twilio A2P 10DLC registration. Marketing messages (storm check-in, referral campaigns) require explicit prior written consent. Transactional messages (appointment confirmation, job updates) require opt-in acknowledgment. Every template must include opt-out language. STOP must trigger immediate opt-out logged in <code>opt_outs</code> table and <code>sms_consents.revoked_at</code>.</p>
+  </div>
+</div>
+
+<!-- S8: STORMLOOP -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num coral">08</div>
+    <div><div class="sec-title">StormLoop Growth Engine</div><div class="sec-desc">Storm detection → ZIP scoring → canvassing missions → storm-to-revenue attribution</div></div>
+  </div>
+
+  <h3>Data pipeline</h3>
+  <div class="flow">
+    <div class="step hi">NWS alert ingested</div>
+    <div class="step hi">ZIPs mapped</div>
+    <div class="step">Opportunity scored</div>
+    <div class="step">Past customers flagged</div>
+    <div class="step hg">Mission created</div>
+    <div class="step hg">Routes assigned</div>
+    <div class="step hg">Doors knocked</div>
+    <div class="step">Leads captured</div>
+    <div class="step ho">Jobs tied to storm</div>
+    <div class="step ho">Revenue attributed</div>
+  </div>
+
+  <h3>Storm opportunity score — 0 to 100</h3>
+  <table>
+    <tr><th>Factor</th><th>Weight</th><th>Source</th></tr>
+    <tr><td>Hail size (NWS threshold)</td><td>25%</td><td>NWS alert hail size field</td></tr>
+    <tr><td>Wind speed</td><td>15%</td><td>NWS alert wind speed field</td></tr>
+    <tr><td>Storm recency (within 72h = max)</td><td>15%</td><td>event.started_at</td></tr>
+    <tr><td>Prior Salazar customers in ZIP</td><td>10%</td><td>COUNT contacts WHERE zip = storm_zip</td></tr>
+    <tr><td>Average home value (proxy)</td><td>10%</td><td>Census ACS API or zip lookup table</td></tr>
+    <tr><td>Roof age estimate</td><td>10%</td><td>Manual ZIP lookup or CoreLogic Phase 2</td></tr>
+    <tr><td>Open leads in ZIP</td><td>5%</td><td>COUNT leads WHERE zip = storm_zip AND status != won</td></tr>
+    <tr><td>Prior storm history (last 3 yrs)</td><td>5%</td><td>storm_events historical lookup</td></tr>
+    <tr><td>Canvassing saturation (inverse)</td><td>5%</td><td>door_knocks COUNT WHERE zip = storm_zip (last 30d)</td></tr>
+  </table>
+
+  <h3>NWS alert thresholds for trigger</h3>
+  <table>
+    <tr><th>Severity</th><th>Hail size</th><th>Wind speed</th><th>App action</th></tr>
+    <tr><td><span class="badge b-gray">Monitor</span></td><td>&lt; 1.0 in</td><td>&lt; 58 mph</td><td>Log event, no alert</td></tr>
+    <tr><td><span class="badge b-y">Moderate</span></td><td>1.0 – 1.74 in</td><td>58–69 mph</td><td>Alert marketing manager, show on map</td></tr>
+    <tr><td><span class="badge b-o">High</span></td><td>1.75 – 2.74 in</td><td>70–79 mph</td><td>Auto-create mission suggestion, push alert</td></tr>
+    <tr><td><span class="badge b-r">Critical</span></td><td>≥ 2.75 in</td><td>≥ 80 mph</td><td>Immediate push + SMS to manager, auto-mission</td></tr>
+  </table>
+
+  <h3>Ethical canvassing guardrails</h3>
+  <div class="danger-box">
+    <div class="cb-title">Required in every canvassing mission</div>
+    <ul>
+      <li>Digital ID badge displayed on canvasser mobile screen</li>
+      <li>Company license + insurance info accessible</li>
+      <li>Do-not-knock address check before every door is shown as available</li>
+      <li>No-soliciting flag shown if flagged by prior rep</li>
+      <li>Consent checkbox before entering homeowner phone/email</li>
+      <li>Right-to-cancel notice if any verbal agreement is made at the door (Texas 3-business-day rule)</li>
+      <li>Approved script loaded — no ad-lib insurance language</li>
+      <li>No deductible waiver offers under any circumstances</li>
+    </ul>
+  </div>
+
+  <h3>Existing-customer storm check-in</h3>
+  <p>When <code>storm_customer_impacts</code> records are created, office can launch a check-in campaign to opted-in past customers. Approved template only:</p>
+  <div class="code-block"><span class="st">"Salazar Roofing &amp; Remodeling: We saw severe weather reported near your area. We hope your home is safe. Reply INSPECT if you'd like us to schedule a no-pressure roof check. Reply STOP to opt out."</span></div>
+</div>
+
+<!-- S9: REFERRAL -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num">09</div>
+    <div><div class="sec-title">Referral &amp; Loyalty Engine</div><div class="sec-desc">Referral tracking, reward automation, and customer loyalty tiers</div></div>
+  </div>
+
+  <h3>Referral lifecycle</h3>
+  <div class="flow">
+    <div class="step">Customer shares link</div>
+    <div class="step hi">Lead captured</div>
+    <div class="step">Inspection booked</div>
+    <div class="step hg">Job won</div>
+    <div class="step hg">Job complete</div>
+    <div class="step hg">Reward approved</div>
+    <div class="step ho">Reward issued</div>
+  </div>
+
+  <h3>Reward tiers</h3>
+  <table>
+    <tr><th>Trigger</th><th>Reward</th><th>Timing</th></tr>
+    <tr><td>Referred inspection completed</td><td>Thank-you entry / 50 points</td><td>Auto on inspection.status = complete</td></tr>
+    <tr><td>Referred roof replacement paid</td><td>$200–$300 gift card</td><td>Manual approval after invoices.paid_at set</td></tr>
+    <tr><td>Referred remodeling project paid</td><td>$300–$500 gift card</td><td>Manual approval after final invoice paid</td></tr>
+    <tr><td>3 completed referrals lifetime</td><td>Silver tier: priority post-storm inspection</td><td>Auto on loyalty_ledger count</td></tr>
+    <tr><td>5 completed referrals lifetime</td><td>Gold tier: annual roof tune-up</td><td>Auto on loyalty_ledger count</td></tr>
+    <tr><td>10 completed referrals lifetime</td><td>VIP: premium maintenance package</td><td>Auto + owner review</td></tr>
+  </table>
+
+  <div class="compliance-box">
+    <div class="cb-title">⚖ Referral compliance notes</div>
+    <p><strong>Deductible:</strong> Referral rewards must never be applied to reduce or cover an insurance deductible. Rewards are for separate future services or cash only, issued after job is paid in full.</p>
+    <p style="margin-top:6px"><strong>Reviews:</strong> Review requests after warranty upload must not require a positive review. FTC guidance: incentives for reviews are not banned but cannot condition the reward on positive sentiment. Disclose that a reward was offered if the review mentions it.</p>
+  </div>
+</div>
+
+<!-- S10: API -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num navy">10</div>
+    <div><div class="sec-title">API Endpoint Spec</div><div class="sec-desc">RESTful JSON API. Base URL: /api/v1. All endpoints require Bearer token except portal/:token.</div></div>
+  </div>
+
+  <h4>Authentication</h4>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/auth/login</span><span class="api-desc">Email + password → JWT access token + refresh token</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/auth/refresh</span><span class="api-desc">Rotate access token using refresh token</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/auth/logout</span><span class="api-desc">Revoke refresh token</span></div>
+
+  <h4>Contacts &amp; Leads</h4>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/contacts</span><span class="api-desc">List contacts. Filters: assigned_rep_id, lead_source, zip, status. RLS applied.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/contacts</span><span class="api-desc">Create contact + optional property record</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/contacts/:id</span><span class="api-desc">Full contact with properties, leads, jobs, and portal tokens</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/leads</span><span class="api-desc">Pipeline list. Filters: status, rep, storm_event_id, date_range</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/leads</span><span class="api-desc">Create lead. Auto-assigns rep if storm_event_id present.</span></div>
+  <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/leads/:id/status</span><span class="api-desc">Advance lead status. Triggers automation rules.</span></div>
+
+  <h4>Jobs</h4>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/jobs</span><span class="api-desc">Job board. Filters: status, job_type, assigned_rep, crew_id, date_range</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs</span><span class="api-desc">Create job from lead. Copies contact, property, lead_source, storm_event_id.</span></div>
+  <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/jobs/:id/status</span><span class="api-desc">Advance status. Triggers notification queue. Logs to activity_logs.</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/jobs/:id/timeline</span><span class="api-desc">Full job timeline: status history, notifications, photos, documents, logs</span></div>
+
+  <h4>Insurance Claims</h4>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/jobs/:id/claim</span><span class="api-desc">Full claim record with supplements, payments, and documents</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/claim</span><span class="api-desc">Create claim record for insurance job</span></div>
+  <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/claims/:id</span><span class="api-desc">Update claim fields. All changes logged.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/claims/:id/supplements</span><span class="api-desc">Add supplement request</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/claims/:id/payments</span><span class="api-desc">Log ACV, RCV, supplement, or depreciation release payment</span></div>
+
+  <h4>Crew &amp; Scheduling</h4>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/crews</span><span class="api-desc">List crews. RLS: crew_manager sees own crew only.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/schedules</span><span class="api-desc">Create schedule entry. Requires crew_id.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/time-entries/clock-in</span><span class="api-desc">GPS clock-in for authenticated user</span></div>
+  <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/time-entries/:id/clock-out</span><span class="api-desc">GPS clock-out. Computes hours_worked.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/daily-log</span><span class="api-desc">Submit daily log. If notify_customer=true → queues SMS notification.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/safety-checklist</span><span class="api-desc">Submit safety checklist. If all_passed=false → blocks job advancement.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/material-orders</span><span class="api-desc">Create material request. Status = requested. Queues office approval task.</span></div>
+  <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/material-orders/:id/approve</span><span class="api-desc">Office approves material order. Status → approved.</span></div>
+
+  <h4>Photos, Documents, Notifications</h4>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/photos</span><span class="api-desc">Upload photo. Returns presigned S3 URL. Saves metadata to job_photos.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/documents</span><span class="api-desc">Upload document. Returns presigned URL. Saves to documents.</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/jobs/:id/notifications/send</span><span class="api-desc">Manually send notification using template_id. Queued via BullMQ.</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/portal/:token</span><span class="api-desc">Public endpoint. Returns job portal data for valid, non-expired token.</span></div>
+
+  <h4>StormLoop</h4>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/storm-events</span><span class="api-desc">List storm events. Filters: severity, date_range, zip</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/storm-events/:id/missions</span><span class="api-desc">Create canvassing mission from storm event</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/missions/:id/routes</span><span class="api-desc">Assign route to canvasser user</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/routes/:id/door-knocks</span><span class="api-desc">Log door knock outcome from mobile canvasser</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/storm-events/:id/attribution</span><span class="api-desc">Revenue + jobs attributed to storm event</span></div>
+
+  <h4>Referrals</h4>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/referrals</span><span class="api-desc">Create referral from link click or canvasser capture. Records referrer_customer_id.</span></div>
+  <div class="api-row"><span class="method get">GET</span><span class="endpoint">/customers/:id/referrals</span><span class="api-desc">Referral history + wallet for customer portal</span></div>
+  <div class="api-row"><span class="method post">POST</span><span class="endpoint">/referral-rewards/:id/approve</span><span class="api-desc">Admin approves reward. Updates referral_rewards.approved_at.</span></div>
+</div>
+
+<!-- S11: TECH STACK -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num teal">11</div>
+    <div><div class="sec-title">Tech Stack &amp; Architecture</div><div class="sec-desc">Full stack recommendation for MVP build</div></div>
+  </div>
+
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr>
+    <tr><td><strong>Database</strong></td><td>PostgreSQL 16 (Supabase hosted)</td><td>UUID PKs, JSONB for payloads, generated columns, PostGIS for canvassing polygons, RLS for multi-role security</td></tr>
+    <tr><td><strong>API / Backend</strong></td><td>Node.js + Fastify or NestJS</td><td>OpenAPI spec, typed DTOs, guard-based RLS middleware, webhook handlers for Stripe + Twilio</td></tr>
+    <tr><td><strong>Auth</strong></td><td>Supabase Auth / Clerk</td><td>JWT, refresh tokens, RLS policy enforcer, role claims in JWT payload</td></tr>
+    <tr><td><strong>Web frontend</strong></td><td>React + Vite + Tailwind + shadcn/ui</td><td>Kanban via dnd-kit, React Query for server state, role-gated route guards</td></tr>
+    <tr><td><strong>Mobile / PWA</strong></td><td>React Native + Expo (Phase 2) / PWA (MVP)</td><td>MVP: responsive PWA. Phase 2: Expo for offline SQLite, camera, GPS, push notifications</td></tr>
+    <tr><td><strong>File storage</strong></td><td>Supabase Storage / AWS S3</td><td>Presigned upload URLs. Sharp for thumbnail generation. Signed read URLs per RLS.</td></tr>
+    <tr><td><strong>Background jobs</strong></td><td>BullMQ + Redis (Upstash)</td><td>Queues: send_notification, generate_pdf, qbo_sync, thumbnail, portal_token_refresh</td></tr>
+    <tr><td><strong>PDF generation</strong></td><td>React-PDF or Puppeteer</td><td>Estimates, inspection reports, warranty packets. Stored in S3, URL written back to record.</td></tr>
+    <tr><td><strong>SMS</strong></td><td>Twilio A2P 10DLC</td><td>Campaign registration required. Delivery webhooks update notifications.status.</td></tr>
+    <tr><td><strong>Email</strong></td><td>Resend + React Email</td><td>Transactional. Open/click tracking linked to notifications.external_id.</td></tr>
+    <tr><td><strong>Payments</strong></td><td>Stripe</td><td>Payment intents for ACH + card. Webhook: payment_intent.succeeded → invoice.paid_at.</td></tr>
+    <tr><td><strong>Maps</strong></td><td>Google Maps JS API</td><td>Canvassing map, GPS clock-in, job site location, driving directions</td></tr>
+    <tr><td><strong>Storm data</strong></td><td>NWS Alerts API (free) → Xweather (Phase 2)</td><td>NWS: poll every 5 min. Xweather: hail swath polygons, better accuracy.</td></tr>
+    <tr><td><strong>Accounting</strong></td><td>QuickBooks Online API (Phase 2)</td><td>Sync invoices, map job → QBO project, nightly reconciliation job</td></tr>
+    <tr><td><strong>Monitoring</strong></td><td>Sentry + Posthog</td><td>Error tracking + product analytics. No PII in analytics events.</td></tr>
+  </table>
+
+  <h3>Infrastructure</h3>
+  <div class="grid3">
+    <div class="box"><div class="box-label">Hosting</div><div class="box-val">Vercel (frontend) + Railway or Render (API)</div></div>
+    <div class="box"><div class="box-label">DB</div><div class="box-val">Supabase Pro or AWS RDS PostgreSQL</div></div>
+    <div class="box"><div class="box-label">CI/CD</div><div class="box-val">GitHub Actions → Vercel + Railway auto-deploy on main push</div></div>
+  </div>
+</div>
+
+<!-- S12: COMPLIANCE -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num coral">12</div>
+    <div><div class="sec-title">Compliance Guardrails</div><div class="sec-desc">Texas insurance law, SMS regulations, door-to-door rules, referral compliance</div></div>
+  </div>
+
+  <h3>Texas insurance law — key requirements</h3>
+  <table>
+    <tr><th>Rule</th><th>Requirement</th><th>App enforcement</th></tr>
+    <tr><td>TDI — public adjuster prohibition</td><td>Contractor cannot act as public adjuster on claim where they also do the work</td><td>All UI copy uses "insurance-support documentation" language. Blocked phrases list enforced in template editor.</td></tr>
+    <tr><td>TDI — deductible waiver prohibition</td><td>Contractors cannot waive, rebate, or absorb homeowner deductibles</td><td>Deductible field is display-only in portal. Warning banner on all insurance jobs. Blocked phrase list.</td></tr>
+    <tr><td>Texas insurance code — contract disclosure</td><td>Contracts involving insurance proceeds must include deductible payment notice</td><td>Contract template includes required TDI disclosure. Admin cannot publish template without approval flag.</td></tr>
+    <tr><td>Right to cancel — door-to-door sales</td><td>3 business days to cancel contracts signed at the home</td><td>Canvasser app generates right-to-cancel notice PDF on any in-field agreement. Required before lead can advance.</td></tr>
+  </table>
+
+  <h3>SMS / TCPA requirements</h3>
+  <table>
+    <tr><th>Rule</th><th>Requirement</th><th>App enforcement</th></tr>
+    <tr><td>A2P 10DLC registration</td><td>All business SMS via Twilio must be registered with TCR</td><td>Admin setup checklist includes 10DLC registration step. Campaigns blocked until registered.</td></tr>
+    <tr><td>Marketing consent</td><td>Autodialed/prerecorded marketing SMS requires prior express written consent</td><td>sms_consents.consent_type = marketing required before campaign sends. UI blocks send if missing.</td></tr>
+    <tr><td>STOP handling</td><td>Must honor opt-outs immediately</td><td>Twilio STOP webhook → opt_outs record + sms_consents.revoked_at. All subsequent sends blocked.</td></tr>
+    <tr><td>Message identification</td><td>Business name must appear in message</td><td>All templates include "Salazar Roofing &amp; Remodeling:" prefix. Template editor enforces.</td></tr>
+  </table>
+
+  <h3>Referral &amp; review compliance</h3>
+  <ul>
+    <li>Referral rewards must never be used to reduce or cover an insurance deductible</li>
+    <li>Rewards paid only after referred job is complete and paid in full</li>
+    <li>Review requests must not require a positive review as a condition of any reward</li>
+    <li>Any material connection between a reward and a review must be disclosed in the review</li>
+    <li>Loyalty program must be documented and applied consistently to avoid unfair competition claims</li>
+  </ul>
+</div>
+
+<!-- S13: SEED DATA -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num gold">13</div>
+    <div><div class="sec-title">Demo Seed Data</div><div class="sec-desc">Sample data for dev environment and Salazar demo build</div></div>
+  </div>
+
+  <h3>Seed users</h3>
+  <div class="seed-block">users: [
+  { id: "u-001", first_name: "Danny",   last_name: "Salazar",   role: "admin",        email: "danny@salazarroofing.com" },
+  { id: "u-002", first_name: "Rosa",    last_name: "Salazar",   role: "office",       email: "rosa@salazarroofing.com" },
+  { id: "u-003", first_name: "Carlos",  last_name: "Mendez",    role: "sales_rep",    email: "carlos@salazarroofing.com" },
+  { id: "u-004", first_name: "Maria",   last_name: "Lopez",     role: "sales_rep",    email: "maria@salazarroofing.com" },
+  { id: "u-005", first_name: "Roberto", last_name: "Fuentes",   role: "crew_manager", email: "roberto@salazarroofing.com" },
+  { id: "u-006", first_name: "Pedro",   last_name: "Hernandez", role: "crew_lead",    email: "pedro@salazarroofing.com" },
+  { id: "u-007", first_name: "Jorge",   last_name: "Gutierrez", role: "crew_member",  email: "jorge@salazarroofing.com" },
+  { id: "u-008", first_name: "Ana",     last_name: "Reyes",     role: "marketing_mgr",email: "ana@salazarroofing.com" }
+]</div>
+
+  <h3>Seed contacts &amp; jobs</h3>
+  <div class="seed-block">contacts: [
+  { id: "c-001", first_name: "Maria",    last_name: "Chen",      phone: "(713) 555-0247", zip: "77082", lead_source: "storm_chase" },
+  { id: "c-002", first_name: "Robert",   last_name: "Vasquez",   phone: "(832) 555-0389", zip: "75087", lead_source: "referral"    },
+  { id: "c-003", first_name: "Sandra",   last_name: "Kim",       phone: "(713) 555-0412", zip: "75189", lead_source: "web_form"    },
+  { id: "c-004", first_name: "James",    last_name: "Thompson",  phone: "(281) 555-0091", zip: "77479", lead_source: "storm_chase" },
+  { id: "c-005", first_name: "Tony",     last_name: "Reyes",     phone: "(713) 555-0533", zip: "77072", lead_source: "referral"    }
+]
+
+jobs: [
+  { id: "j-001", contact_id: "c-001", status: "in_progress",  job_type: "roofing",    contract_amount: 18400, is_insurance_claim: true,
+    claim: { carrier: "State Farm", claim_number: "SF-2024-089234", status: "supplementing",
+             adjuster_name: "Kevin Marsh", adjuster_phone: "(713) 555-0192", adjuster_appt_at: "2025-06-05T10:00:00Z",
+             acv_received: 14200, rcv_holdback: 3800, supplement_amount: 1400, supplement_status: "pending" } },
+  { id: "j-002", contact_id: "c-002", status: "estimate",     job_type: "roofing",    contract_amount: 12800, is_insurance_claim: true,
+    claim: { carrier: "Allstate", claim_number: "AF-2024-441921", status: "filed" } },
+  { id: "j-003", contact_id: "c-003", status: "scheduled",    job_type: "remodeling", contract_amount: 28500, is_insurance_claim: false,
+    crew_assigned: "Crew B" },
+  { id: "j-004", contact_id: "c-004", status: "complete",     job_type: "roofing",    contract_amount: 14200, is_insurance_claim: true,
+    claim: { carrier: "Farmers", claim_number: "FI-2024-002187", status: "paid" } },
+  { id: "j-005", contact_id: "c-005", status: "approved",     job_type: "roofing",    contract_amount: 22100, is_insurance_claim: true,
+    claim: { carrier: "Liberty Mutual", claim_number: "LB-2024-119034", status: "adjuster_scheduled" } }
+]</div>
+
+  <h3>Seed storm event</h3>
+  <div class="seed-block">storm_events: [
+  { id: "se-001", event_name: "Rockwall / Fate Hail Event", event_type: "hail",
+    started_at: "2026-06-16T14:30:00Z", max_hail_size: 1.75, max_wind_speed: 68,
+    severity_level: "high", source: "NWS",
+    zip_impacts: [
+      { zip: "75087", city: "Rockwall",  hail_size: 1.75, wind_speed: 68, impact_score: 92, priority: "critical" },
+      { zip: "75189", city: "Royse City",hail_size: 1.25, wind_speed: 62, impact_score: 76, priority: "high"     },
+      { zip: "75132", city: "Fate",      hail_size: 1.00, wind_speed: 58, impact_score: 64, priority: "medium"   }
+    ],
+    customer_impacts: 38  // past customers in affected ZIPs
+  }
+]</div>
+
+  <h3>Demo script — 10-step walkthrough</h3>
+  <table>
+    <tr><th>Step</th><th>Screen</th><th>What to show</th><th>Talking point</th></tr>
+    <tr><td>1</td><td>StormLoop dashboard</td><td>Rockwall/Fate storm alert. 38 customers flagged. Mission suggestion.</td><td>"When hail hits, you know in minutes — not the next morning."</td></tr>
+    <tr><td>2</td><td>Mission builder</td><td>Create Rockwall mission, assign 2 canvassers to routes</td><td>"Your reps have routes and scripts on their phones before they leave the office."</td></tr>
+    <tr><td>3</td><td>Canvasser mobile</td><td>Door pin, consent capture, book inspection</td><td>"Every knocked door is tracked. No lead lives in someone's phone."</td></tr>
+    <tr><td>4</td><td>Lead → Job</td><td>Inspection completed, job created from lead. Photos uploaded.</td><td>"Sales to production in one tap."</td></tr>
+    <tr><td>5</td><td>Insurance claim tab</td><td>Maria Chen — State Farm claim, adjuster, ACV $14,200, supplement $1,400 pending</td><td>"This is what's normally on a sticky note and in 3 email threads."</td></tr>
+    <tr><td>6</td><td>Notifications tab</td><td>6 SMS messages auto-sent. Portal link. 4 views.</td><td>"Maria hasn't called once. She checks her portal."</td></tr>
+    <tr><td>7</td><td>Customer portal</td><td>Progress timeline, 65% complete bar, crew photos, next step</td><td>"This is what Maria sees on her phone. No app, no login."</td></tr>
+    <tr><td>8</td><td>Crew app</td><td>Safety checklist, daily log, progress photos, clock-in</td><td>"The office knows what happened on the roof without one phone call."</td></tr>
+    <tr><td>9</td><td>Completion + warranty</td><td>Invoice sent, warranty uploaded, review request fired</td><td>"Every job closes clean. Nothing falls through the cracks."</td></tr>
+    <tr><td>10</td><td>Referral portal</td><td>Maria's referral link, neighbor inspection booked, reward pending</td><td>"One happy customer just became your next job."</td></tr>
+  </table>
+</div>
+
+<!-- S14: MVP ROADMAP -->
+<div class="section page-break">
+  <div class="sec-header">
+    <div class="sec-num teal">14</div>
+    <div><div class="sec-title">MVP Build Order &amp; Acceptance Criteria</div><div class="sec-desc">6-phase build plan with acceptance criteria for each deliverable</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#1D9E75">Phase 1 — Core CRM</div>
+      <div class="mvp-title">Weeks 1–3</div>
+      <ul class="mvp-items">
+        <li>Users, roles, RLS policies deployed</li>
+        <li>Contacts + Properties CRUD</li>
+        <li>Leads pipeline board (kanban)</li>
+        <li>Jobs CRUD + status pipeline</li>
+        <li>Photo upload with tags + geo-stamp</li>
+        <li>Document upload + storage</li>
+        <li>Activity log on all status changes</li>
+        <li>Dashboard: leads, jobs, stuck items</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Sales rep can create lead, book inspection, upload photos, convert to job — without seeing another rep's data.</p>
+    </div>
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#3c3489">Phase 2 — Insurance Desk</div>
+      <div class="mvp-title">Weeks 4–5</div>
+      <ul class="mvp-items">
+        <li>insurance_claims table + CRUD</li>
+        <li>Claim status 18-stage pipeline</li>
+        <li>Adjuster info + appointment tracking</li>
+        <li>ACV / RCV / supplement payment tracker</li>
+        <li>Document packet (PDF uploads per claim)</li>
+        <li>Compliance disclaimer on all claim screens</li>
+        <li>Blocked phrase validator in template editor</li>
+        <li>Claims dashboard (office view)</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Office can track full claim lifecycle from filed to paid. All payment events logged separately. No blocked language in any UI text.</p>
+    </div>
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#0c447c">Phase 3 — Portal + Notifications</div>
+      <div class="mvp-title">Weeks 6–7</div>
+      <ul class="mvp-items">
+        <li>portal_tokens generated + SMS delivery</li>
+        <li>Customer portal (public, no login)</li>
+        <li>13 milestone notification templates</li>
+        <li>BullMQ notification queue</li>
+        <li>SMS consent capture + opt-out</li>
+        <li>Twilio A2P delivery + webhook</li>
+        <li>Notification history per job</li>
+        <li>is_customer_visible flag on photos/docs</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Homeowner receives SMS with magic link. Portal shows correct job stage, photos, documents. STOP reply triggers immediate opt-out.</p>
+    </div>
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#633806">Phase 4 — Crew Ops</div>
+      <div class="mvp-title">Weeks 8–9</div>
+      <ul class="mvp-items">
+        <li>Crew manager role + RLS policies</li>
+        <li>Crew assignment + job access grants</li>
+        <li>GPS clock-in / clock-out</li>
+        <li>Daily job log + notify_customer trigger</li>
+        <li>Safety checklist + job-block gate</li>
+        <li>Material order request → office approval</li>
+        <li>Crew certifications + expiry alerts</li>
+        <li>Crew performance reviews</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Crew manager submits daily log → customer SMS fires automatically. Safety checklist blocks job start until all_passed = true.</p>
+    </div>
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#D85A30">Phase 5 — StormLoop</div>
+      <div class="mvp-title">Weeks 10–12</div>
+      <ul class="mvp-items">
+        <li>NWS alert ingest (polling job)</li>
+        <li>storm_zip_impacts computation</li>
+        <li>Storm opportunity score</li>
+        <li>Storm dashboard (admin + marketing)</li>
+        <li>Existing-customer impact list</li>
+        <li>Marketing mission builder</li>
+        <li>Canvassing route + Google Maps</li>
+        <li>Door knock mobile screen + lead capture</li>
+        <li>Do-not-knock list enforcement</li>
+        <li>Storm-to-job revenue attribution</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Storm event creates ZIP impact records within 5 min of NWS alert. Canvasser can log door knock → create lead → book inspection in &lt;60 seconds.</p>
+    </div>
+    <div class="mvp-card">
+      <div class="mvp-phase" style="color:#7F77DD">Phase 6 — Referral Engine</div>
+      <div class="mvp-title">Weeks 13–14</div>
+      <ul class="mvp-items">
+        <li>referrals table + lifecycle tracking</li>
+        <li>Referral link + QR code in portal</li>
+        <li>customer_loyalty_accounts + tiers</li>
+        <li>Referral reward approval workflow</li>
+        <li>loyalty_ledger (immutable points log)</li>
+        <li>Top referrers dashboard</li>
+        <li>Post-warranty review request automation</li>
+        <li>Compliance: no deductible offset logic</li>
+      </ul>
+      <p style="font-size:10px;color:#888;margin-top:8px"><strong>Acceptance:</strong> Customer portal shows referral link + QR. Referred job completion triggers reward pending status. Admin approves reward. No reward can be applied to insurance deductible.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:16px">Phase 2 &amp; 3 additions (post-MVP)</h3>
+  <div class="pill-row">
+    <span class="badge b-gray">QuickBooks Online sync</span>
+    <span class="badge b-gray">Estimate / proposal builder</span>
+    <span class="badge b-gray">E-sign (DocuSign / HelloSign)</span>
+    <span class="badge b-gray">Change order approvals</span>
+    <span class="badge b-gray">Remodeling selections board</span>
+    <span class="badge b-gray">Xactimate ESX import</span>
+    <span class="badge b-gray">EagleView API integration</span>
+    <span class="badge b-gray">Xweather hail swath data</span>
+    <span class="badge b-gray">Native iOS + Android (Expo)</span>
+    <span class="badge b-gray">Offline mode (SQLite)</span>
+    <span class="badge b-gray">AI photo report generator</span>
+    <span class="badge b-gray">AI door script generator</span>
+    <span class="badge b-gray">Supplier catalog ordering (ABC/SRS)</span>
+    <span class="badge b-gray">Rep leaderboard + territory analytics</span>
+    <span class="badge b-gray">Geo-fenced ad audience export</span>
+  </div>
+
+  <div class="divider"></div>
+  <div style="text-align:center;padding:16px 0">
+    <div style="font-size:11px;color:#888;margin-bottom:4px">Prepared for dev handoff by</div>
+    <div style="font-size:14px;font-weight:600">Salazar Roofing OS — Product Team</div>
+    <div style="font-size:11px;color:#888;margin-top:4px">Version 1.0 · June 2026 · Confidential</div>
+  </div>
+</div>
+</div>
+
+<script>
+const JSON_SPEC = {
+  product: "Salazar Roofing OS",
+  version: "1.0",
+  client: "Salazar Roofing & Remodeling",
+  territory: "Dallas / Rockwall / DFW Metro, TX",
+  date: "June 2026",
+  modules: ["CRM & Lead Pipeline","Inspection App","Insurance-Support Desk","Production Board","Crew Operations","Customer Portal & Notifications","Estimating & Proposals","StormLoop Growth Engine","Referral & Loyalty Engine"],
+  roles: ["admin","office","production_mgr","insurance_coord","sales_rep","marketing_mgr","crew_manager","crew_lead","canvasser","crew_member","customer","external_partner"],
+  tables: {
+    core: ["companies","users","contacts","properties","leads","jobs","activity_logs"],
+    insurance: ["insurance_claims","claim_supplements","claim_payments","claim_documents"],
+    estimating: ["estimates","estimate_line_items","change_orders"],
+    crew: ["crews","crew_members","crew_manager_assignments","crew_manager_job_access","job_schedules","time_entries","daily_job_logs","safety_checklists","material_orders","material_order_items","crew_certifications","crew_performance_reviews","crew_availability","safety_incidents","punch_list_items"],
+    media: ["job_photos","documents"],
+    notifications: ["notification_templates","notifications","portal_tokens","sms_consents"],
+    invoicing: ["invoices","remodeling_selections","permits"],
+    storm: ["storm_events","storm_zip_impacts","storm_customer_impacts","marketing_missions","canvassing_routes","door_knocks","do_not_knock_addresses"],
+    referral: ["referrals","referral_rewards","customer_loyalty_accounts","loyalty_ledger"],
+    compliance: ["approved_scripts","compliance_audit_logs","opt_outs"]
+  },
+  stack: {
+    database: "PostgreSQL 16 (Supabase)",
+    api: "Node.js + Fastify",
+    auth: "Supabase Auth / Clerk",
+    frontend: "React + Vite + Tailwind + shadcn/ui",
+    mobile: "PWA (MVP), React Native + Expo (Phase 2)",
+    storage: "Supabase Storage / AWS S3",
+    jobs: "BullMQ + Redis (Upstash)",
+    pdf: "React-PDF / Puppeteer",
+    sms: "Twilio A2P 10DLC",
+    email: "Resend + React Email",
+    payments: "Stripe",
+    maps: "Google Maps API",
+    storm_data: "NWS Alerts API (free) / Xweather (Phase 2)",
+    accounting: "QuickBooks Online API (Phase 2)",
+    monitoring: "Sentry + Posthog"
+  },
+  mvp_phases: [
+    { phase: 1, name: "Core CRM", weeks: "1–3", deliverables: ["Users + roles + RLS","Contacts + Properties CRUD","Leads kanban","Jobs pipeline","Photo + document upload","Activity log","Dashboard"] },
+    { phase: 2, name: "Insurance Desk", weeks: "4–5", deliverables: ["insurance_claims CRUD","Claim 18-stage pipeline","ACV/RCV/supplement tracker","Document packet","Compliance guardrails","Claims dashboard"] },
+    { phase: 3, name: "Portal + Notifications", weeks: "6–7", deliverables: ["portal_tokens + magic link","Customer portal (public)","13 milestone templates","BullMQ notification queue","Twilio delivery + webhooks","SMS consent + opt-out"] },
+    { phase: 4, name: "Crew Ops", weeks: "8–9", deliverables: ["Crew manager role + RLS","GPS clock-in/out","Daily log + SMS trigger","Safety checklist gate","Material order approval","Cert expiry alerts"] },
+    { phase: 5, name: "StormLoop", weeks: "10–12", deliverables: ["NWS alert ingest","ZIP impact scoring","Storm dashboard","Mission builder","Canvassing routes + map","Door knock tracking","Storm-to-revenue attribution"] },
+    { phase: 6, name: "Referral Engine", weeks: "13–14", deliverables: ["Referral lifecycle tracking","Portal referral link + QR","Loyalty tiers + ledger","Reward approval workflow","Top referrers dashboard","Post-warranty review automation"] }
+  ],
+  demo_seed: {
+    users: [
+      { id: "u-001", name: "Danny Salazar", role: "admin" },
+      { id: "u-002", name: "Rosa Salazar", role: "office" },
+      { id: "u-003", name: "Carlos Mendez", role: "sales_rep" },
+      { id: "u-005", name: "Roberto Fuentes", role: "crew_manager" }
+    ],
+    jobs: [
+      { id: "j-001", customer: "Maria Chen", status: "in_progress", job_type: "roofing", contract_amount: 18400, claim_number: "SF-2024-089234", carrier: "State Farm", acv: 14200, rcv: 3800, supplement: 1400 },
+      { id: "j-002", customer: "Robert Vasquez", status: "estimate", job_type: "roofing", contract_amount: 12800, claim_number: "AF-2024-441921", carrier: "Allstate" },
+      { id: "j-003", customer: "Sandra Kim", status: "scheduled", job_type: "remodeling", contract_amount: 28500 },
+      { id: "j-004", customer: "James Thompson", status: "complete", job_type: "roofing", contract_amount: 14200, claim_number: "FI-2024-002187", carrier: "Farmers" },
+      { id: "j-005", customer: "Tony Reyes", status: "approved", job_type: "roofing", contract_amount: 22100, claim_number: "LB-2024-119034", carrier: "Liberty Mutual" }
+    ],
+    storm_event: { id: "se-001", name: "Rockwall/Fate Hail Event", max_hail: 1.75, max_wind: 68, severity: "high", zips: ["75087","75189","75132"], customers_impacted: 38 }
+  },
+  compliance: {
+    blocked_phrases: ["we file your claim","we negotiate","free roof","waive your deductible","we represent you","we recover every dollar","guaranteed insurance approval"],
+    required_disclosures: ["Texas deductible notice on all insurance contracts","3-business-day right to cancel on in-home agreements","SMS opt-out notice on every message","Insurance-support disclaimer on claim screens"],
+    sms_requirements: ["A2P 10DLC registration","Consent capture before marketing SMS","STOP handling within 5 minutes","Consent source + timestamp stored"]
+  }
+};
+
+function downloadJSON(){
+  const blob = new Blob([JSON.stringify(JSON_SPEC, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'salazar-roofing-os-dev-spec.json';
+  a.click();
+}
+</script>
+</body>
+</html>

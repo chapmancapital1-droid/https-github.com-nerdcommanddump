@@ -1,0 +1,111 @@
+[
+  {
+    "id": "tc-001",
+    "trigger": "Design a trading system for $500 starting capital",
+    "expected_template": "Template 1: Trading",
+    "expected_outputs": [
+      "4 strategies listed (breakout, stat_arb, mean_reversion, pairs_trading)",
+      "Lot sizes: 0.01 / 0.04 / 0.07",
+      "Triangle entry steps",
+      "ATR stop loss",
+      "Daily limits: +$10 target / -$5 halt",
+      "Reference to nerdcommand/micro-lot/ implementation"
+    ],
+    "must_not_contain": [
+      "Kafka",
+      "Redis",
+      "$500K",
+      "neural network",
+      "RandomForest"
+    ]
+  },
+  {
+    "id": "tc-002",
+    "trigger": "How do we build an AI film production pipeline?",
+    "expected_template": "Template 2: Studios",
+    "expected_outputs": [
+      "nerdcommand-writer skill mentioned",
+      "artlist-cinematic-director skill mentioned",
+      "nerdcommand-character-consistency skill mentioned",
+      "banana-pro-director skill mentioned",
+      "Character consistency strategy",
+      "Cost estimate < $150 per project"
+    ],
+    "must_not_contain": [
+      "expensive SaaS",
+      "$500/month"
+    ]
+  },
+  {
+    "id": "tc-003",
+    "trigger": "Design podcast infrastructure with monetization",
+    "expected_template": "Template 3: Podcast",
+    "expected_outputs": [
+      "stripe-integration mentioned",
+      "Subscription tiers ($5/$10/$20)",
+      "RSS distribution",
+      "Weekly content calendar",
+      "Cost < $50/month"
+    ],
+    "must_not_contain": []
+  },
+  {
+    "id": "tc-004",
+    "trigger": "System design for multi-model AI prompt generation",
+    "expected_template": "Template 4: Prompt Engineering",
+    "expected_outputs": [
+      "banana-pro-director mentioned",
+      "Model routing decision tree",
+      "A/B testing process",
+      "Prompt library structure",
+      "JSON template format"
+    ],
+    "must_not_contain": [
+      "build your own routing from scratch"
+    ]
+  },
+  {
+    "id": "tc-005",
+    "trigger": "We're getting bottlenecks in our trading pipeline — signals come in but positions aren't opening fast enough",
+    "expected_template": "Template 1: Trading (optimization)",
+    "expected_outputs": [
+      "Identifies likely cause (data feed latency or LLM latency)",
+      "Suggests llama-cpp-python for lower LLM latency",
+      "Mentions cache for repeated identical signals",
+      "Does not suggest Kafka or complex message queue for <5 users"
+    ],
+    "must_not_contain": [
+      "microservices",
+      "Kubernetes"
+    ]
+  },
+  {
+    "id": "tc-006",
+    "trigger": "How do we design a system that works across Trading AND Studios at the same time?",
+    "expected_template": "Multi-template + Integration Guide",
+    "expected_outputs": [
+      "Routing map shown",
+      "Shared components identified (SQLite, Ollama/LLM, git)",
+      "Stripe as shared monetization layer",
+      "Single operator feasibility confirmed",
+      "Cost estimate < $100/month for both"
+    ],
+    "must_not_contain": []
+  },
+  {
+    "id": "tc-007",
+    "trigger": "Should I build a custom analytics platform for my podcast?",
+    "expected_template": "Template 3: Podcast + Decision Tree",
+    "expected_outputs": [
+      "Decision tree applied (does existing tool do 80%?)",
+      "Answer: NO — use Buzzsprout/Spotify/Stripe dashboard",
+      "Defer custom build unless MRR > $1000",
+      "Lean stack recommendation"
+    ],
+    "must_not_contain": [
+      "build custom analytics now",
+      "InfluxDB",
+      "Grafana with complex setup"
+    ]
+  }
+]

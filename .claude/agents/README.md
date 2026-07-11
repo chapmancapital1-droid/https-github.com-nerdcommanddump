@@ -56,10 +56,20 @@ marketing division. (Not part of the software `super-developer` roster.)
 | `pr-communications-manager` | sonnet | Press releases, media outreach, crisis comms |
 | `app-store-optimizer` | sonnet | ASO — titles, keywords, screenshots, store conversion |
 
-The source marketing division has ~36 agents including China-platform
-specialists (Douyin, WeChat, Weibo, Xiaohongshu, Zhihu, Baidu, Bilibili,
-Kuaishou) and niche roles (podcast, book co-author, livestream commerce). Add
-any of them with the same conversion steps below.
+### Video & livestream creators
+
+Adapted from the source repo's video-focused agents, **translated to English and
+generalized** off their original China platforms for broad use:
+
+| Agent | Adapted from | Domain |
+|---|---|---|
+| `short-video-creator` | Douyin | Short-form vertical video (TikTok/Reels/Shorts) — hooks, retention, series |
+| `livestream-commerce-strategist` | Kuaishou | Live-shopping — host coaching, session structure, trust-based conversion |
+| `long-form-video-creator` | Bilibili | Long-form/YouTube-style video — watch-time, thumbnails/titles, community |
+
+Other China-platform agents (WeChat, Weibo, Xiaohongshu, Zhihu, Baidu) and niche
+roles (podcast, book co-author) were intentionally left out. Add any with the
+same conversion steps below.
 
 ## What was adapted from the source
 

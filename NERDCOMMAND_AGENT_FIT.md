@@ -96,32 +96,35 @@ The same agents you sell, you also run internally for GTM:
 
 ---
 
-## Gaps — pillars not yet covered (add from the source repo)
+## Pillar coverage — gaps now filled ✅
 
-NerdCommand advertises **images, voice, research, and agent/workflow
-orchestration**, which this curated set only partially covers. Highest-value
-additions from `msitarzewski/agency-agents`:
+The image/voice/research/orchestration gaps have been wired in. NerdCommand now
+has **full pillar coverage**:
 
-| Missing capability | NerdCommand pillar | Candidate source agent(s) |
+| Pillar | Status | Covering agents |
 |---|---|---|
-| Image / graphic / ad creative | **Images** | `design/` division (brand-guardian, UI/visual, whimsy-injector) |
-| Voice / TTS / voice-clone integration | **Voice** | `engineering-voice-ai-integration-engineer` |
-| Deep research / synthesis | **Research** | `academic/` division agents |
-| Multi-agent workflow orchestration | **Agents / automation** | `engineering-multi-agent-systems-architect` |
-| Prompt tooling for the tool catalog | Agents | `engineering-prompt-engineer` |
+| Video | ✅ | `short-video-creator`, `long-form-video-creator`, `livestream-commerce-strategist` |
+| **Images** | ✅ (new) | `image-prompt-engineer`, `visual-storyteller`, `brand-guardian` |
+| Audio | ✅ | `podcast-strategist` |
+| **Voice** | ✅ (new) | `voice-ai-integration-engineer` |
+| Agents | ✅ | `ai-engineer`, `prompt-engineer` (new), `multi-agent-systems-architect` (new) |
+| Writing | ✅ | `content-creator`, `book-co-author`, `email-strategist`, platform social agents |
+| **Research** | ✅ (new) | `statistician`, `seo-specialist`; `investment-researcher` for finance |
+| Automation | ✅ | `social-media-strategist`, `devops-automator`, `super-developer` |
 
-Adding these four or five would let NerdCommand claim **full pillar coverage**
-(video ✓ · images ✗→✓ · audio ✓ · voice ✗→✓ · agents ✓ · writing ✓ · research ✗→✓ · automation ✓).
+Bonus: `investment-researcher` covers **stock-market / investment research** — a
+NerdCommand vertical beyond the eight core pillars (research/analysis only, not
+licensed financial advice).
 
 ---
 
 ## Recommended next moves
 
 1. **Keep the whole engineering team** — it builds and runs the platform (Lens A).
-2. **Treat the 16 media/marketing agents as launch inventory** (Lens B) and wire
-   `social-media-strategist` as the campaign orchestrator.
-3. **Fill the gaps**: add an image/design agent, `voice-ai-integration-engineer`,
-   a research agent, and `multi-agent-systems-architect` to cover every advertised
-   pillar.
+2. **Treat the media/marketing/design agents as launch inventory** (Lens B) and
+   wire `social-media-strategist` as the campaign orchestrator, with
+   `multi-agent-systems-architect` designing how the catalog agents coordinate.
+3. **Gaps are filled** — every advertised pillar (video, images, audio, voice,
+   agents, writing, research, automation) now has at least one agent.
 4. **Dogfood** — run NerdCommand's own marketing through these agents (Lens C) as
    living proof the product works.

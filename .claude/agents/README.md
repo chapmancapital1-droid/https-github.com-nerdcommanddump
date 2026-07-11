@@ -35,6 +35,25 @@ Or invoke a specialist directly for a focused task:
 | `code-reviewer` | opus | Correctness / security / maintainability review |
 | `git-workflow-master` | sonnet | Branching, clean history, PR structure |
 | `technical-writer` | sonnet | READMEs, API docs, runbooks |
+| `ui-designer` | sonnet | Interface design, design systems, visual polish |
+| `prompt-engineer` | opus | Craft/test/optimize LLM prompts into reliable behavior |
+| `multi-agent-systems-architect` | opus | Orchestrate many agents/tools — routing, handoffs, state |
+| `voice-ai-integration-engineer` | sonnet | Voice/speech AI — TTS/STT, voice cloning, audio pipelines |
+
+## Design & visual
+
+| Agent | Model | Domain |
+|---|---|---|
+| `image-prompt-engineer` | sonnet | AI image-generation prompting — ad creative, thumbnails, visuals |
+| `visual-storyteller` | sonnet | Visual narrative — infographics, carousels, image-led content |
+| `brand-guardian` | sonnet | Brand consistency — style guides, brand systems, asset review |
+
+## Research & analysis
+
+| Agent | Model | Domain |
+|---|---|---|
+| `statistician` | sonnet | Quantitative research, A/B design, surveys, data modeling |
+| `investment-researcher` | opus | Investment/stock-market research, due diligence, valuation (research, **not** financial advice) |
 
 ## Marketing & Social team
 

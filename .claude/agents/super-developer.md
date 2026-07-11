@@ -34,8 +34,12 @@ Delegate to these by name (they live in `.claude/agents/`):
 | `backend-architect` | APIs, services, auth, business logic, queues, caching, server-side data |
 | `frontend-developer` | components, state, responsive UI, accessibility, front-end performance |
 | `senior-developer` | premium, polished full-stack features (rich UI + real backend, theming, WebGL) |
+| `ui-designer` | interface design, design systems, component/layout design and visual polish |
 | `database-optimizer` | schema/data modeling, slow queries, indexing, scaling the data layer |
 | `ai-engineer` | LLM/ML features — prompts, RAG, embeddings, agents, evals, model integration |
+| `prompt-engineer` | crafting, testing, and optimizing LLM prompts into reliable production behavior |
+| `multi-agent-systems-architect` | designing how many agents/tools coordinate — routing, handoffs, shared state |
+| `voice-ai-integration-engineer` | voice/speech AI — TTS/STT, voice cloning, voice agents, audio pipelines |
 | `devops-automator` | CI/CD, Docker/K8s, IaC, deployment and release automation |
 | `sre` | reliability, observability, SLOs, incident response, production hardening |
 | `rapid-prototyper` | a fast MVP/spike/demo where speed beats polish |
@@ -57,8 +61,10 @@ the sake of delegating.
    - Design → `software-architect`
    - Data layer → `database-optimizer` / `backend-architect`
    - Server → `backend-architect`
-   - UI → `frontend-developer` / `senior-developer`
-   - AI features → `ai-engineer`
+   - UI → `frontend-developer` / `senior-developer` / `ui-designer`
+   - AI features → `ai-engineer` / `prompt-engineer`
+   - Multi-agent / tool orchestration → `multi-agent-systems-architect`
+   - Voice / audio → `voice-ai-integration-engineer`
    - Infra/CI → `devops-automator` / `sre`
 4. **Delegate a phase at a time.** Give each specialist tight, self-contained context:
    the goal, the files involved, the constraints, and the interface it must honor.

@@ -36,6 +36,31 @@ Or invoke a specialist directly for a focused task:
 | `git-workflow-master` | sonnet | Branching, clean history, PR structure |
 | `technical-writer` | sonnet | READMEs, API docs, runbooks |
 
+## Marketing & Social team
+
+A separate crew for growth, content, and social — adapted from the source repo's
+marketing division. (Not part of the software `super-developer` roster.)
+
+| Agent | Model | Domain |
+|---|---|---|
+| `social-media-strategist` | sonnet | Cross-platform strategy, calendars, campaigns (lead) |
+| `content-creator` | sonnet | Multi-format content: posts, captions, scripts, blogs |
+| `growth-hacker` | sonnet | Viral loops, referrals, funnel & acquisition experiments |
+| `seo-specialist` | sonnet | Keyword research, on-page/technical SEO, organic growth |
+| `email-strategist` | sonnet | Newsletters, drip sequences, segmentation, deliverability |
+| `tiktok-strategist` | sonnet | TikTok short-video hooks, trends, cadence |
+| `instagram-curator` | sonnet | Feed/Reels/Stories strategy and visual curation |
+| `twitter-engager` | sonnet | X/Twitter posts, threads, real-time engagement |
+| `linkedin-content-creator` | sonnet | LinkedIn thought-leadership, B2B, personal brand |
+| `reddit-community-builder` | sonnet | Authentic subreddit engagement and community building |
+| `pr-communications-manager` | sonnet | Press releases, media outreach, crisis comms |
+| `app-store-optimizer` | sonnet | ASO — titles, keywords, screenshots, store conversion |
+
+The source marketing division has ~36 agents including China-platform
+specialists (Douyin, WeChat, Weibo, Xiaohongshu, Zhihu, Baidu, Bilibili,
+Kuaishou) and niche roles (podcast, book co-author, livestream commerce). Add
+any of them with the same conversion steps below.
+
 ## What was adapted from the source
 
 Each source agent's **body was preserved**; the changes make them Cowork-native:

@@ -53,7 +53,20 @@ Or invoke a specialist directly for a focused task:
 | Agent | Model | Domain |
 |---|---|---|
 | `statistician` | sonnet | Quantitative research, A/B design, surveys, data modeling |
-| `investment-researcher` | opus | Investment/stock-market research, due diligence, valuation (research, **not** financial advice) |
+
+## Finance desk
+
+> All finance agents produce **educational analysis and tooling only — not
+> licensed financial, tax, or investment advice.**
+
+| Agent | Model | Domain |
+|---|---|---|
+| `investment-researcher` | opus | Stock/market research, due diligence, valuation |
+| `options-trading-analyst` | opus | Options strategy, greeks, IV, risk/reward, options-analytics tooling (live data + news) |
+| `financial-analyst` | opus | Financial modeling, forecasting, scenario analysis, valuation |
+| `fpa-analyst` | sonnet | Budgeting, variance analysis, KPI/board reporting, forecasts |
+| `tax-strategist` | sonnet | Tax planning and optimization, multi-jurisdictional considerations |
+| `bookkeeper-controller` | sonnet | Day-to-day accounting, close, controls, reconciliations |
 
 ## Marketing & Social team
 

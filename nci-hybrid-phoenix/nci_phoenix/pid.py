@@ -1,13 +1,13 @@
 """
 PID position-sizing controller.
 
-Controls the lot multiplier the EA applies to its base lot, steering the
-equity curve's slope (measured in R/day) toward a setpoint:
+Controls the lot multiplier the EA applies to its base lot. Sizing FOLLOWS
+performance (anti-martingale) rather than fighting it:
 
-  * equity growing faster than target  → integral builds, sizing eases up
-    (don't over-press a hot streak)
-  * equity bleeding                    → error goes negative, sizing shrinks
-    fast via the proportional + derivative terms
+  * equity bleeding (below setpoint)    → error goes positive, multiplier
+    trims fast via the proportional + derivative terms (floor output_min)
+  * equity above target                 → multiplier is allowed back up,
+    capped at output_max so a hot streak can't run sizing away
 
 Anti-windup clamps the integral; output is clamped to [output_min,
 output_max] so sizing can never explode or hit zero silently.

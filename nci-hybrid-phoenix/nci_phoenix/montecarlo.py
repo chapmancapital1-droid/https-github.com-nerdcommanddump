@@ -118,7 +118,11 @@ class MonteCarloEngine:
         ruin_p = ruins / cfg.simulations
         med_exp = statistics.median(expectancies)
         med_dd = statistics.median(drawdowns)
-        p95_dd = sorted(drawdowns)[int(0.95 * len(drawdowns)) - 1]
+        # Nearest-rank p95 without the old "-1" bias (which indexed [-1] —
+        # i.e. returned the MAX — whenever simulations was very small).
+        p95_dd = sorted(drawdowns)[
+            min(len(drawdowns) - 1, round(0.95 * (len(drawdowns) - 1)))
+        ]
 
         if ruin_p > cfg.max_ruin_probability:
             reasons.append(

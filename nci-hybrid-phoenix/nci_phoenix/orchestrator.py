@@ -37,7 +37,10 @@ class HybridOrchestrator:
         self.recovery_trades = recovery_trades
 
         self.rescue_mode = False
-        self._rescue_entered_at_len = 0   # memory length when rescue started
+        # Lifetime trade count when rescue started. Uses memory.total_recorded
+        # (monotonic), NOT len(memory): the ring buffer pins len() at capacity,
+        # which froze trades_since at 0 and locked rescue mode on permanently.
+        self._rescue_entered_at_count = 0
 
     # -- rescue state machine ------------------------------------------------
 
@@ -54,10 +57,12 @@ class HybridOrchestrator:
         return None
 
     def _should_exit_rescue(self) -> bool:
-        trades_since = len(self.memory) - self._rescue_entered_at_len
+        trades_since = self.memory.total_recorded - self._rescue_entered_at_count
         if trades_since < self.recovery_trades:
             return False
-        recent = self.memory.recent(trades_since)
+        # Judge recovery on the buffered tail (capped at capacity if the
+        # rescue stretch outlived the ring buffer).
+        recent = self.memory.recent(min(trades_since, self.memory.capacity))
         net_r = sum(t.pnl_r for t in recent)
         return net_r > 0 and self.memory.current_loss_streak() == 0
 
@@ -80,7 +85,7 @@ class HybridOrchestrator:
             reason = self._should_enter_rescue(drawdown_pct)
             if reason:
                 self.rescue_mode = True
-                self._rescue_entered_at_len = len(self.memory)
+                self._rescue_entered_at_count = self.memory.total_recorded
                 notes.append(f"RESCUE MODE engaged: {reason}")
 
         if self.rescue_mode:
@@ -105,6 +110,7 @@ class HybridOrchestrator:
         return {
             "rescue_mode": self.rescue_mode,
             "rescue_agent": self.rescue_agent_name,
+            "rescue_entered_at_count": self._rescue_entered_at_count,
             "loss_streak": self.memory.current_loss_streak(),
             "pool_health": self.pool.health(),
         }

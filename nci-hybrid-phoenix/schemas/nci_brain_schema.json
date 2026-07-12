@@ -43,6 +43,7 @@
       "required": ["capacity", "trades"],
       "properties": {
         "capacity": { "type": "integer", "minimum": 1 },
+        "total_recorded": { "type": "integer", "minimum": 0 },
         "trades": {
           "type": "array",
           "items": { "$ref": "#/$defs/tradeResult" }
@@ -74,6 +75,12 @@
         "open_positions": { "type": "integer", "minimum": 0 },
         "drawdown_pct": { "type": "number" },
         "halted_reason": { "type": ["string", "null"] },
+        "equity_high_water": { "type": "number", "minimum": 0 },
+        "current_equity": { "type": "number", "minimum": 0 },
+        "closed": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tradeResult" }
+        },
         "config": {
           "type": "object",
           "properties": {
@@ -93,6 +100,7 @@
       "properties": {
         "rescue_mode": { "type": "boolean" },
         "rescue_agent": { "type": "string" },
+        "rescue_entered_at_count": { "type": "integer", "minimum": 0 },
         "loss_streak": { "type": "integer", "minimum": 0 },
         "pool_health": {
           "type": "object",

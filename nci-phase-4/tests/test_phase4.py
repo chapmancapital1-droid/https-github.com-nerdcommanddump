@@ -89,9 +89,13 @@ class TestStrategySelector(unittest.TestCase):
             self.assertEqual(attrs["iv_preference"], "high")
 
     def test_low_iv_favors_premium_buying(self):
-        """Low IV favors premium-buying strategies."""
+        """Low IV rank with IV turning up favors premium-buying strategies.
+
+        (Rising iv_trend is the long-premium tailwind; the original test used
+        falling IV, which encoded the inverted trend-alignment bug.)
+        """
         context = MarketContext(
-            symbol="SPY", price=450.0, iv_rank=15, iv_trend=-0.3,
+            symbol="SPY", price=450.0, iv_rank=15, iv_trend=0.3,
             spot_trend=0.0, expected_move=5.0, liquidity_score=0.95,
         )
         prefs = UserPreferences(

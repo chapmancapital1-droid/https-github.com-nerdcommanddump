@@ -58,6 +58,14 @@ class BrainVersionStore:
         entries = self._read_index()
         stamp = time.strftime("%Y%m%d-%H%M%S")
         version_id = f"{label}-{stamp}"
+        # Same label within the same second must not overwrite the earlier
+        # snapshot or duplicate an index id — disambiguate with a counter.
+        existing_ids = {e["id"] for e in entries}
+        if version_id in existing_ids:
+            n = 2
+            while f"{version_id}-{n}" in existing_ids:
+                n += 1
+            version_id = f"{version_id}-{n}"
         parent = entries[-1]["id"] if entries else None
 
         payload = {

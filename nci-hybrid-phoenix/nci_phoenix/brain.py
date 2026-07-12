@@ -194,13 +194,25 @@ class NCIPhoenixBrain:
             # re-point the orchestrator at the restored memory
             self.orchestrator.memory = self.memory
 
-        risk_cfg = state.get("risk", {}).get("config")
-        if risk_cfg:
-            self.risk.config = RiskConfig.from_dict(risk_cfg)
+        risk_state = state.get("risk", {})
+        if "config" in risk_state:
+            self.risk.config = RiskConfig.from_dict(risk_state["config"])
+        # Safety-critical: a brain saved halted or in drawdown must reload
+        # halted — otherwise the circuit breaker silently resets.
+        self.risk.restore(risk_state)
 
-        pid_cfg = state.get("pid", {}).get("config")
-        if pid_cfg:
-            self.pid.config = PIDConfig.from_dict(pid_cfg)
+        pid_state = state.get("pid", {})
+        if "config" in pid_state:
+            self.pid.config = PIDConfig.from_dict(pid_state["config"])
+        self.pid._integral = float(pid_state.get("integral", 0.0))
+        prev = pid_state.get("prev_error")
+        self.pid._prev_error = float(prev) if prev is not None else None
+
+        orch = state.get("orchestrator", {})
+        self.orchestrator.rescue_mode = bool(orch.get("rescue_mode", False))
+        self.orchestrator._rescue_entered_at_count = int(
+            orch.get("rescue_entered_at_count", 0)
+        )
 
         cs = state.get("current_state", {})
         self._lot_multiplier = float(cs.get("lot_multiplier", 1.0))

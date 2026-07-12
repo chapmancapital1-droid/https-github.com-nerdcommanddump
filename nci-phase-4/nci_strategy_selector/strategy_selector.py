@@ -69,12 +69,14 @@ class StrategySelector:
                 "breakeven_shift": -1,
             },
             StrategyType.BEAR_PUT_SPREAD: {
+                # Net-debit long-premium vertical: theta works against it,
+                # mirroring BULL_CALL_SPREAD (its debit-spread twin).
                 "bias": ["neutral", "bearish"],
-                "iv_preference": "high",
+                "iv_preference": "medium",
                 "direction_profit": "bearish",
                 "risk_level": "low",
                 "capital_req": "medium",
-                "time_decay": "positive",
+                "time_decay": "negative",
                 "breakeven_shift": 1,
             },
             StrategyType.IRON_CONDOR: {
@@ -174,10 +176,12 @@ class StrategySelector:
             else:
                 score -= 0.5
 
-            # IV trend alignment
-            if context.iv_trend > 0 and attrs["time_decay"] == "positive":
+            # IV trend alignment: positive time decay = short premium/short
+            # vega, which is hurt by rising IV and helped by falling IV.
+            # Long-premium (negative decay) structures want IV rising.
+            if context.iv_trend > 0 and attrs["time_decay"] == "negative":
                 score += 0.5
-            elif context.iv_trend < 0 and attrs["time_decay"] == "negative":
+            elif context.iv_trend < 0 and attrs["time_decay"] == "positive":
                 score += 0.5
 
             # Risk level vs user profile
@@ -232,24 +236,59 @@ class StrategySelector:
             theta = 0.05
             vega = -0.03
             rho = 0.01
+        elif strategy == StrategyType.CASH_SECURED_PUT:
+            # Short put: short premium — positive theta, negative vega.
+            delta = 0.35
+            gamma = -0.02
+            theta = 0.06
+            vega = -0.05
+            rho = 0.01
         elif strategy == StrategyType.BULL_CALL_SPREAD:
             delta = 0.35
             gamma = 0.03
             theta = -0.02
             vega = 0.02
             rho = 0.005
+        elif strategy == StrategyType.BEAR_PUT_SPREAD:
+            # Debit vertical, bearish: negative delta, long premium.
+            delta = -0.35
+            gamma = 0.03
+            theta = -0.02
+            vega = 0.02
+            rho = -0.005
         elif strategy == StrategyType.BULL_PUT_SPREAD:
             delta = 0.40
             gamma = -0.02
             theta = 0.08
             vega = -0.05
             rho = 0.01
+        elif strategy == StrategyType.BEAR_CALL_SPREAD:
+            # Credit vertical, bearish: negative delta, short premium.
+            delta = -0.35
+            gamma = -0.02
+            theta = 0.06
+            vega = -0.04
+            rho = -0.005
         elif strategy == StrategyType.IRON_CONDOR:
             delta = 0.1
             gamma = -0.01
             theta = 0.10
             vega = -0.08
             rho = 0.005
+        elif strategy in (StrategyType.SHORT_STRADDLE, StrategyType.SHORT_STRANGLE):
+            # Naked short premium: strongly positive theta, strongly negative vega.
+            delta = 0.05
+            gamma = -0.04
+            theta = 0.12
+            vega = -0.10
+            rho = 0.0
+        elif strategy in (StrategyType.LONG_STRADDLE, StrategyType.LONG_STRANGLE):
+            # Long premium both sides: negative theta, positive vega.
+            delta = 0.05
+            gamma = 0.04
+            theta = -0.08
+            vega = 0.10
+            rho = 0.0
         else:
             delta = 0.3
             gamma = 0.02
@@ -320,7 +359,9 @@ class StrategySelector:
             max_profit=round(max_profit, 2),
             max_loss=round(max_loss, 2),
             breakeven_price=round(breakeven_price, 2),
-            probability_profit=min(0.7 + fit_score * 0.2, 0.95),
+            # fit_score floor is 0.1, so a poor fit maps to ~0.42 rather than
+            # every recommendation reading as >=72% likely to profit.
+            probability_profit=min(0.40 + fit_score * 0.15, 0.95),
             greeks=greeks,
             confidence_score=min(0.5 + fit_score * 0.25, 1.0),
             reasoning=reasoning,

@@ -70,16 +70,29 @@ class QuantumAIBrain:
         Returns:
             StrategySelectionResult with recommendations and AI explanation
         """
-        # Get strategy candidates
-        candidates = self.selector.select_strategies(context, prefs, top_n=5)
+        # Get all candidates ranked by fit, then keep the best three whose
+        # modeled max loss actually fits inside the user's dollar limit.
+        candidates = self.selector.select_strategies(
+            context, prefs, top_n=len(self.selector.strategy_db)
+        )
 
-        # Build initial recommendations with calibrated confidence
         recommendations = []
-        for strategy, fit_score in candidates[:3]:
+        rejected_for_risk = []
+        for strategy, fit_score in candidates:
+            if len(recommendations) == 3:
+                break
             reasoning_text = self._generate_initial_reasoning(strategy, context, prefs, fit_score)
             rec = self.selector.build_recommendation(
                 strategy, context, prefs, fit_score, reasoning_text
             )
+            # Hard gate: never recommend a trade whose modeled worst case
+            # exceeds the user's stated max loss.
+            if rec.max_loss > prefs.max_loss_dollars:
+                rejected_for_risk.append(
+                    f"{strategy.value} (max loss ${rec.max_loss:.0f} > "
+                    f"limit ${prefs.max_loss_dollars:.0f})"
+                )
+                continue
             # Phase 5: adjust confidence by learned calibration factor
             rec.confidence_score = self.calibrator.adjust(strategy, rec.confidence_score)
             recommendations.append(rec)
@@ -182,6 +195,22 @@ class QuantumAIBrain:
         recommendations: list[StrategyRecommendation],
     ) -> str:
         """Deterministic structured reasoning used when the API is offline."""
+        if not recommendations:
+            return (
+                f"Market Assessment: no strategy passed the risk gate for "
+                f"{context.symbol} at ${context.price:.2f} — every candidate's "
+                f"modeled max loss exceeds your ${prefs.max_loss_dollars:.2f} "
+                f"limit. Consider raising the limit, reducing size, or waiting "
+                f"for a better setup. Educational analysis, not investment advice."
+            )
+
+        fit_lines = "\n\n".join(
+            f"   - {r.strategy.value.replace('_', ' ').title()} "
+            f"(Confidence: {r.confidence_score:.0%})\n"
+            f"     Rationale: {r.reasoning}"
+            for r in recommendations
+        )
+        top = recommendations[0]
         reasoning = f"""
 Based on market conditions ({context.symbol} at ${context.price:.2f}):
 
@@ -189,19 +218,13 @@ Based on market conditions ({context.symbol} at ${context.price:.2f}):
    regime, with {self._trend_description(context.spot_trend)} directional bias.
 
 2. **Strategy Fit**:
-   - {recommendations[0].strategy.value.replace('_', ' ').title()} (Confidence: {recommendations[0].confidence_score:.0%})
-     Rationale: {recommendations[0].reasoning}
+{fit_lines}
 
-   - {recommendations[1].strategy.value.replace('_', ' ').title()} (Confidence: {recommendations[1].confidence_score:.0%})
-     Rationale: {recommendations[1].reasoning}
+3. **Risk-Adjusted Priority**: Recommend {top.strategy.value.replace('_', ' ').title()}
+   for a {self._probability_description(top.probability_profit)} probability of profit.
 
-   - {recommendations[2].strategy.value.replace('_', ' ').title()} (Confidence: {recommendations[2].confidence_score:.0%})
-     Rationale: {recommendations[2].reasoning}
-
-3. **Risk-Adjusted Priority**: Recommend {recommendations[0].strategy.value.replace('_', ' ').title()}
-   for a {self._probability_description(recommendations[0].probability_profit)} probability of profit.
-
-4. **Portfolio Fit**: All recommendations respect ${prefs.max_loss_dollars:.2f} max loss constraint.
+4. **Portfolio Fit**: every recommendation shown has a modeled max loss within
+   your ${prefs.max_loss_dollars:.2f} limit (candidates exceeding it were filtered out).
    Current expected move: ${context.expected_move:.2f}
 """
         return reasoning.strip()
@@ -358,8 +381,13 @@ Focus on risk-adjusted probability and alignment with user constraints.
 
     def create_knowledge_version(self, notes: str = "") -> str:
         """Create new versioned knowledge snapshot."""
+        # uuid suffix guarantees uniqueness even for versions created within
+        # the same second (len(history) alone is not monotonic enough).
         new_version = VersionedKnowledge(
-            version_id=f"v{len(self.knowledge.history) + 1.1}-{int(time.time())}",
+            version_id=(
+                f"v{len(self.knowledge.history) + 1}-{int(time.time())}"
+                f"-{uuid.uuid4().hex[:6]}"
+            ),
             created_at=time.time(),
             parent_version=self.knowledge.current_version.version_id,
             strategy_performance=copy.deepcopy(self.knowledge.current_version.strategy_performance),
@@ -372,12 +400,18 @@ Focus on risk-adjusted probability and alignment with user constraints.
         return new_version.version_id
 
     def rollback_knowledge(self, version_id: str) -> bool:
-        """Rollback to a previous knowledge version."""
+        """
+        Rollback to a previous knowledge version.
+
+        Append-only: the current version is pushed onto history and the
+        target is deep-copied into place. The target is never removed from
+        history, so lineage stays intact and the same version can be rolled
+        back to again.
+        """
         for version in self.knowledge.history:
             if version.version_id == version_id:
-                self.knowledge.history.remove(version)
                 self.knowledge.history.append(self.knowledge.current_version)
-                self.knowledge.current_version = version
+                self.knowledge.current_version = copy.deepcopy(version)
                 return True
         return False
 

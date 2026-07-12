@@ -46,6 +46,11 @@ class RiskManager:
 
     def record_trade(self, result: TradeResult) -> None:
         self._closed.append(result)
+        # Only the weekly window matters to the gates — prune older entries
+        # so the ledger can't grow unbounded over a long session.
+        cutoff = time.time() - WEEK_SECONDS
+        if self._closed and self._closed[0].closed_at < cutoff:
+            self._closed = [t for t in self._closed if t.closed_at >= cutoff]
 
     def update_equity(self, equity: float) -> None:
         self.current_equity = equity
@@ -140,5 +145,19 @@ class RiskManager:
             "open_positions": len(self.open_positions),
             "drawdown_pct": round(self.drawdown_pct(), 2),
             "halted_reason": self.halted_reason,
+            "equity_high_water": self.equity_high_water,
+            "current_equity": self.current_equity,
+            # Ledger for the daily/weekly loss windows — without it, a reload
+            # would silently reset the loss limits.
+            "closed": [t.to_dict() for t in self._closed],
             "config": self.config.to_dict(),
         }
+
+    def restore(self, state: dict) -> None:
+        """Rehydrate safety state from a state() dump (config handled by caller)."""
+        self.halted_reason = state.get("halted_reason")
+        self.equity_high_water = float(state.get("equity_high_water", 0.0))
+        self.current_equity = float(state.get("current_equity", 0.0))
+        self._closed = [
+            TradeResult.from_dict(t) for t in state.get("closed", [])
+        ]

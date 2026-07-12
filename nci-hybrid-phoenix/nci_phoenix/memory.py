@@ -22,11 +22,15 @@ class TradeMemory:
     def __init__(self, capacity: int = 250):
         self.capacity = capacity
         self._trades: deque[TradeResult] = deque(maxlen=capacity)
+        # Monotonic lifetime counter — unlike len(), never capped by the ring
+        # buffer, so "trades since X" stays correct after the buffer fills.
+        self.total_recorded = 0
 
     # -- writes -------------------------------------------------------------
 
     def record(self, result: TradeResult) -> None:
         self._trades.append(result)
+        self.total_recorded += 1
 
     # -- reads --------------------------------------------------------------
 
@@ -68,6 +72,7 @@ class TradeMemory:
     def to_dict(self) -> dict:
         return {
             "capacity": self.capacity,
+            "total_recorded": self.total_recorded,
             "trades": [t.to_dict() for t in self._trades],
         }
 
@@ -76,4 +81,7 @@ class TradeMemory:
         mem = cls(capacity=int(d.get("capacity", 250)))
         for td in d.get("trades", []):
             mem.record(TradeResult.from_dict(td))
+        # Restore the lifetime counter (record() above counted only the
+        # buffered trades; older states without the field keep that count).
+        mem.total_recorded = int(d.get("total_recorded", mem.total_recorded))
         return mem

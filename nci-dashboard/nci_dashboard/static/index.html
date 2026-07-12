@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NCI nerdcommand · Options Assistant</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#131a22; --panel-2:#0f151c; --line:#22303c;
+    --ink:#e8eef4; --muted:#93a4b3; --faint:#6b7d8d;
+    --accent:#38bdf8; --accent-ink:#04121b;
+    --pos:#34d399; --neg:#f87171; --warn:#fbbf24; --info:#a78bfa;
+    --chip:#1b2733; --radius:14px; --shadow:0 1px 0 rgba(255,255,255,.03),0 10px 30px rgba(0,0,0,.35);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#f4f7fa;--panel:#ffffff;--panel-2:#f0f4f8;--line:#dbe4ec;
+      --ink:#0f2231;--muted:#4c6273;--faint:#7a8ea0;--chip:#eef3f8;--accent-ink:#04121b;
+      --shadow:0 1px 2px rgba(16,40,60,.06),0 10px 24px rgba(16,40,60,.08);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--bg) 82%,transparent));
+    backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .bar{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.02em}
+  .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .brand small{color:var(--muted);font-weight:500}
+  .spacer{flex:1}
+  .badge{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid var(--line);
+    background:var(--chip);color:var(--muted);display:inline-flex;gap:7px;align-items:center}
+  .badge .led{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+  .badge.live .led{background:var(--pos);box-shadow:0 0 8px var(--pos)}
+  .badge.offline .led{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  .disclaimer{max-width:1200px;margin:0 auto;padding:8px 20px;font-size:12px;color:var(--warn);
+    display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line)}
+  .tabs{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:4px}
+  .tab{appearance:none;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;
+    padding:14px 16px;cursor:pointer;border-bottom:2px solid transparent}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+  main{max-width:1200px;margin:0 auto;padding:20px}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .card .hd h2{font-size:14px}
+  .card .bd{padding:16px}
+  form .row{margin-bottom:12px}
+  form .row.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  label .hint{color:var(--faint);font-weight:500}
+  input,select,textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:9px 10px;font:inherit;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+  textarea{resize:vertical;min-height:60px}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);font:inherit;
+    font-weight:650;padding:10px 14px;border-radius:10px;cursor:pointer;transition:.12s}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);width:100%}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:none}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .muted{color:var(--muted)} .faint{color:var(--faint)}
+  .empty{padding:48px 20px;text-align:center;color:var(--faint)}
+  .empty .big{font-size:15px;color:var(--muted);margin-bottom:6px}
+  /* reasoning block */
+  .reasoning{white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;color:var(--ink)}
+  /* rec cards */
+  .rec{border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden;background:var(--panel-2)}
+  .rec .top{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .rank{width:26px;height:26px;flex:none;border-radius:8px;background:var(--chip);display:grid;place-items:center;
+    font-weight:700;font-size:13px;color:var(--accent)}
+  .rec .name{font-weight:700;font-size:15px;letter-spacing:-.01em}
+  .chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+  .chip.low{background:color-mix(in srgb,var(--pos) 18%,transparent);color:var(--pos)}
+  .chip.medium{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .chip.high{background:color-mix(in srgb,var(--neg) 18%,transparent);color:var(--neg)}
+  .conf{flex:1;min-width:120px}
+  .conf .track{height:7px;border-radius:4px;background:var(--chip);overflow:hidden}
+  .conf .fill{height:100%;background:var(--accent);border-radius:4px}
+  .conf .lab{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+  @media (max-width:560px){.metrics{grid-template-columns:repeat(2,1fr)}}
+  .metric{background:var(--panel-2);padding:12px 14px}
+  .metric .k{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .metric .v{font-size:15px;font-weight:700;font-family:var(--mono)}
+  .v.pos{color:var(--pos)} .v.neg{color:var(--neg)}
+  .limitline{padding:10px 16px;font-size:12px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line)}
+  .limitline.ok{color:var(--pos)} .limitline.over{color:var(--neg)}
+  .greeks{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 12px}
+  .greek{font-family:var(--mono);font-size:12px;background:var(--chip);border-radius:8px;padding:5px 9px}
+  .greek b{color:var(--muted);font-weight:600;margin-right:4px}
+  .recbody{padding:12px 16px;border-top:1px solid var(--line)}
+  .recbody .why{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+  .legs{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-bottom:10px}
+  .outcome{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:10px;display:none}
+  .outcome.open{display:block}
+  .outcome .fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .toast{font-size:12px;padding:8px 10px;border-radius:8px;margin-top:8px;display:none}
+  .toast.ok{display:block;background:color-mix(in srgb,var(--pos) 15%,transparent);color:var(--pos)}
+  .toast.err{display:block;background:color-mix(in srgb,var(--neg) 15%,transparent);color:var(--neg)}
+  /* ask */
+  .qa{margin-top:4px}
+  .transcript{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  .turn{padding:10px 12px;border-radius:10px;font-size:13px;max-width:90%}
+  .turn.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink);font-weight:500}
+  .turn.assistant{align-self:flex-start;background:var(--panel-2);border:1px solid var(--line);white-space:pre-wrap}
+  .askrow{display:flex;gap:8px}
+  .askrow input{flex:1}
+  /* phoenix */
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:900px){.pgrid{grid-template-columns:1fr}}
+  .stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .stat:last-child{border-bottom:0}
+  .stat .v{font-family:var(--mono);font-weight:600}
+  .regbar{height:10px;border-radius:6px;background:var(--chip);overflow:hidden;margin:8px 0}
+  .regbar .fill{height:100%;background:var(--info)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--faint);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  td.num{font-family:var(--mono);text-align:right}
+  .status{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase}
+  .status.active{background:color-mix(in srgb,var(--pos) 18%,transparent);color:var(--pos)}
+  .status.probation{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .status.dormant{background:var(--chip);color:var(--muted)}
+  .status.retired{background:color-mix(in srgb,var(--neg) 16%,transparent);color:var(--neg)}
+  .tablewrap{overflow-x:auto}
+  .lineage{list-style:none;margin:0;padding:0}
+  .lineage li{position:relative;padding:8px 0 8px 22px;font-size:12.5px;border-left:2px solid var(--line);margin-left:6px}
+  .lineage li:before{content:"";position:absolute;left:-6px;top:14px;width:10px;height:10px;border-radius:50%;
+    background:var(--accent);border:2px solid var(--bg)}
+  .lineage .id{font-family:var(--mono);color:var(--muted);font-size:11px}
+  .gate{display:inline-block;font-family:var(--mono);font-size:11px;background:color-mix(in srgb,var(--neg) 16%,transparent);
+    color:var(--neg);padding:2px 8px;border-radius:6px;margin:2px 4px 2px 0}
+  .hidden{display:none!important}
+  .loading{color:var(--muted);padding:20px;text-align:center}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><span class="dot"></span> NCI nerdcommand <small>· Options Assistant</small></div>
+    <div class="spacer"></div>
+    <span id="aiBadge" class="badge"><span class="led"></span><span id="aiBadgeText">connecting…</span></span>
+  </div>
+  <div class="disclaimer">⚠ Educational analysis tooling — not investment advice.</div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="options">Options Assistant</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="phoenix">Phoenix Brain</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ═══════════ OPTIONS ASSISTANT ═══════════ -->
+  <section id="tab-options">
+    <div class="grid">
+      <!-- input form -->
+      <div class="card">
+        <div class="hd"><h2>Inputs</h2></div>
+        <div class="bd">
+          <div class="presets">
+            <button class="btn sm ghost" data-preset="bull">Bullish / High IV</button>
+            <button class="btn sm ghost" data-preset="event">Pre-event</button>
+            <button class="btn sm ghost" data-preset="bear">Bearish / Low IV</button>
+          </div>
+          <form id="stratForm">
+            <div class="row two">
+              <div><label>Symbol</label><input id="f_symbol" value="SPY" required></div>
+              <div><label>Spot price <span class="hint">$</span></label><input id="f_price" type="number" step="0.01" value="450" required></div>
+            </div>
+            <div class="row two">
+              <div><label>Bias</label>
+                <select id="f_bias"><option value="bullish">Bullish</option><option value="neutral">Neutral</option><option value="bearish">Bearish</option></select>
+              </div>
+              <div><label>Risk profile</label>
+                <select id="f_risk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select>
+              </div>
+            </div>
+            <div class="row two">
+              <div><label>Max loss <span class="hint">$</span></label><input id="f_maxloss" type="number" step="1" value="1000" required></div>
+              <div><label>Time horizon <span class="hint">days</span></label><input id="f_horizon" type="number" step="1" value="30"></div>
+            </div>
+            <div class="row two">
+              <div><label>IV rank <span class="hint">0–100</span></label><input id="f_ivrank" type="number" step="1" value="75"></div>
+              <div><label>IV trend <span class="hint">−1…+1</span></label><input id="f_ivtrend" type="number" step="0.1" value="0.3"></div>
+            </div>
+            <div class="row two">
+              <div><label>Spot trend <span class="hint">−1…+1</span></label><input id="f_spot" type="number" step="0.1" value="0.5"></div>
+              <div><label>Expected move <span class="hint">$</span></label><input id="f_emove" type="number" step="0.1" value="13"></div>
+            </div>
+            <div class="row two">
+              <div><label>Liquidity <span class="hint">0–1</span></label><input id="f_liq" type="number" step="0.05" value="0.95"></div>
+              <div><label>Event in <span class="hint">days, blank=none</span></label><input id="f_event" type="number" step="0.5" placeholder="—"></div>
+            </div>
+            <div class="row">
+              <label>News sentiment <span class="hint">−1…+1</span></label><input id="f_news" type="number" step="0.1" value="0.3">
+            </div>
+            <button class="btn primary" type="submit" id="goBtn">Get Strategies</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- results -->
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="hd"><h2>Quantum AI Reasoning</h2><span class="spacer"></span><span id="resMode" class="badge"></span></div>
+          <div class="bd">
+            <div id="results">
+              <div class="empty"><div class="big">No selection yet</div>Fill in the market context and press <b>Get Strategies</b>.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card hidden" id="askCard">
+          <div class="hd"><h2>Ask Quantum AI</h2><span class="faint" style="font-size:12px;margin-left:6px">multi-turn follow-ups</span></div>
+          <div class="bd">
+            <div class="transcript" id="transcript"></div>
+            <div class="askrow">
+              <input id="askInput" placeholder="e.g. Why is the top pick ranked above the others?" />
+              <button class="btn" id="askBtn">Ask</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ PHOENIX BRAIN ═══════════ -->
+  <section id="tab-phoenix" class="hidden">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <h2 style="font-size:16px">Phoenix Self-Organizing Brain</h2>
+      <span class="faint" style="font-size:12px">read-only view of <span class="reasoning" style="display:inline;padding:2px 6px">brain_state.json</span></span>
+      <span class="spacer"></span>
+      <button class="btn sm" id="reloadPhoenix">Reload</button>
+    </div>
+    <div id="phoenixBody">
+      <div class="loading"><span class="spin"></span>Loading brain state…</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (id)=>document.getElementById(id);
+const api = (p,opts)=>fetch(p,opts).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;});
+const fmt$ = (n)=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = (n)=>Math.round(n*100)+'%';
+const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const titleize = (s)=>s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+
+let SESSION=null;
+
+/* ── AI mode badge ── */
+async function refreshHealth(){
+  try{
+    const h=await api('/api/health');
+    const live=h.claude_available;
+    const b=$('aiBadge');
+    b.className='badge '+(live?'live':'offline');
+    $('aiBadgeText').textContent = live?'Claude: live':'Claude: offline';
+    b.title = live?('model '+h.model):'No ANTHROPIC_API_KEY — deterministic offline reasoning';
+  }catch(e){$('aiBadgeText').textContent='offline';}
+}
+
+/* ── tabs ── */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', x===t));
+  const which=t.dataset.tab;
+  $('tab-options').classList.toggle('hidden',which!=='options');
+  $('tab-phoenix').classList.toggle('hidden',which!=='phoenix');
+  if(which==='phoenix' && !window.__phoenixLoaded){loadPhoenix();}
+}));
+
+/* ── presets ── */
+const PRESETS={
+  bull:{f_symbol:'SPY',f_price:450,f_bias:'bullish',f_risk:'moderate',f_maxloss:1000,f_horizon:30,f_ivrank:75,f_ivtrend:0.3,f_spot:0.5,f_emove:13,f_liq:0.95,f_event:'',f_news:0.3},
+  event:{f_symbol:'QQQ',f_price:350,f_bias:'neutral',f_risk:'conservative',f_maxloss:500,f_horizon:45,f_ivrank:88,f_ivtrend:-0.2,f_spot:0.0,f_emove:16,f_liq:0.92,f_event:1.5,f_news:0.2},
+  bear:{f_symbol:'IWM',f_price:185,f_bias:'bearish',f_risk:'aggressive',f_maxloss:1500,f_horizon:21,f_ivrank:22,f_ivtrend:-0.4,f_spot:-0.6,f_emove:6,f_liq:0.85,f_event:'',f_news:-0.5},
+};
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
+  const p=PRESETS[b.dataset.preset];for(const k in p)$(k).value=p[k];
+}));
+
+/* ── selection ── */
+function collect(){
+  const num=id=>{const v=$(id).value;return v===''?null:parseFloat(v);};
+  const symbol=$('f_symbol').value.trim().toUpperCase();
+  const ctx={symbol,price:num('f_price'),iv_rank:num('f_ivrank'),iv_trend:num('f_ivtrend'),
+    spot_trend:num('f_spot'),expected_move:num('f_emove'),liquidity_score:num('f_liq'),
+    event_proximity_days:$('f_event').value===''?null:num('f_event'),news_sentiment:num('f_news')};
+  const prefs={symbol,risk_profile:$('f_risk').value,bias:$('f_bias').value,
+    max_loss_dollars:num('f_maxloss'),max_loss_pct:2.0,time_horizon_days:num('f_horizon')||30};
+  return {context:ctx,prefs};
+}
+
+$('stratForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=$('goBtn');btn.disabled=true;btn.textContent='Analyzing…';
+  $('results').innerHTML='<div class="loading"><span class="spin"></span>Selecting strategies…</div>';
+  try{
+    const data=await api('/api/strategies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())});
+    SESSION=data.session_id;
+    renderResults(data);
+    $('askCard').classList.remove('hidden');
+    $('transcript').innerHTML='';
+  }catch(err){
+    $('results').innerHTML='<div class="toast err" style="display:block">'+esc(err.message)+'</div>';
+  }finally{btn.disabled=false;btn.textContent='Get Strategies';}
+});
+
+function renderResults(data){
+  const r=data.result, recs=r.recommendations, limit=data.max_loss_dollars;
+  const mb=$('resMode');mb.className='badge '+(data.ai_mode==='live'?'live':'offline');
+  mb.innerHTML='<span class="led"></span>'+(data.ai_mode==='live'?'live Claude':'offline reasoning');
+  let html='<div class="reasoning">'+esc(r.ai_reasoning)+'</div>';
+  html+='<h3 style="margin:18px 0 10px;font-size:13px;color:var(--muted)">Ranked recommendations ('+recs.length+')</h3>';
+  if(!recs.length){
+    html+='<div class="empty"><div class="big">No strategy passed the risk gate</div>Every candidate’s modeled max loss exceeds your '+fmt$(limit)+' limit. Raise the limit or reduce size.</div>';
+  }
+  recs.forEach((rec,i)=>{
+    const g=rec.greeks;
+    const overOk = rec.within_max_loss;
+    html+=`<div class="rec" data-idx="${i}">
+      <div class="top">
+        <div class="rank">${i+1}</div>
+        <div>
+          <div class="name">${esc(titleize(rec.strategy))}</div>
+          <div class="faint" style="font-size:11px;margin-top:2px">P(profit) ${pct(rec.probability_profit)} · entry ${fmt$(rec.entry_price)}</div>
+        </div>
+        <span class="spacer"></span>
+        <div class="conf">
+          <div class="lab"><span>Confidence</span><span>${pct(rec.confidence_score)}</span></div>
+          <div class="track"><div class="fill" style="width:${Math.round(rec.confidence_score*100)}%"></div></div>
+        </div>
+        <span class="chip ${esc(rec.risk_rating)}">${esc(rec.risk_rating)}</span>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="k">Max profit</div><div class="v pos">${fmt$(rec.max_profit)}</div></div>
+        <div class="metric"><div class="k">Max loss</div><div class="v neg">${fmt$(rec.max_loss)}</div></div>
+        <div class="metric"><div class="k">Breakeven</div><div class="v">${fmt$(rec.breakeven_price)}</div></div>
+        <div class="metric"><div class="k">P(profit)</div><div class="v">${pct(rec.probability_profit)}</div></div>
+      </div>
+      <div class="limitline ${overOk?'ok':'over'}">${overOk?'✓':'✗'} Max loss ${fmt$(rec.max_loss)} vs your ${fmt$(limit)} limit (${Math.round(rec.max_loss/limit*100)}% of limit)</div>
+      <div class="greeks">
+        <span class="greek"><b>Δ</b>${g.delta.toFixed(2)}</span>
+        <span class="greek"><b>Γ</b>${g.gamma.toFixed(4)}</span>
+        <span class="greek"><b>Θ</b>${g.theta.toFixed(4)}</span>
+        <span class="greek"><b>V</b>${g.vega.toFixed(2)}</span>
+        <span class="greek"><b>ρ</b>${g.rho.toFixed(2)}</span>
+      </div>
+      <div class="recbody">
+        <div class="why">${esc(rec.reasoning)}</div>
+        <div class="legs">${rec.legs.map(l=>esc(legStr(l))).join('  /  ')}</div>
+        <button class="btn sm ghost" data-log="${i}">Log outcome</button>
+        <div class="outcome" id="outcome-${i}">
+          <div class="fields">
+            <div><label>Exit price <span class="hint">$</span></label><input type="number" step="0.01" id="exit-${i}" placeholder="entry ${rec.entry_price.toFixed(2)}"></div>
+            <div><label>Rating <span class="hint">1–5</span></label><input type="number" min="1" max="5" step="1" id="rate-${i}" value="5"></div>
+          </div>
+          <label>Lessons learned</label>
+          <textarea id="lesson-${i}" placeholder="What did this trade teach the model?"></textarea>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn sm primary" style="width:auto" data-submit="${i}">Record & calibrate</button>
+          </div>
+          <div class="toast" id="otoast-${i}"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  $('results').innerHTML=html;
+  bindOutcomeHandlers();
+}
+function legStr(l){
+  const parts=[];
+  if(l.qty!==undefined)parts.push((l.qty>0?'+':'')+l.qty);
+  if(l.right)parts.push(String(l.right).toUpperCase());
+  if(l.strike!==undefined)parts.push(l.strike);
+  if(l.expiration)parts.push('@'+l.expiration);
+  return parts.join(' ')||JSON.stringify(l);
+}
+
+function bindOutcomeHandlers(){
+  document.querySelectorAll('[data-log]').forEach(b=>b.addEventListener('click',()=>{
+    $('outcome-'+b.dataset.log).classList.toggle('open');
+  }));
+  document.querySelectorAll('[data-submit]').forEach(b=>b.addEventListener('click',async()=>{
+    const i=b.dataset.submit, toast=$('otoast-'+i);
+    const exit=$('exit-'+i).value;
+    if(exit===''){toast.className='toast err';toast.textContent='Enter an exit price.';return;}
+    b.disabled=true;
+    try{
+      const res=await api('/api/outcome',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({session_id:SESSION,rec_index:Number(i),exit_price:parseFloat(exit),
+          user_rating:parseInt($('rate-'+i).value)||5,lessons_learned:$('lesson-'+i).value})});
+      toast.className='toast ok';
+      toast.textContent=res.message+' Total outcomes logged: '+res.total_outcomes+'.';
+    }catch(err){toast.className='toast err';toast.textContent=esc(err.message);}
+    finally{b.disabled=false;}
+  }));
+}
+
+/* ── ask ── */
+async function sendAsk(){
+  const q=$('askInput').value.trim();if(!q||!SESSION)return;
+  const t=$('transcript');
+  t.insertAdjacentHTML('beforeend','<div class="turn user">'+esc(q)+'</div>');
+  $('askInput').value='';$('askBtn').disabled=true;
+  const pend=document.createElement('div');pend.className='turn assistant';pend.innerHTML='<span class="spin"></span>thinking…';
+  t.appendChild(pend);t.scrollIntoView({block:'end'});
+  try{
+    const res=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:SESSION,question:q})});
+    pend.textContent=res.answer;
+  }catch(err){pend.className='turn assistant';pend.textContent='Error: '+err.message;}
+  finally{$('askBtn').disabled=false;$('askInput').focus();}
+}
+$('askBtn').addEventListener('click',sendAsk);
+$('askInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendAsk();});
+
+/* ── Phoenix tab ── */
+const REGIME_LABEL=(r)=>titleize(r||'unknown');
+async function loadPhoenix(){
+  window.__phoenixLoaded=true;
+  $('phoenixBody').innerHTML='<div class="loading"><span class="spin"></span>Loading brain state…</div>';
+  try{
+    const [state,versions]=await Promise.all([api('/api/phoenix'),api('/api/phoenix/versions')]);
+    $('phoenixBody').innerHTML=renderPhoenix(state,versions);
+  }catch(err){
+    $('phoenixBody').innerHTML='<div class="toast err" style="display:block">'+esc(err.message)+'</div>';
+  }
+}
+$('reloadPhoenix').addEventListener('click',loadPhoenix);
+
+function renderPhoenix(s,versions){
+  const cs=s.current_state||{}, reg=cs.regime||{}, dec=cs.last_decision||null;
+  const risk=s.risk||{}, pool=s.pool||{}, records=pool.records||{}, pid=s.pid||{};
+  const orch=s.orchestrator||{};
+  // panel 1: regime
+  const conf=Math.round((reg.confidence||0)*100);
+  let p1=`<div class="card"><div class="hd"><h2>1 · Regime</h2></div><div class="bd">
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.01em">${esc(REGIME_LABEL(reg.regime))}</div>
+    <div class="regbar"><div class="fill" style="width:${conf}%"></div></div>
+    <div class="muted" style="font-size:12px">Confidence ${conf}%</div>
+    <div style="margin-top:12px">${(reg.notes||[]).map(n=>'<div class="stat"><span class="faint">evidence</span><span class="v" style="font-weight:500">'+esc(n)+'</span></div>').join('')||'<span class="faint">no evidence notes</span>'}</div>
+    </div></div>`;
+  // panel 2: agent pool
+  const rows=Object.values(records).sort((a,b)=>(b.score||0)-(a.score||0)).map(a=>{
+    const p=a.performance||{};const winrate=p.trades?Math.round(100*p.wins/p.trades):0;
+    const specs=(a.specializations||[]).map(x=>titleize(x)).join(', ')||'—';
+    return `<tr>
+      <td>${esc(a.name)}<div class="faint" style="font-size:10.5px">${esc(specs)}</div></td>
+      <td><span class="status ${esc(a.status)}">${esc(a.status)}</span></td>
+      <td class="num">${(a.score||0).toFixed(2)}</td>
+      <td class="num">${p.trades||0}<span class="faint">/${winrate}%</span></td>
+      <td class="num">${(p.sum_r||0).toFixed(1)}R</td>
+      <td class="num">↑${a.promotions||0} ↓${a.demotions||0}</td>
+    </tr>`;
+  }).join('');
+  let p2=`<div class="card"><div class="hd"><h2>2 · Agent pool</h2><span class="spacer"></span><span class="faint" style="font-size:12px">${Object.keys(records).length} agents</span></div>
+    <div class="bd"><div class="tablewrap"><table>
+    <thead><tr><th>Agent</th><th>Status</th><th>Score</th><th>Trades</th><th>Σ R</th><th>Prom/Dem</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan=6 class=faint>no agents</td></tr>'}</tbody></table></div></div></div>`;
+  // panel 3: risk & sizing
+  const dd=risk.drawdown_pct||0, maxdd=(risk.config||{}).max_drawdown_pct||0;
+  const ddPctOfLimit=maxdd?Math.min(100,Math.round(dd/maxdd*100)):0;
+  const gates=(dec&&dec.blocked_by)||[];
+  const lotMult=cs.lot_multiplier!=null?cs.lot_multiplier:(dec?dec.lot_multiplier:null);
+  let p3=`<div class="card"><div class="hd"><h2>3 · Risk &amp; sizing</h2></div><div class="bd">
+    <div class="stat"><span>Drawdown</span><span class="v ${dd>0?'':''}">${dd.toFixed(2)}% <span class="faint">/ ${maxdd}% breaker</span></span></div>
+    <div class="regbar"><div class="fill" style="width:${ddPctOfLimit}%;background:${ddPctOfLimit>80?'var(--neg)':'var(--warn)'}"></div></div>
+    <div class="stat"><span>Open positions</span><span class="v">${risk.open_positions||0} <span class="faint">/ ${(risk.config||{}).max_concurrent_positions??'—'}</span></span></div>
+    <div class="stat"><span>Current equity</span><span class="v">${risk.current_equity!=null?fmt$(risk.current_equity):'—'}</span></div>
+    <div class="stat"><span>Halted</span><span class="v">${risk.halted_reason?('<span style=color:var(--neg)>'+esc(risk.halted_reason)+'</span>'):'no'}</span></div>
+    <div class="stat"><span>PID lot multiplier</span><span class="v">${lotMult!=null?Number(lotMult).toFixed(4)+'×':'—'}</span></div>
+    <div class="stat"><span>Rescue mode</span><span class="v">${orch.rescue_mode?('<span style=color:var(--warn)>ON · '+esc(orch.rescue_agent||'')+'</span>'):'off'} <span class="faint">loss streak ${orch.loss_streak||0}</span></span></div>
+    <div style="margin-top:10px"><div class="faint" style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Gates hit on last decision</div>
+    ${gates.length?gates.map(g=>'<span class="gate">'+esc(g)+'</span>').join(''):'<span class="faint">none — trade cleared all gates</span>'}</div>
+    ${dec?('<div class="stat" style="margin-top:8px"><span>Last decision</span><span class="v">'+esc((dec.signal||'').toUpperCase())+' · '+esc(dec.agent||'')+'</span></div>'):''}
+    </div></div>`;
+  // panel 4: versions
+  const lineage=(versions||[]).slice().map(v=>`<li>
+      <div style="font-weight:600">${esc(v.label||v.id)}</div>
+      <div class="id">${esc(v.id)}</div>
+      <div class="faint" style="font-size:11.5px">${esc(v.notes||'')}</div>
+      <button class="btn sm ghost" style="margin-top:5px" data-rollback="${esc(v.id)}">Roll back</button>
+    </li>`).join('');
+  let p4=`<div class="card"><div class="hd"><h2>4 · Versions</h2><span class="spacer"></span><span class="faint" style="font-size:12px">${(versions||[]).length} snapshots</span></div>
+    <div class="bd"><ul class="lineage">${lineage||'<span class=faint>no version history</span>'}</ul></div></div>`;
+
+  setTimeout(()=>document.querySelectorAll('[data-rollback]').forEach(b=>b.addEventListener('click',()=>{
+    alert('Roll back requested for '+b.dataset.rollback+'.\nThis view is a read-only reader per DESIGN.md §5.3; the rollback POST is wired in the Phoenix brain host, not the dashboard.');
+  })),0);
+
+  return `<div class="pgrid">${p1}${p3}</div><div style="height:20px"></div>${p2}<div style="height:20px"></div>${p4}`;
+}
+
+/* ── boot ── */
+refreshHealth();
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
+from .market_data import MarketDataProvider, select_provider
 from .paths import (
     DEFAULT_BRAIN_STATE,
     DEFAULT_VERSIONS_INDEX,
@@ -78,11 +79,14 @@ class DashboardAPI:
         brain: Optional[QuantumAIBrain] = None,
         brain_state_path: Path = DEFAULT_BRAIN_STATE,
         versions_index_path: Path = DEFAULT_VERSIONS_INDEX,
+        market_provider: Optional[MarketDataProvider] = None,
     ):
         self._lock = threading.Lock()
         self.brain = brain or QuantumAIBrain()
         self.brain_state_path = Path(brain_state_path)
         self.versions_index_path = Path(versions_index_path)
+        # Alpaca when APCA_API_KEY_ID/SECRET are set, else the demo feed.
+        self.market = market_provider or select_provider()
         self._selections: dict[str, _Selection] = {}
 
     # ── introspection ────────────────────────────────────────────────
@@ -95,6 +99,7 @@ class DashboardAPI:
             "ai_mode": "live" if available else "offline",
             "claude_available": available,
             "model": self.brain.model,
+            "market_data": self.market.name,  # "alpaca" | "demo"
             "disclaimer": DISCLAIMER,
             "active_sessions": len(self._selections),
         }
@@ -107,6 +112,29 @@ class DashboardAPI:
             "biases": ["bullish", "bearish", "neutral"],
             "disclaimer": DISCLAIMER,
         }
+
+    # ── live market data (form pre-fill) ─────────────────────────────
+
+    def market_prefill(self, symbol: str) -> dict:
+        """
+        Fetch live market context for ``symbol`` from the active provider and
+        return ``{prefill, source, as_of, notes}`` for the UI to pre-fill the
+        MarketContext form. Raises :class:`ApiError` (404) on unknown/failed
+        symbols so the caller can surface a consistent error shape.
+        """
+        symbol = (symbol or "").strip().upper()
+        if not symbol:
+            raise ApiError("symbol is required")
+        if not symbol.replace(".", "").replace("-", "").isalnum():
+            raise ApiError("symbol contains unsupported characters")
+        prefill = self.market.fetch(symbol)
+        if prefill is None:
+            detail = getattr(self.market, "last_error", None)
+            msg = f"no market data for '{symbol}'"
+            if detail:
+                msg += f" ({detail})"
+            raise ApiError(msg, status=404)
+        return prefill.to_response()
 
     # ── strategy selection ───────────────────────────────────────────
 

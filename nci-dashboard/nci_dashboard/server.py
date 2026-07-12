@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from .api import ApiError, DashboardAPI
 from .paths import STATIC_DIR
@@ -85,6 +85,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._send_json(self.api.health())
             elif path == "/api/meta":
                 self._send_json(self.api.meta())
+            elif path.startswith("/api/market/"):
+                symbol = unquote(path[len("/api/market/"):])
+                self._send_json(self.api.market_prefill(symbol))
             elif path == "/api/phoenix":
                 self._send_json(self.api.phoenix_state())
             elif path == "/api/phoenix/versions":
@@ -131,8 +134,10 @@ def main(argv=None) -> int:
     httpd = build_server(args.host, args.port)
     api: DashboardAPI = httpd.RequestHandlerClass.api
     mode = "LIVE (Claude)" if api.brain.claude.available else "OFFLINE (deterministic)"
+    market = "Alpaca (live)" if api.market.name == "alpaca" else "demo values"
     print(f"NCI nerdcommand dashboard → http://{args.host}:{args.port}")
     print(f"AI reasoning mode: {mode}")
+    print(f"Market data source: {market}")
     print("Educational analysis tooling — not investment advice.")
     print("Press Ctrl+C to stop.")
     try:

@@ -71,6 +71,22 @@ def test_strategies_endpoint_returns_cards(live_server):
     assert len(data["result"]["recommendations"]) >= 1
 
 
+def test_market_endpoint_prefills(live_server):
+    # No Alpaca keys in the test env → DemoProvider, deterministic values.
+    status, body = _get(live_server + "/api/market/SPY")
+    assert status == 200
+    data = json.loads(body)
+    assert set(data) == {"prefill", "source", "as_of", "notes"}
+    assert data["source"] == "demo"
+    assert "price" in data["prefill"] and "expected_move" in data["prefill"]
+
+
+def test_health_reports_market_data_source(live_server):
+    status, body = _get(live_server + "/api/health")
+    assert status == 200
+    assert json.loads(body)["market_data"] in ("demo", "alpaca")
+
+
 def test_unknown_route_404(live_server):
     with pytest.raises(urllib.error.HTTPError) as e:
         _get(live_server + "/api/nope")

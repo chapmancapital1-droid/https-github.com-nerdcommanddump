@@ -36,6 +36,17 @@
   .badge .led{width:8px;height:8px;border-radius:50%;background:var(--faint)}
   .badge.live .led{background:var(--pos);box-shadow:0 0 8px var(--pos)}
   .badge.offline .led{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  .badge.demo .led{background:var(--info);box-shadow:0 0 8px var(--info)}
+  .symrow{display:flex;gap:8px}
+  .symrow input{flex:1}
+  .symrow .btn{flex:none;white-space:nowrap}
+  .provenance{font-size:12px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:9px;padding:9px 10px}
+  .provenance .src{font-weight:650;color:var(--ink)}
+  .provenance .src.err{color:var(--neg)}
+  .provenance ul{margin:6px 0 0;padding-left:16px}
+  .provenance li{color:var(--faint);margin:2px 0;line-height:1.45}
+  .provenance li.est{color:var(--warn)}
   .disclaimer{max-width:1200px;margin:0 auto;padding:8px 20px;font-size:12px;color:var(--warn);
     display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line)}
   .tabs{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:4px}
@@ -151,6 +162,7 @@
   <div class="bar">
     <div class="brand"><span class="dot"></span> NCI nerdcommand <small>· Options Assistant</small></div>
     <div class="spacer"></div>
+    <span id="mktBadge" class="badge"><span class="led"></span><span id="mktBadgeText">data: …</span></span>
     <span id="aiBadge" class="badge"><span class="led"></span><span id="aiBadgeText">connecting…</span></span>
   </div>
   <div class="disclaimer">⚠ Educational analysis tooling — not investment advice.</div>
@@ -175,9 +187,14 @@
           </div>
           <form id="stratForm">
             <div class="row two">
-              <div><label>Symbol</label><input id="f_symbol" value="SPY" required></div>
+              <div><label>Symbol</label>
+                <div class="symrow"><input id="f_symbol" value="SPY" required>
+                  <button class="btn sm" type="button" id="fetchLiveBtn" title="Pre-fill from the live market-data feed">Fetch live</button>
+                </div>
+              </div>
               <div><label>Spot price <span class="hint">$</span></label><input id="f_price" type="number" step="0.01" value="450" required></div>
             </div>
+            <div class="row"><div id="provenance" class="provenance hidden"></div></div>
             <div class="row two">
               <div><label>Bias</label>
                 <select id="f_bias"><option value="bullish">Bullish</option><option value="neutral">Neutral</option><option value="bearish">Bearish</option></select>
@@ -268,8 +285,40 @@ async function refreshHealth(){
     b.className='badge '+(live?'live':'offline');
     $('aiBadgeText').textContent = live?'Claude: live':'Claude: offline';
     b.title = live?('model '+h.model):'No ANTHROPIC_API_KEY — deterministic offline reasoning';
+    const mkt=h.market_data||'demo', mlive=(mkt==='alpaca');
+    const mb=$('mktBadge');
+    mb.className='badge '+(mlive?'live':'demo');
+    $('mktBadgeText').textContent = mlive?'Data: Alpaca':'Data: demo';
+    mb.title = mlive?'Live Alpaca market-data feed':'No Alpaca keys — deterministic demo values (APCA_API_KEY_ID/SECRET to go live)';
   }catch(e){$('aiBadgeText').textContent='offline';}
 }
+
+/* ── fetch live market data → pre-fill the form ── */
+async function fetchLive(){
+  const sym=$('f_symbol').value.trim().toUpperCase();
+  const prov=$('provenance'), btn=$('fetchLiveBtn');
+  if(!sym){prov.classList.remove('hidden');prov.innerHTML='<span class="src err">Enter a symbol first.</span>';return;}
+  btn.disabled=true;const label=btn.textContent;btn.textContent='…';
+  prov.classList.remove('hidden');
+  prov.innerHTML='<span class="src"><span class="spin"></span>Fetching '+esc(sym)+'…</span>';
+  try{
+    const d=await api('/api/market/'+encodeURIComponent(sym));
+    const p=d.prefill, set=(id,v)=>{if(v!==undefined&&v!==null)$(id).value=v;};
+    set('f_price',p.price);set('f_ivrank',p.iv_rank);set('f_ivtrend',p.iv_trend);
+    set('f_spot',p.spot_trend);set('f_emove',p.expected_move);set('f_liq',p.liquidity_score);
+    const t=(d.as_of||'').replace('T',' ').replace('Z',' UTC');
+    const srcLabel = d.source==='alpaca' ? ('data: alpaca @ '+t) : 'data: demo values';
+    const notes=(d.notes||[]).map(n=>{
+      const est=/estimated|unknown|demo|default/i.test(n);
+      return '<li'+(est?' class="est"':'')+'>'+esc(n)+'</li>';
+    }).join('');
+    prov.innerHTML='<span class="src">'+esc(srcLabel)+'</span> · fields pre-filled (editable)'
+      +(notes?'<ul>'+notes+'</ul>':'');
+  }catch(err){
+    prov.innerHTML='<span class="src err">'+esc(err.message)+'</span>';
+  }finally{btn.disabled=false;btn.textContent=label;}
+}
+$('fetchLiveBtn').addEventListener('click',fetchLive);
 
 /* ── tabs ── */
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{

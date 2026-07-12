@@ -40,11 +40,71 @@ Open http://127.0.0.1:8765 in a browser. The two library packages are added to
 ANTHROPIC_API_KEY=sk-ant-... python3 -m nci_dashboard
 ```
 
+### Live market data (Inputs form pre-fill)
+
+The Inputs form has a **Fetch live** button next to the Symbol field. It calls
+`GET /api/market/{symbol}` and pre-fills `price`, `iv_rank`, `iv_trend`,
+`spot_trend`, `expected_move`, and `liquidity_score` — the fields stay
+**editable** (prefill, not lock). A provenance line under the Symbol row shows
+the source/timestamp and the derivation notes; a header badge shows the active
+source (**Data: Alpaca** or **Data: demo**), mirroring the Claude badge.
+
+Two providers, selected automatically at startup:
+
+- **Alpaca** — active when **both** `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY`
+  are set (aliases `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY` are also
+  accepted). Uses the stock **snapshot** (last price), **daily bars**
+  (`spot_trend`), and the **options snapshots** feed (`iv_rank`, `expected_move`,
+  `liquidity_score`). Stdlib `urllib` only; timeouts + retry-on-429/5xx with
+  backoff; **never raises** — on any failure the endpoint returns a 404-style
+  error and the form is simply left for manual entry.
+
+  ```bash
+  APCA_API_KEY_ID=... APCA_API_SECRET_KEY=... python3 -m nci_dashboard
+  ```
+
+- **Demo** (default, no keys) — deterministic, realistic per-symbol values so
+  the feature is fully demo-able offline. Clearly labelled `source: "demo"` and
+  never presented as a live feed. Known tickers (SPY/QQQ/IWM/AAPL/TSLA/NVDA) use
+  hand-tuned anchors; any other ticker derives stable values from a hash of the
+  symbol (repeat calls return identical numbers).
+
+`GET /api/market/{symbol}` response:
+
+```jsonc
+{
+  "prefill": {"price": 548.2, "iv_rank": 32.0, "iv_trend": 0.1,
+              "spot_trend": 0.42, "expected_move": 8.1, "liquidity_score": 0.98},
+  "source": "demo",                       // or "alpaca"
+  "as_of": "2026-07-12T06:33:40Z",        // trade timestamp (alpaca) or now
+  "notes": ["source: demo …", "iv_rank … (estimated)", …]
+}
+```
+
+**How each field is derived (Alpaca):**
+
+| Field | Derivation |
+|---|---|
+| `price` | last trade from the stock snapshot (falls back to the daily-bar close) |
+| `spot_trend` | last close vs its 20-day SMA; a ±5% premium/discount to the SMA saturates to ±1 (clamped) |
+| `expected_move` | ATM straddle mid (call mid + put mid) for the nearest standard-monthly (3rd-Friday) expiry |
+| `liquidity_score` | `1 − avg(ATM bid/ask relative spread) ÷ 25%`, clamped to 0–1 (a ≥25%-wide market → 0) |
+| `iv_rank` | **estimated** — see below |
+| `iv_trend` | not derivable from a single snapshot → returned as `0` (labelled *unknown*) |
+
+**iv_rank is an estimate.** The snapshot API does not expose 52-week IV history,
+so a true percentile rank can't be computed. Instead the current **ATM implied
+volatility** is mapped linearly onto a fixed **10%–50%** band (10% IV → rank 0,
+50% IV → rank 100, clamped). Every response says so in `notes` (labelled
+`ESTIMATED`) so the UI never presents it as a real historical rank. When the
+options chain is unavailable, `iv_rank` defaults to 50 and `expected_move` falls
+back to ~4% of spot — both noted.
+
 ## Tests
 
 ```bash
 cd nci-dashboard
-python3 -m pytest tests/ -q          # 22 passed
+python3 -m pytest tests/ -q          # 55 passed
 ```
 
 - `tests/test_api.py` — service layer: endpoint shapes, the offline path,
@@ -52,9 +112,15 @@ python3 -m pytest tests/ -q          # 22 passed
   fit the limit; an impossible limit yields zero recs + a reasoning note),
   multi-turn ask, the calibration/outcome loop, input validation, and the
   Phoenix reader.
+- `tests/test_market_data.py` — the market-data layer: provider selection,
+  `AlpacaProvider` parsing against **canned JSON fixtures** (urllib mocked, no
+  network) incl. retry-on-429, the spot_trend / iv_rank / expected_move /
+  liquidity derivations, DemoProvider determinism, and the `/api/market`
+  endpoint shape + error path + health source.
 - `tests/test_smoke.py` — boots the real server on an OS-assigned port and hits
-  it over a socket (page served, `/api/health`, `/api/phoenix`,
-  `/api/strategies` returns cards, unknown route → 404).
+  it over a socket (page served, `/api/health` incl. `market_data`,
+  `/api/phoenix`, `/api/strategies` returns cards, `/api/market/{symbol}`
+  pre-fills, unknown route → 404).
 
 ## API contract
 
@@ -64,8 +130,9 @@ All bodies and responses are JSON. Errors return
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/` | The single-page UI |
-| GET | `/api/health` | `{status, ai_mode:"live"\|"offline", claude_available, model, disclaimer, active_sessions}` |
+| GET | `/api/health` | `{status, ai_mode:"live"\|"offline", claude_available, model, market_data:"alpaca"\|"demo", disclaimer, active_sessions}` |
 | GET | `/api/meta` | Enum options: `{strategy_types[13], risk_profiles[3], biases[3]}` |
+| GET | `/api/market/{symbol}` | Live market pre-fill for the Inputs form (see below) |
 | POST | `/api/strategies` | Run a selection (see below) |
 | POST | `/api/ask` | Multi-turn follow-up on a selection |
 | POST | `/api/outcome` | Log a realized outcome → calibration learns |
@@ -151,12 +218,13 @@ nci-dashboard/
     __main__.py        # python3 -m nci_dashboard
     server.py          # stdlib http.server routing → DashboardAPI
     api.py             # transport-agnostic service layer (the testable core)
+    market_data.py     # market-data providers (Alpaca / demo) for form pre-fill
     paths.py           # sys.path wiring to the two sibling packages
     static/index.html  # self-contained single-page UI (inline CSS/JS)
   data/
     brain_state.json     # Phoenix brain state (seeded from the phoenix example)
     versions_index.json  # version lineage for the Versions panel
-  tests/               # test_api.py, test_smoke.py (22 tests)
+  tests/               # test_api.py, test_market_data.py, test_smoke.py (55 tests)
   README.md
 ```
 

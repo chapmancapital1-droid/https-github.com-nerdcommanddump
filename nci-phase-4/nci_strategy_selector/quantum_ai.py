@@ -12,6 +12,9 @@ from .models import (
     StrategyRecommendation, TradeOutcome, KnowledgeStore, VersionedKnowledge,
 )
 from .strategy_selector import StrategySelector
+from .claude_client import ClaudeReasoningClient
+from .feedback import ConfidenceCalibrator
+from .reasoning_engine import ReasoningSession
 from typing import Optional
 import json
 import time
@@ -22,10 +25,20 @@ import copy
 class QuantumAIBrain:
     """Claude-powered AI brain for intelligent strategy selection."""
 
-    def __init__(self, knowledge_store: Optional[KnowledgeStore] = None):
+    def __init__(
+        self,
+        knowledge_store: Optional[KnowledgeStore] = None,
+        claude_client: Optional[ClaudeReasoningClient] = None,
+        calibrator: Optional[ConfidenceCalibrator] = None,
+    ):
         self.selector = StrategySelector()
         self.knowledge = knowledge_store or self._init_knowledge_store()
-        self.model = "claude-opus-4-8"
+        self.claude = claude_client or ClaudeReasoningClient()
+        self.calibrator = calibrator or ConfidenceCalibrator()
+        self.model = self.claude.model
+        # Maps recommendation_id → predicted confidence, so outcomes can
+        # be matched back for calibration.
+        self._pending_predictions: dict[str, tuple[StrategyType, float]] = {}
 
     def _init_knowledge_store(self) -> KnowledgeStore:
         """Initialize a new knowledge store."""
@@ -60,14 +73,19 @@ class QuantumAIBrain:
         # Get strategy candidates
         candidates = self.selector.select_strategies(context, prefs, top_n=5)
 
-        # Build initial recommendations
+        # Build initial recommendations with calibrated confidence
         recommendations = []
         for strategy, fit_score in candidates[:3]:
             reasoning_text = self._generate_initial_reasoning(strategy, context, prefs, fit_score)
             rec = self.selector.build_recommendation(
                 strategy, context, prefs, fit_score, reasoning_text
             )
+            # Phase 5: adjust confidence by learned calibration factor
+            rec.confidence_score = self.calibrator.adjust(strategy, rec.confidence_score)
             recommendations.append(rec)
+
+        # Re-rank by calibrated confidence so learning affects ordering
+        recommendations.sort(key=lambda r: r.confidence_score, reverse=True)
 
         # Get AI reasoning
         if use_claude:
@@ -128,25 +146,42 @@ class QuantumAIBrain:
         recommendations: list[StrategyRecommendation],
     ) -> str:
         """
-        Get reasoning from Claude API.
+        Get reasoning from Claude API (Phase 5: live integration).
 
-        NOTE: This is a template for Claude API integration.
-        In production, you would make actual API calls here using:
-
-            from anthropic import Anthropic
-            client = Anthropic()
-            message = client.messages.create(
-                model="claude-opus-4-8",
-                max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-        For now, returning structured reasoning as placeholder.
+        Makes a real Messages API call through ClaudeReasoningClient when
+        ANTHROPIC_API_KEY is configured; otherwise returns the structured
+        template so the product keeps working offline.
         """
         prompt = self._build_reasoning_prompt(context, prefs, recommendations)
 
-        # In production, make actual Claude API call
-        # For now, return a template response
+        if self.claude.available:
+            resp = self.claude.complete(
+                messages=[{"role": "user", "content": prompt}],
+                system=(
+                    "You are Quantum AI, the options-strategy reasoning layer of "
+                    "the NCI nerdcommand trading assistant. Analyze the provided "
+                    "recommendations against the market context and user "
+                    "constraints. Be quantitative and honest about risk. End "
+                    "with a one-line educational-use disclaimer."
+                ),
+            )
+            if resp.ok and resp.text.strip():
+                return resp.text.strip()
+            # fall through to template with a note
+            return (
+                f"[Claude unavailable ({resp.error}) — structured fallback]\n"
+                + self._template_reasoning(context, prefs, recommendations)
+            )
+
+        return self._template_reasoning(context, prefs, recommendations)
+
+    def _template_reasoning(
+        self,
+        context: MarketContext,
+        prefs: UserPreferences,
+        recommendations: list[StrategyRecommendation],
+    ) -> str:
+        """Deterministic structured reasoning used when the API is offline."""
         reasoning = f"""
 Based on market conditions ({context.symbol} at ${context.price:.2f}):
 
@@ -259,9 +294,42 @@ Focus on risk-adjusted probability and alignment with user constraints.
         else:
             return "low"
 
+    def start_reasoning_session(
+        self,
+        context: MarketContext,
+        prefs: UserPreferences,
+        result: StrategySelectionResult,
+    ) -> ReasoningSession:
+        """
+        Phase 5: open a multi-turn dialogue about a selection.
+
+        The returned session keeps full conversation history; call
+        session.ask("...") repeatedly to interrogate the recommendation.
+        """
+        return ReasoningSession(self.claude, context, prefs, result)
+
+    def register_prediction(
+        self, recommendation_id: str, rec: StrategyRecommendation
+    ) -> None:
+        """
+        Phase 5: remember a recommendation's predicted confidence so the
+        eventual outcome can calibrate future confidence for that strategy.
+        Call this when the user actually takes the trade.
+        """
+        self._pending_predictions[recommendation_id] = (
+            rec.strategy,
+            rec.confidence_score,
+        )
+
     def record_trade_outcome(self, outcome: TradeOutcome) -> None:
         """Record a trade outcome for learning."""
         self.knowledge.trade_outcomes.append(outcome)
+
+        # Phase 5: close the calibration loop if we tracked the prediction.
+        pending = self._pending_predictions.pop(outcome.recommendation_id, None)
+        if pending is not None:
+            strategy, predicted_confidence = pending
+            self.calibrator.observe(strategy, predicted_confidence, outcome)
 
         # Update strategy performance tracking
         strategy_name = outcome.strategy.value
@@ -318,11 +386,15 @@ Focus on risk-adjusted probability and alignment with user constraints.
         return {
             "knowledge": self.knowledge.to_dict(),
             "model": self.model,
+            "calibration": self.calibrator.to_dict(),
         }
 
     @classmethod
     def from_dict(cls, d: dict) -> QuantumAIBrain:
         """Deserialize from dict."""
-        brain = cls(knowledge_store=KnowledgeStore.from_dict(d["knowledge"]))
-        brain.model = d.get("model", "claude-opus-4-8")
+        brain = cls(
+            knowledge_store=KnowledgeStore.from_dict(d["knowledge"]),
+            calibrator=ConfidenceCalibrator.from_dict(d.get("calibration", {})),
+        )
+        brain.model = d.get("model", brain.model)
         return brain

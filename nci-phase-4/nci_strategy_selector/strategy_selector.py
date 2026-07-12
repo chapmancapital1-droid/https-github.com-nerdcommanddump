@@ -10,6 +10,7 @@ from .models import (
     StrategyType, MarketContext, UserPreferences, StrategyRecommendation,
     GreeksSummary, RiskProfile
 )
+from .payoff import build_legs, reconcile_payoff
 from typing import Optional
 import math
 
@@ -312,34 +313,26 @@ class StrategySelector:
         fit_score: float,
         reasoning: str,
     ) -> StrategyRecommendation:
-        """Build a complete strategy recommendation."""
+        """
+        Build a complete strategy recommendation.
+
+        Phase 6a: the profit/loss headline numbers (entry_price, max_profit,
+        max_loss, breakeven_price) and the real leg structure are now derived
+        from the single-source-of-truth payoff engine
+        (:func:`payoff.reconcile_payoff`), so the recommendation and the chart
+        can never contradict each other. ``max_profit`` / ``max_loss`` are the
+        sampled-window extremes; for structures with an unbounded side the true
+        figure is larger (flagged in the payoff curve).
+        """
         greeks = self.estimate_greeks(strategy, context, prefs)
 
-        # Estimate profit/loss zones (scaled to 1-2 contract typical sizes)
-        price = context.price
-        entry_price = max_loss = max_profit = 0.0
-        contract_scalar = 100  # typical option contract
-
-        if strategy == StrategyType.COVERED_CALL:
-            entry_price = price * 0.02  # 2% credit
-            max_profit = entry_price * contract_scalar
-            max_loss = price * contract_scalar * 0.10  # 10% of stock value
-            breakeven_price = price - entry_price
-        elif strategy == StrategyType.BULL_CALL_SPREAD:
-            entry_price = price * 0.01  # 1% debit
-            max_profit = price * 0.05 * contract_scalar * 0.5
-            max_loss = entry_price * contract_scalar
-            breakeven_price = price + entry_price
-        elif strategy == StrategyType.IRON_CONDOR:
-            entry_price = price * -0.015  # 1.5% credit
-            max_profit = abs(entry_price) * contract_scalar
-            max_loss = price * 0.05 * contract_scalar * 0.5
-            breakeven_price = price
-        else:
-            entry_price = price * 0.02
-            max_profit = price * 0.10 * contract_scalar * 0.3
-            max_loss = price * 0.05 * contract_scalar * 0.3
-            breakeven_price = price
+        # Real legs + curve-derived P/L, one source of truth (Phase 6a).
+        legs_objs = build_legs(strategy, context, prefs)
+        recon = reconcile_payoff(strategy, context, prefs, legs=legs_objs)
+        entry_price = recon.entry_price
+        max_profit = recon.max_profit
+        max_loss = recon.max_loss
+        breakeven_price = recon.breakeven_price
 
         # Risk rating based on max loss
         if max_loss > prefs.max_loss_dollars:
@@ -349,8 +342,9 @@ class StrategySelector:
         else:
             risk_rating = "low"
 
-        # Legs structure (simplified)
-        legs = [{"symbol": context.symbol, "right": "call", "strike": price, "qty": 1}]
+        # Legs structure (real, priceable — extends the old dict shape with
+        # ``side`` and an explicit ``expiration`` label; keys stay compatible).
+        legs = [leg.to_dict() for leg in legs_objs]
 
         return StrategyRecommendation(
             strategy=strategy,

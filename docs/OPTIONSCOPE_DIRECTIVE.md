@@ -98,3 +98,15 @@ Pipeline (all existing engines, orchestrated into one evaluation):
 - Calibration provably alters a future analysis after logged outcomes.
 - Full test coverage of the orchestration layer; suite stays green.
 - Board sign-off recorded in `docs/OPTIONSCOPE_BOARD_MINUTES.md`.
+
+## Board rulings (v1.0 session)
+
+Adopted 2026-07-12, 5–0 on all six; full debate, conditions, and dissents in
+`docs/OPTIONSCOPE_BOARD_MINUTES.md`.
+
+- **D1:** PoP becomes curve-derived — normal-CDF mass over the payoff curve's profitable intervals under the same Bachelier σ used for entry pricing, shown with expectancy and a full assumption label; the `0.40 + fit_score × 0.15` heuristic is deleted (lognormal cross-check lives in derivation notes only).
+- **D2:** Intents map through a published frozen `INTENT_PRESETS` table (attribute filters on the existing strategy_db, no selector rewiring) with regime-guard warnings (thin-IV income, rich-IV vol buying), a ≤3-day event gate on short premium, "events: unknown" when event data is null, and labeled trend-derived bias.
+- **D3:** Calibration stays autonomous with its constants board-frozen (factor ∈ [0.5, 1.5], EMA 0.25, min 3 samples); knowledge-version promotion is user-gated behind a visible diff + confirm; blacklisting is user-only; calibration-altered cards must disclose `×F (n outcomes)`; outlier outcomes (>5× modeled max loss) need confirmation.
+- **D4:** No backtest runs inside Active Analysis — evidence comes from an atomic per-symbol cache written by `run_backtest`, shown as a stamped chip labeled synthetic (or historical-CSV), display-only (never feeds PoP/rankings), with a < 2s offline latency budget on the analysis itself.
+- **D5:** One percentage on the card face (PoP "est." with model named) beside signed expectancy and max-loss-vs-limit (UNBOUNDED shown when true); confidence renders as words with published thresholds; MC verdict is a word badge; warnings ride at PoP-equal weight; full derivation one tap away; UI computes nothing.
+- **D6:** Orchestration lives in new engine-layer module `nci_strategy_selector/active_analysis.py` (pure, no I/O, brain/portfolio injected) returning a round-trippable `ActiveAnalysisReport` (schema_version + analysis_id); the dashboard adds one thin locked endpoint that reads the D4 cache, persists analyses append-only, and hands off to Q&A; exactly one Claude call per analysis with offline shape parity.

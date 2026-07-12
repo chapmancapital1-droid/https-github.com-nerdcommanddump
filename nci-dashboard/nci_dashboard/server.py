@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlparse
 
 from .api import ApiError, DashboardAPI
-from .paths import STATIC_DIR
+from .paths import DEFAULT_STATE_DIR, STATIC_DIR
 
 MAX_BODY_BYTES = 1_000_000
 
@@ -88,6 +88,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
             elif path.startswith("/api/market/"):
                 symbol = unquote(path[len("/api/market/"):])
                 self._send_json(self.api.market_prefill(symbol))
+            elif path.startswith("/api/payoff/"):
+                rest = path[len("/api/payoff/"):].split("/")
+                if len(rest) != 2 or not rest[0] or not rest[1]:
+                    self._send_error_json(
+                        "expected /api/payoff/{session_id}/{rec_index}", status=400
+                    )
+                    return
+                self._send_json(self.api.payoff(unquote(rest[0]), unquote(rest[1])))
+            elif path == "/api/portfolio":
+                self._send_json(self.api.portfolio_state())
             elif path == "/api/phoenix":
                 self._send_json(self.api.phoenix_state())
             elif path == "/api/phoenix/versions":
@@ -111,6 +121,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._send_json(self.api.ask(payload))
             elif path == "/api/outcome":
                 self._send_json(self.api.record_outcome(payload))
+            elif path == "/api/backtest":
+                self._send_json(self.api.run_backtest(payload))
+            elif path == "/api/portfolio/positions":
+                self._send_json(self.api.add_position(payload))
+            elif path == "/api/portfolio/account":
+                self._send_json(self.api.set_account_size(payload))
+            elif path == "/api/portfolio/close":
+                self._send_json(self.api.close_position(payload))
             else:
                 self._send_error_json("not found", status=404)
         except ApiError as e:
@@ -119,9 +137,17 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._send_error_json(f"internal error: {e}", status=500)
 
 
-def build_server(host: str = "127.0.0.1", port: int = 8765) -> ThreadingHTTPServer:
-    """Construct a ready-to-serve HTTP server with a shared API instance."""
-    handler = type("BoundDashboardHandler", (DashboardHandler,), {"api": DashboardAPI()})
+def build_server(
+    host: str = "127.0.0.1", port: int = 8765, fresh: bool = False
+) -> ThreadingHTTPServer:
+    """Construct a ready-to-serve HTTP server with a shared API instance.
+
+    State (brain calibration/knowledge + portfolio) persists to
+    ``data/state/`` across restarts; ``fresh=True`` boots from a clean slate,
+    ignoring any saved files.
+    """
+    api = DashboardAPI(state_dir=DEFAULT_STATE_DIR, fresh=fresh)
+    handler = type("BoundDashboardHandler", (DashboardHandler,), {"api": api})
     return ThreadingHTTPServer((host, port), handler)
 
 
@@ -129,15 +155,25 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="NCI nerdcommand dashboard server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="ignore saved state in data/state/ and boot from a clean slate",
+    )
     args = parser.parse_args(argv)
 
-    httpd = build_server(args.host, args.port)
+    httpd = build_server(args.host, args.port, fresh=args.fresh)
     api: DashboardAPI = httpd.RequestHandlerClass.api
     mode = "LIVE (Claude)" if api.brain.claude.available else "OFFLINE (deterministic)"
     market = "Alpaca (live)" if api.market.name == "alpaca" else "demo values"
+    loaded = [k for k, v in api.loaded_from_disk.items() if v]
+    state = "fresh (--fresh)" if args.fresh else (
+        f"restored from disk: {', '.join(loaded)}" if loaded else "no saved state yet"
+    )
     print(f"NCI nerdcommand dashboard → http://{args.host}:{args.port}")
     print(f"AI reasoning mode: {mode}")
     print(f"Market data source: {market}")
+    print(f"Persistence: {state} (data/state/)")
     print("Educational analysis tooling — not investment advice.")
     print("Press Ctrl+C to stop.")
     try:

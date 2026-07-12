@@ -28,6 +28,13 @@ DATA_DIR = DASHBOARD_DIR / "data"
 DEFAULT_BRAIN_STATE = DATA_DIR / "brain_state.json"
 DEFAULT_VERSIONS_INDEX = DATA_DIR / "versions_index.json"
 
+# Runtime state persisted across restarts (Phase 6/7) — QuantumAIBrain state
+# (calibration + knowledge) and the server-side Portfolio. This is runtime data,
+# not repo content, so ``data/state/`` is git-ignored.
+DEFAULT_STATE_DIR = DATA_DIR / "state"
+BRAIN_STATE_FILENAME = "brain.json"
+PORTFOLIO_STATE_FILENAME = "portfolio.json"
+
 
 def ensure_library_paths() -> None:
     """Prepend the two library package roots to ``sys.path`` (idempotent)."""

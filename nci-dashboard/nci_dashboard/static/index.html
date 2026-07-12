@@ -155,6 +155,60 @@
   .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);
     border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* ── payoff / equity chart (inline SVG, drawn in JS) ── */
+  .chart{position:relative;margin-top:10px}
+  .chart svg{display:block;width:100%;height:auto;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)}
+  .chart .axlab{fill:var(--faint);font-family:var(--mono);font-size:9.5px}
+  .chart .annot{fill:var(--muted);font-family:var(--mono);font-size:10px}
+  .chart .crosshair{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;opacity:0;pointer-events:none}
+  .chart .tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-115%);
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:11.5px;
+    font-family:var(--mono);box-shadow:var(--shadow);white-space:nowrap;z-index:5;transition:opacity .08s}
+  .chart .tip .p{color:var(--muted)} .chart .tip .pos{color:var(--pos)} .chart .tip .neg{color:var(--neg)}
+  .chartcap{font-size:11px;color:var(--faint);margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .chartcap .k{display:inline-flex;gap:5px;align-items:center}
+  .swatch{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .swatch.pos{background:color-mix(in srgb,var(--pos) 55%,transparent)}
+  .swatch.neg{background:color-mix(in srgb,var(--neg) 55%,transparent)}
+  .swatch.line{background:var(--accent)}
+  .paychart-loading{padding:22px;text-align:center;color:var(--faint);font-size:12px}
+  /* ── take-trade panel on a rec card ── */
+  .takebox{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:10px;display:none}
+  .takebox.open{display:block}
+  .takerow{display:flex;gap:8px;align-items:flex-end}
+  .takerow .qty{width:120px}
+  .warnlist{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+  .warnlist li{font-size:12px;line-height:1.45;background:color-mix(in srgb,var(--warn) 14%,transparent);
+    border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);color:var(--ink);border-radius:8px;padding:8px 10px}
+  .warnlist li b{color:var(--warn)}
+  /* ── backtest ── */
+  .synthbanner{font-size:12px;color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:9px;padding:9px 11px;margin-bottom:14px}
+  .verdict{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;display:inline-flex;gap:8px;align-items:center}
+  .verdict.ok{background:color-mix(in srgb,var(--pos) 16%,transparent);color:var(--pos);border:1px solid color-mix(in srgb,var(--pos) 45%,transparent)}
+  .verdict.no{background:color-mix(in srgb,var(--neg) 16%,transparent);color:var(--neg);border:1px solid color-mix(in srgb,var(--neg) 45%,transparent)}
+  .mcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin-top:12px}
+  @media (max-width:560px){.mcgrid{grid-template-columns:repeat(2,1fr)}}
+  .reasonlist{margin:10px 0 0;padding-left:18px;font-size:12px;color:var(--muted)}
+  .reasonlist li{margin:3px 0}
+  .tradetable{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .tradetable table{font-size:12px}
+  .tradetable thead th{position:sticky;top:0;background:var(--panel);z-index:1}
+  .noteslist{margin:12px 0 0;padding-left:18px;font-size:11.5px;color:var(--faint)}
+  .noteslist li{margin:4px 0;line-height:1.45}
+  /* ── portfolio ── */
+  .meter{height:14px;border-radius:8px;background:var(--chip);overflow:hidden;position:relative;border:1px solid var(--line)}
+  .meter .fill{height:100%;border-radius:8px;transition:width .3s}
+  .meter .fill.ok{background:var(--pos)} .meter .fill.warn{background:var(--warn)} .meter .fill.over{background:var(--neg)}
+  .greekrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .accountedit{display:flex;gap:8px;align-items:flex-end;max-width:340px}
+  .dir{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:capitalize}
+  .dir.bullish{background:color-mix(in srgb,var(--pos) 16%,transparent);color:var(--pos)}
+  .dir.bearish{background:color-mix(in srgb,var(--neg) 16%,transparent);color:var(--neg)}
+  .dir.neutral{background:var(--chip);color:var(--muted)}
+  .breakdowns{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:700px){.breakdowns{grid-template-columns:1fr}}
+  .bkd h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin:0 0 8px}
 </style>
 </head>
 <body>
@@ -168,6 +222,8 @@
   <div class="disclaimer">⚠ Educational analysis tooling — not investment advice.</div>
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" aria-selected="true" data-tab="options">Options Assistant</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="backtest">Backtest</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="portfolio">Portfolio</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="phoenix">Phoenix Brain</button>
   </nav>
 </header>
@@ -252,6 +308,70 @@
     </div>
   </section>
 
+  <!-- ═══════════ BACKTEST ═══════════ -->
+  <section id="tab-backtest" class="hidden">
+    <div class="grid">
+      <!-- backtest form -->
+      <div class="card">
+        <div class="hd"><h2>Backtest inputs</h2></div>
+        <div class="bd">
+          <form id="btForm">
+            <div class="row two">
+              <div><label>Symbol</label><input id="b_symbol" value="SPY"></div>
+              <div><label>Years <span class="hint">1–5</span></label><input id="b_years" type="number" min="1" max="5" step="1" value="3"></div>
+            </div>
+            <div class="row two">
+              <div><label>Seed <span class="hint">reproducible</span></label><input id="b_seed" type="number" step="1" value="7"></div>
+              <div><label>Account size <span class="hint">$</span></label><input id="b_account" type="number" step="1000" value="100000"></div>
+            </div>
+            <div class="row two">
+              <div><label>Entry cadence <span class="hint">days</span></label><input id="b_entry" type="number" min="1" step="1" value="21"></div>
+              <div><label>Horizon <span class="hint">days</span></label><input id="b_horizon" type="number" min="1" step="1" value="21"></div>
+            </div>
+            <div class="row two">
+              <div><label>Bias</label>
+                <select id="b_bias"><option value="neutral" selected>Neutral</option><option value="bullish">Bullish</option><option value="bearish">Bearish</option></select>
+              </div>
+              <div><label>Risk profile</label>
+                <select id="b_risk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select>
+              </div>
+            </div>
+            <div class="row">
+              <label>Max loss per trade <span class="hint">$</span></label><input id="b_maxloss" type="number" step="100" value="5000">
+            </div>
+            <button class="btn primary" type="submit" id="btGoBtn">Run backtest</button>
+            <div class="faint" style="font-size:11px;margin-top:10px;line-height:1.5">
+              Runs the live selector's pick repeatedly over deterministic synthetic bars, then puts the
+              trade R-series through the Monte-Carlo promotion gate.
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- backtest results -->
+      <div class="card">
+        <div class="hd"><h2>Results</h2><span class="spacer"></span><span id="btVerdict"></span></div>
+        <div class="bd">
+          <div id="btResults">
+            <div class="empty"><div class="big">No backtest yet</div>Set parameters and press <b>Run backtest</b>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ PORTFOLIO ═══════════ -->
+  <section id="tab-portfolio" class="hidden">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <h2 style="font-size:16px">Portfolio &amp; risk budget</h2>
+      <span class="faint" style="font-size:12px">positions taken from the Options Assistant, aggregated server-side</span>
+      <span class="spacer"></span>
+      <button class="btn sm" id="reloadPortfolio">Reload</button>
+    </div>
+    <div id="portfolioBody">
+      <div class="loading"><span class="spin"></span>Loading portfolio…</div>
+    </div>
+  </section>
+
   <!-- ═══════════ PHOENIX BRAIN ═══════════ -->
   <section id="tab-phoenix" class="hidden">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
@@ -321,12 +441,13 @@ async function fetchLive(){
 $('fetchLiveBtn').addEventListener('click',fetchLive);
 
 /* ── tabs ── */
+const TABS=['options','backtest','portfolio','phoenix'];
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', x===t));
   const which=t.dataset.tab;
-  $('tab-options').classList.toggle('hidden',which!=='options');
-  $('tab-phoenix').classList.toggle('hidden',which!=='phoenix');
+  TABS.forEach(name=>$('tab-'+name).classList.toggle('hidden',which!==name));
   if(which==='phoenix' && !window.__phoenixLoaded){loadPhoenix();}
+  if(which==='portfolio'){loadPortfolio();}
 }));
 
 /* ── presets ── */
@@ -409,7 +530,24 @@ function renderResults(data){
       <div class="recbody">
         <div class="why">${esc(rec.reasoning)}</div>
         <div class="legs">${rec.legs.map(l=>esc(legStr(l))).join('  /  ')}</div>
-        <button class="btn sm ghost" data-log="${i}">Log outcome</button>
+        <div class="chart" id="payoff-${i}"><div class="paychart-loading"><span class="spin"></span>drawing payoff…</div></div>
+        <div class="chartcap">
+          <span class="k"><span class="swatch line"></span>P/L at expiry</span>
+          <span class="k"><span class="swatch pos"></span>profit</span>
+          <span class="k"><span class="swatch neg"></span>loss</span>
+          <span class="faint">intrinsic value at expiry · not a live mark</span>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn sm ghost" data-log="${i}">Log outcome</button>
+          <button class="btn sm" data-take="${i}">Take this trade</button>
+        </div>
+        <div class="takebox" id="take-${i}">
+          <div class="takerow">
+            <div class="qty"><label>Contracts <span class="hint">qty</span></label><input type="number" min="1" step="1" id="qty-${i}" value="1"></div>
+            <button class="btn sm primary" style="width:auto" data-preview="${i}">Preview risk</button>
+          </div>
+          <div id="takeout-${i}"></div>
+        </div>
         <div class="outcome" id="outcome-${i}">
           <div class="fields">
             <div><label>Exit price <span class="hint">$</span></label><input type="number" step="0.01" id="exit-${i}" placeholder="entry ${rec.entry_price.toFixed(2)}"></div>
@@ -427,6 +565,8 @@ function renderResults(data){
   });
   $('results').innerHTML=html;
   bindOutcomeHandlers();
+  bindTakeHandlers(recs.length);
+  recs.forEach((_,i)=>loadPayoff(i));
 }
 function legStr(l){
   const parts=[];
@@ -550,6 +690,258 @@ function renderPhoenix(s,versions){
   })),0);
 
   return `<div class="pgrid">${p1}${p3}</div><div style="height:20px"></div>${p2}<div style="height:20px"></div>${p4}`;
+}
+
+/* ══════════ Phase 6a — payoff charts (inline SVG, drawn in vanilla JS) ══════════ */
+const SVGNS='http://www.w3.org/2000/svg';
+function svgEl(name,attrs){const e=document.createElementNS(SVGNS,name);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+function addText(svg,x,y,txt,cls,extra){const a={x:x,y:y,class:cls};if(extra)Object.assign(a,extra);const t=svgEl('text',a);t.textContent=txt;svg.appendChild(t);}
+function interp(xs,ys,x){
+  if(x<=xs[0])return ys[0];if(x>=xs[xs.length-1])return ys[ys.length-1];
+  for(let k=1;k<xs.length;k++){if(x<=xs[k]){const t=(x-xs[k-1])/((xs[k]-xs[k-1])||1);return ys[k-1]+t*(ys[k]-ys[k-1]);}}
+  return ys[ys.length-1];
+}
+function fmtCompact(n){const a=Math.abs(n),s=n<0?'-':'';if(a>=1000)return s+'$'+(a/1000).toFixed(a>=10000?0:1)+'k';return s+'$'+a.toFixed(0);}
+
+async function loadPayoff(i){
+  const host=$('payoff-'+i);if(!host||!SESSION)return;
+  try{const d=await api('/api/payoff/'+encodeURIComponent(SESSION)+'/'+i);drawPayoff(host,d);}
+  catch(err){host.innerHTML='<div class="paychart-loading">payoff unavailable: '+esc(err.message)+'</div>';}
+}
+function drawPayoff(host,d){
+  const c=d.curve,prices=c.prices,pnl=c.pnl,spot=d.spot;
+  const W=520,H=240,padL=52,padR=58,padT=20,padB=34;
+  const xmin=prices[0],xmax=prices[prices.length-1];
+  let ymin=Math.min(0,...pnl),ymax=Math.max(0,...pnl);const yr=(ymax-ymin)||1;ymin-=yr*0.08;ymax+=yr*0.08;
+  const X=p=>padL+(p-xmin)/((xmax-xmin)||1)*(W-padL-padR);
+  const Y=v=>padT+(ymax-v)/((ymax-ymin)||1)*(H-padT-padB);
+  const zeroY=Y(0);
+  host.innerHTML='';
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Profit and loss at expiry versus underlying price'});
+  const defs=svgEl('defs',{});
+  defs.innerHTML=`<clipPath id="cpP-${d.rec_index}"><rect x="0" y="0" width="${W}" height="${Math.max(0,zeroY).toFixed(1)}"/></clipPath>`
+    +`<clipPath id="cpL-${d.rec_index}"><rect x="0" y="${zeroY.toFixed(1)}" width="${W}" height="${Math.max(0,H-zeroY).toFixed(1)}"/></clipPath>`;
+  svg.appendChild(defs);
+  let area=`M ${X(xmin).toFixed(1)} ${zeroY.toFixed(1)} `;
+  prices.forEach((p,k)=>{area+=`L ${X(p).toFixed(1)} ${Y(pnl[k]).toFixed(1)} `;});
+  area+=`L ${X(xmax).toFixed(1)} ${zeroY.toFixed(1)} Z`;
+  svg.appendChild(svgEl('path',{d:area,fill:'var(--pos)','fill-opacity':'0.16','clip-path':`url(#cpP-${d.rec_index})`}));
+  svg.appendChild(svgEl('path',{d:area,fill:'var(--neg)','fill-opacity':'0.16','clip-path':`url(#cpL-${d.rec_index})`}));
+  svg.appendChild(svgEl('line',{x1:padL,y1:zeroY,x2:W-padR,y2:zeroY,stroke:'var(--muted)','stroke-width':'1','stroke-opacity':'0.5'}));
+  addText(svg,W-padR+3,zeroY+3,'$0','axlab');
+  addText(svg,4,padT+8,fmtCompact(ymax),'axlab');
+  addText(svg,4,H-padB+2,fmtCompact(ymin),'axlab');
+  (c.breakevens||[]).forEach(be=>{const x=X(be);
+    svg.appendChild(svgEl('line',{x1:x,y1:padT,x2:x,y2:H-padB,stroke:'var(--warn)','stroke-width':'1','stroke-dasharray':'4 3','stroke-opacity':'0.9'}));
+    addText(svg,x,padT-6,'BE '+be.toFixed(2),'annot',{fill:'var(--warn)','text-anchor':'middle'});
+  });
+  const sx=X(spot);
+  svg.appendChild(svgEl('line',{x1:sx,y1:padT,x2:sx,y2:H-padB,stroke:'var(--accent)','stroke-width':'1','stroke-dasharray':'2 3','stroke-opacity':'0.8'}));
+  addText(svg,sx,H-padB+13,'spot '+spot.toFixed(2),'annot',{fill:'var(--accent)','text-anchor':'middle'});
+  const pts=prices.map((p,k)=>X(p).toFixed(1)+','+Y(pnl[k]).toFixed(1)).join(' ');
+  svg.appendChild(svgEl('polyline',{points:pts,fill:'none',stroke:'var(--accent)','stroke-width':'2','stroke-linejoin':'round'}));
+  const spotPnl=interp(prices,pnl,spot);
+  svg.appendChild(svgEl('circle',{cx:sx,cy:Y(spotPnl),r:'3.5',fill:'var(--accent)',stroke:'var(--bg)','stroke-width':'1.5'}));
+  addText(svg,padL,padT+8,'max profit '+fmtCompact(c.max_profit)+(c.unbounded_gain?' +':''),'annot',{fill:'var(--pos)'});
+  addText(svg,padL,H-padB-4,'max loss '+fmtCompact(c.max_loss)+(c.unbounded_loss?' +':''),'annot',{fill:'var(--neg)'});
+  if(c.unbounded_gain)addText(svg,W-padR-2,padT+22,'unbounded →','annot',{fill:'var(--pos)','text-anchor':'end'});
+  if(c.unbounded_loss)addText(svg,W-padR-2,H-padB-18,'unbounded →','annot',{fill:'var(--neg)','text-anchor':'end'});
+  const cross=svgEl('line',{class:'crosshair',x1:0,y1:padT,x2:0,y2:H-padB});svg.appendChild(cross);
+  const dot=svgEl('circle',{class:'crosshair',r:'3',fill:'var(--ink)'});svg.appendChild(dot);
+  const hit=svgEl('rect',{x:padL,y:padT,width:W-padL-padR,height:H-padT-padB,fill:'transparent'});svg.appendChild(hit);
+  host.appendChild(svg);
+  const tip=document.createElement('div');tip.className='tip';host.appendChild(tip);
+  function hide(){cross.style.opacity=0;dot.style.opacity=0;tip.style.opacity=0;}
+  svg.addEventListener('mousemove',ev=>{
+    const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*W;
+    if(px<padL||px>W-padR){hide();return;}
+    const price=xmin+(px-padL)/((W-padL-padR)||1)*(xmax-xmin),v=interp(prices,pnl,price);
+    const gx=X(price),gy=Y(v);
+    cross.setAttribute('x1',gx);cross.setAttribute('x2',gx);cross.style.opacity=1;
+    dot.setAttribute('cx',gx);dot.setAttribute('cy',gy);dot.style.opacity=1;
+    tip.style.opacity=1;tip.style.left=(gx/W*r.width)+'px';tip.style.top=(gy/H*r.height)+'px';
+    tip.innerHTML='<span class="p">$'+price.toFixed(2)+'</span> · <span class="'+(v>=0?'pos':'neg')+'">'+(v>=0?'+':'')+fmtCompact(v)+'</span>';
+  });
+  svg.addEventListener('mouseleave',hide);
+}
+
+/* ── take-this-trade flow (two-step: preview warnings → confirm) ── */
+function bindTakeHandlers(){
+  document.querySelectorAll('[data-take]').forEach(b=>b.addEventListener('click',()=>$('take-'+b.dataset.take).classList.toggle('open')));
+  document.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',()=>takeTrade(b.dataset.preview,false)));
+}
+async function takeTrade(i,confirm){
+  const out=$('takeout-'+i),qty=parseInt($('qty-'+i).value)||1;
+  out.innerHTML='<div class="loading" style="padding:10px"><span class="spin"></span>checking risk…</div>';
+  try{
+    const res=await api('/api/portfolio/positions',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:SESSION,rec_index:Number(i),qty:qty,confirm:confirm})});
+    if(res.added){
+      out.innerHTML='<div class="toast ok" style="display:block">Added '+qty+' contract(s). '
+        +((res.warnings&&res.warnings.length)?'('+res.warnings.length+' warning(s) acknowledged) ':'')
+        +'See the <b>Portfolio</b> tab.</div>';
+    }else{
+      const warns=(res.warnings||[]).map(w=>{const m=w.match(/^([A-Z]+):\s*/);
+        return '<li>'+(m?'<b>'+m[1]+'</b> ':'')+esc(m?w.slice(m[0].length):w)+'</li>';}).join('');
+      out.innerHTML='<div style="font-size:12px;color:var(--warn);font-weight:600;margin-bottom:2px">⚠ Risk checks before adding this position:</div>'
+        +'<ul class="warnlist">'+warns+'</ul>'
+        +'<div style="margin-top:10px;display:flex;gap:8px"><button class="btn sm" data-confirm="'+i+'">Confirm anyway</button>'
+        +'<button class="btn sm ghost" data-cancel="'+i+'">Cancel</button></div>';
+      out.querySelector('[data-confirm]').addEventListener('click',()=>takeTrade(i,true));
+      out.querySelector('[data-cancel]').addEventListener('click',()=>{out.innerHTML='';$('take-'+i).classList.remove('open');});
+    }
+  }catch(err){out.innerHTML='<div class="toast err" style="display:block">'+esc(err.message)+'</div>';}
+}
+
+/* ══════════ Phase 6b — backtest ══════════ */
+$('btForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=$('btGoBtn');btn.disabled=true;btn.textContent='Running…';$('btVerdict').innerHTML='';
+  $('btResults').innerHTML='<div class="loading"><span class="spin"></span>Running backtest + Monte-Carlo gate… this can take a moment.</div>';
+  const body={symbol:$('b_symbol').value.trim().toUpperCase(),years:parseInt($('b_years').value)||3,
+    seed:parseInt($('b_seed').value)||0,account_size:parseFloat($('b_account').value)||100000,
+    entry_every_n_days:parseInt($('b_entry').value)||21,holding_days:parseInt($('b_horizon').value)||21,
+    bias:$('b_bias').value,risk_profile:$('b_risk').value,max_loss_dollars:parseFloat($('b_maxloss').value)||5000};
+  try{const d=await api('/api/backtest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});renderBacktest(d);}
+  catch(err){$('btResults').innerHTML='<div class="toast err" style="display:block">'+esc(err.message)+'</div>';}
+  finally{btn.disabled=false;btn.textContent='Run backtest';}
+});
+function statCell(k,v,cls){return '<div class="metric"><div class="k">'+esc(k)+'</div><div class="v '+(cls||'')+'">'+esc(String(v))+'</div></div>';}
+function renderBacktest(d){
+  const st=d.result.stats,mc=d.mc,trades=d.result.trades,eq=d.result.equity_curve;
+  const vb=$('btVerdict');vb.className='verdict '+(mc.accepted?'ok':'no');
+  vb.textContent=mc.accepted?'✓ MC gate: accepted':'✗ MC gate: rejected';
+  let html='<div class="synthbanner">⚠ Synthetic data — demo backtest. '+esc(d.symbol)+' · '+d.params.years+'y · seed '+d.params.seed+'. Not real market history; demonstrates the engine, not an edge.</div>';
+  html+='<div class="metrics">'+statCell('Trades',st.total_trades)+statCell('Win rate',pct(st.win_rate))
+    +statCell('Expectancy',fmt$(st.expectancy))+statCell('Profit factor',isFinite(st.profit_factor)?st.profit_factor.toFixed(2):'∞')+'</div>';
+  html+='<div class="metrics" style="margin-top:1px">'+statCell('Total P/L',fmt$(st.total_pnl),st.total_pnl>=0?'pos':'neg')
+    +statCell('Max drawdown',fmt$(st.max_drawdown),'neg')+statCell('Gross profit',fmt$(st.gross_profit),'pos')
+    +statCell('Gross loss',fmt$(st.gross_loss),'neg')+'</div>';
+  html+='<h3 style="margin:18px 0 6px;font-size:13px;color:var(--muted)">Equity curve <span class="faint" style="font-weight:400">(realized P/L, day by day)</span></h3><div class="chart" id="eqchart"></div>';
+  html+='<h3 style="margin:18px 0 6px;font-size:13px;color:var(--muted)">Monte-Carlo promotion gate <span class="faint" style="font-weight:400">('+mc.simulations+' block-bootstrap sims)</span></h3>';
+  html+='<div class="mcgrid">'+statCell('P(ruin)',(mc.ruin_probability*100).toFixed(2)+'%')
+    +statCell('Median expectancy',mc.median_expectancy_r.toFixed(3)+'R')+statCell('Median max DD',mc.median_max_drawdown_r.toFixed(2)+'R')+'</div>';
+  html+='<ul class="reasonlist">'+(mc.reasons||[]).map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul>';
+  html+='<h3 style="margin:18px 0 6px;font-size:13px;color:var(--muted)">Trades ('+trades.length+')</h3>';
+  html+='<div class="tradetable"><table><thead><tr><th>Entry</th><th>Exit</th><th>Strategy</th><th class="num">Entry $</th><th class="num">Spot in→out</th><th class="num">P/L</th><th>Exit</th></tr></thead><tbody>';
+  html+=(trades.map(t=>`<tr><td>${esc(t.entry_date)}</td><td>${esc(t.exit_date)}</td><td>${esc(titleize(t.strategy))}</td>
+    <td class="num">${t.entry_price.toFixed(2)}</td><td class="num">${t.entry_spot.toFixed(1)}→${t.exit_spot.toFixed(1)}</td>
+    <td class="num ${t.pnl>=0?'pos':'neg'}">${fmt$(t.pnl)}</td><td><span class="faint">${esc(t.exit_reason)}</span></td></tr>`).join('')
+    || '<tr><td colspan=7 class=faint>no trades taken under these parameters</td></tr>');
+  html+='</tbody></table></div>';
+  html+='<h3 style="margin:18px 0 6px;font-size:13px;color:var(--muted)">Honesty notes</h3><ul class="noteslist">'+(d.notes||[]).map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>';
+  $('btResults').innerHTML=html;
+  drawEquity($('eqchart'),eq);
+}
+function drawEquity(host,eq){
+  if(!eq||!eq.length){host.innerHTML='<div class="paychart-loading">no equity data</div>';return;}
+  const W=520,H=200,padL=52,padR=16,padT=16,padB=24,n=eq.length;
+  let ymin=Math.min(0,...eq),ymax=Math.max(0,...eq);const yr=(ymax-ymin)||1;ymin-=yr*0.06;ymax+=yr*0.06;
+  const X=k=>padL+(k/((n-1)||1))*(W-padL-padR);
+  const Y=v=>padT+(ymax-v)/((ymax-ymin)||1)*(H-padT-padB);
+  const zeroY=Y(0);host.innerHTML='';
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Backtest equity curve'});
+  let area=`M ${X(0).toFixed(1)} ${zeroY.toFixed(1)} `;
+  eq.forEach((v,k)=>{area+=`L ${X(k).toFixed(1)} ${Y(v).toFixed(1)} `;});
+  area+=`L ${X(n-1).toFixed(1)} ${zeroY.toFixed(1)} Z`;
+  const last=eq[n-1];
+  svg.appendChild(svgEl('path',{d:area,fill:last>=0?'var(--pos)':'var(--neg)','fill-opacity':'0.12'}));
+  svg.appendChild(svgEl('line',{x1:padL,y1:zeroY,x2:W-padR,y2:zeroY,stroke:'var(--muted)','stroke-width':'1','stroke-opacity':'0.5'}));
+  addText(svg,4,padT+8,fmtCompact(ymax),'axlab');addText(svg,4,H-padB+2,fmtCompact(ymin),'axlab');addText(svg,padL+2,zeroY-3,'$0','axlab');
+  const pts=eq.map((v,k)=>X(k).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
+  svg.appendChild(svgEl('polyline',{points:pts,fill:'none',stroke:'var(--accent)','stroke-width':'2','stroke-linejoin':'round'}));
+  const cross=svgEl('line',{class:'crosshair',x1:0,y1:padT,x2:0,y2:H-padB});svg.appendChild(cross);
+  const dot=svgEl('circle',{class:'crosshair',r:'3',fill:'var(--ink)'});svg.appendChild(dot);
+  const hit=svgEl('rect',{x:padL,y:padT,width:W-padL-padR,height:H-padT-padB,fill:'transparent'});svg.appendChild(hit);
+  host.appendChild(svg);
+  const tip=document.createElement('div');tip.className='tip';host.appendChild(tip);
+  function hide(){cross.style.opacity=0;dot.style.opacity=0;tip.style.opacity=0;}
+  svg.addEventListener('mousemove',ev=>{
+    const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*W;
+    if(px<padL||px>W-padR){hide();return;}
+    let k=Math.round((px-padL)/((W-padL-padR)||1)*(n-1));k=Math.max(0,Math.min(n-1,k));
+    const gx=X(k),gy=Y(eq[k]);
+    cross.setAttribute('x1',gx);cross.setAttribute('x2',gx);cross.style.opacity=1;
+    dot.setAttribute('cx',gx);dot.setAttribute('cy',gy);dot.style.opacity=1;
+    tip.style.opacity=1;tip.style.left=(gx/W*r.width)+'px';tip.style.top=(gy/H*r.height)+'px';
+    tip.innerHTML='<span class="p">day '+k+'</span> · <span class="'+(eq[k]>=0?'pos':'neg')+'">'+fmt$(eq[k])+'</span>';
+  });
+  svg.addEventListener('mouseleave',hide);
+}
+
+/* ══════════ Phase 7 — portfolio ══════════ */
+async function loadPortfolio(){
+  const host=$('portfolioBody');
+  host.innerHTML='<div class="loading"><span class="spin"></span>Loading portfolio…</div>';
+  try{renderPortfolio(await api('/api/portfolio'));}
+  catch(err){host.innerHTML='<div class="toast err" style="display:block">'+esc(err.message)+'</div>';}
+}
+$('reloadPortfolio').addEventListener('click',loadPortfolio);
+function breakdownBlock(title,obj){
+  const entries=Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]);
+  const rows=entries.length?entries.map(([k,v])=>'<div class="stat"><span>'+esc(titleize(k))+'</span><span class="v">'+fmt$(v)+'</span></div>').join('')
+    :'<span class="faint" style="font-size:12px">—</span>';
+  return '<div class="bkd"><h4>'+esc(title)+'</h4>'+rows+'</div>';
+}
+function renderPortfolio(d){
+  const agg=d.aggregates,g=agg.net_greeks,used=agg.budget_used_pct;
+  const meterCls=used>100?'over':(used>75?'warn':'ok');
+  let html='<div class="pgrid">';
+  html+=`<div class="card"><div class="hd"><h2>Account &amp; risk budget</h2></div><div class="bd">
+    <div class="accountedit"><div style="flex:1"><label>Account size <span class="hint">$</span></label>
+      <input id="pf_account" type="number" step="1000" value="${d.account_size}"></div>
+      <button class="btn sm" id="pf_saveAccount">Save</button></div>
+    <div style="margin-top:14px" class="stat"><span>Risk budget <span class="faint">(${Math.round(d.risk_budget_pct*100)}% of account)</span></span><span class="v">${fmt$(agg.risk_budget)}</span></div>
+    <div class="stat"><span>Modeled risk deployed</span><span class="v ${used>100?'neg':''}">${fmt$(agg.total_max_loss)}</span></div>
+    <div class="meter" style="margin-top:6px"><div class="fill ${meterCls}" style="width:${Math.min(100,used).toFixed(1)}%"></div></div>
+    <div class="faint" style="font-size:11px;margin-top:5px">${used.toFixed(1)}% of budget used${used>100?' — over budget':''}</div>
+  </div></div>`;
+  html+=`<div class="card"><div class="hd"><h2>Net Greeks <span class="faint" style="font-size:12px;font-weight:400">(open positions)</span></h2></div><div class="bd">
+    <div class="greekrow">
+      <span class="greek"><b>Δ</b>${g.delta.toFixed(2)}</span><span class="greek"><b>Γ</b>${g.gamma.toFixed(4)}</span>
+      <span class="greek"><b>Θ</b>${g.theta.toFixed(4)}</span><span class="greek"><b>V</b>${g.vega.toFixed(2)}</span>
+      <span class="greek"><b>ρ</b>${g.rho.toFixed(2)}</span></div>
+    <div class="stat" style="margin-top:12px"><span>Open positions</span><span class="v">${agg.open_positions}</span></div>
+    <div style="margin-top:10px"><div class="bkd"><h4>Guidance</h4><ul class="reasonlist">${(d.suggestions||[]).map(s=>'<li>'+esc(s)+'</li>').join('')}</ul></div></div>
+  </div></div></div>`;
+  html+='<div style="height:20px"></div><div class="card"><div class="hd"><h2>Open positions</h2><span class="spacer"></span><span class="faint" style="font-size:12px">'+d.positions.length+'</span></div><div class="bd">';
+  if(!d.positions.length){html+='<div class="empty"><div class="big">No open positions</div>Use <b>Take this trade</b> on a recommendation in the Options Assistant tab.</div>';}
+  else{
+    html+='<div class="tablewrap"><table><thead><tr><th>Strategy</th><th>Symbol</th><th>Dir</th><th class="num">Qty</th><th class="num">Max loss</th><th>Expiry</th><th>Opened</th><th></th></tr></thead><tbody>';
+    html+=d.positions.map(p=>`<tr><td>${esc(titleize(p.strategy))}</td><td>${esc(p.symbol)}</td>
+      <td><span class="dir ${esc(p.direction)}">${esc(p.direction)}</span></td>
+      <td class="num">${p.qty}</td><td class="num">${fmt$(p.modeled_max_loss)}</td>
+      <td>${(p.expirations||[]).map(esc).join(', ')}</td>
+      <td class="faint">${new Date(p.opened_at*1000).toLocaleDateString()}</td>
+      <td><button class="btn sm ghost" data-close="${p.index}">Close</button></td></tr>`).join('');
+    html+='</tbody></table></div>';
+  }
+  html+='</div>';
+  html+='<div style="height:20px"></div><div class="card"><div class="hd"><h2>Concentration breakdowns</h2></div><div class="bd"><div class="breakdowns">';
+  html+=breakdownBlock('By symbol',agg.per_symbol_risk)+breakdownBlock('By direction',agg.per_direction_risk)+breakdownBlock('By expiry',agg.expiry_clusters);
+  html+='</div></div></div>';
+  if(d.closed_trades&&d.closed_trades.length){
+    html+='<div style="height:20px"></div><div class="card"><div class="hd"><h2>Closed trades</h2><span class="spacer"></span><span class="faint" style="font-size:12px">'+d.closed_trades.length+'</span></div><div class="bd"><div class="tablewrap"><table><thead><tr><th>Strategy</th><th>Symbol</th><th class="num">Qty</th><th class="num">Modeled max loss</th></tr></thead><tbody>';
+    html+=d.closed_trades.map(p=>`<tr><td>${esc(titleize(p.strategy))}</td><td>${esc(p.symbol)}</td><td class="num">${p.qty}</td><td class="num">${fmt$(p.modeled_max_loss)}</td></tr>`).join('');
+    html+='</tbody></table></div></div></div>';
+  }
+  $('portfolioBody').innerHTML=html;
+  $('pf_saveAccount').addEventListener('click',saveAccount);
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closePosition(b.dataset.close)));
+}
+async function saveAccount(){
+  const v=parseFloat($('pf_account').value);
+  if(!(v>0)){alert('Enter a positive account size.');return;}
+  const b=$('pf_saveAccount');b.disabled=true;
+  try{renderPortfolio(await api('/api/portfolio/account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account_size:v})}));}
+  catch(err){alert(err.message);}finally{b.disabled=false;}
+}
+async function closePosition(index){
+  const raw=prompt('Exit P&L for this position, in dollars\n(e.g. 250 for a $250 gain, -125 for a loss):');
+  if(raw===null)return;
+  const pnl=parseFloat(raw);if(isNaN(pnl)){alert('Enter a number.');return;}
+  try{const d=await api('/api/portfolio/close',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({index:Number(index),exit_pnl:pnl})});renderPortfolio(d.portfolio);}
+  catch(err){alert(err.message);}
 }
 
 /* ── boot ── */

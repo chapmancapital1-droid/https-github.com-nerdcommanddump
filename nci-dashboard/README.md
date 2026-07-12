@@ -7,9 +7,22 @@ this repo:
   `nci_strategy_selector.QuantumAIBrain` (`select_and_reason`), with a
   multi-turn "ask Quantum AI" box (`ReasoningSession`) and an outcome-logging
   affordance that feeds `record_trade_outcome` so confidence calibration learns.
+  Every recommendation card carries an **inline payoff-at-expiry chart** (Phase
+  6a) and a **Take this trade** action that adds the position to the portfolio.
+- **Backtest** — runs the live selector's pick repeatedly over deterministic
+  **synthetic** bars (Phase 6b, `BacktestEngine`), then puts the trade R-series
+  through the same Monte-Carlo promotion gate the Phoenix agents use
+  (`validate`). Stats row, equity curve, MC verdict, and a trade table.
+- **Portfolio** — a server-side `Portfolio` (Phase 7) aggregating taken
+  positions: risk budget, net Greeks, concentration breakdowns, `check()`
+  warnings before you add, and `suggest()` guidance.
 - **Phoenix Brain** — the four read-only panels from
   `nci-hybrid-phoenix/docs/DESIGN.md` §5.3 (Regime / Agent pool / Risk & sizing
   / Versions), rendered from a `brain_state.json`.
+
+All four tabs keep the "not investment advice" disclaimer visible in the header.
+The charts are **inline SVG drawn by vanilla JS** — no chart library, no build
+step.
 
 Everything is **stdlib-only**: the API layer is `http.server`, the UI is one
 self-contained `index.html` (inline vanilla HTML/CSS/JS). No Flask/FastAPI, no
@@ -20,8 +33,11 @@ npm, no build step.
 ```bash
 cd nci-dashboard
 python3 -m nci_dashboard              # → http://127.0.0.1:8765
-# options: --host 0.0.0.0 --port 9000
+# options: --host 0.0.0.0 --port 9000 --fresh
 ```
+
+`--fresh` boots from a clean slate, ignoring any saved state (see
+[Persistence](#persistence) below).
 
 Open http://127.0.0.1:8765 in a browser. The two library packages are added to
 `sys.path` automatically (see `nci_dashboard/paths.py`) — no install or
@@ -104,7 +120,7 @@ back to ~4% of spot — both noted.
 
 ```bash
 cd nci-dashboard
-python3 -m pytest tests/ -q          # 55 passed
+python3 -m pytest tests/ -q          # 83 passed
 ```
 
 - `tests/test_api.py` — service layer: endpoint shapes, the offline path,
@@ -112,6 +128,18 @@ python3 -m pytest tests/ -q          # 55 passed
   fit the limit; an impossible limit yields zero recs + a reasoning note),
   multi-turn ask, the calibration/outcome loop, input validation, and the
   Phoenix reader.
+- `tests/test_payoff.py` — the payoff endpoint: response shape and the
+  SVG-relevant invariants (prices/pnl same length, prices sorted, breakevens
+  inside the sampled window, max profit/loss = series extremes).
+- `tests/test_backtest.py` — the backtest endpoint: determinism per seed, seed
+  sensitivity, `years` clamping, and that the MC report + honesty notes are
+  present.
+- `tests/test_portfolio.py` — the add/check/close flow: clean adds vs the
+  two-step warning preview, close moving a position to `closed_trades` and
+  **linking calibration**, account-size rescaling, and Greeks scaling by qty.
+- `tests/test_persistence.py` — round-trip across a fresh `DashboardAPI`
+  instance, `--fresh` ignoring saved state, corrupt-file fallback, and
+  persistence-off when no `state_dir` is given.
 - `tests/test_market_data.py` — the market-data layer: provider selection,
   `AlpacaProvider` parsing against **canned JSON fixtures** (urllib mocked, no
   network) incl. retry-on-429, the spot_trend / iv_rank / expected_move /
@@ -136,8 +164,67 @@ All bodies and responses are JSON. Errors return
 | POST | `/api/strategies` | Run a selection (see below) |
 | POST | `/api/ask` | Multi-turn follow-up on a selection |
 | POST | `/api/outcome` | Log a realized outcome → calibration learns |
+| GET | `/api/payoff/{session_id}/{rec_index}` | Payoff-at-expiry curve for one recommendation (Phase 6a) |
+| POST | `/api/backtest` | Run a synthetic backtest + MC gate (Phase 6b) |
+| GET | `/api/portfolio` | Full serialized portfolio state + aggregates + suggestions (Phase 7) |
+| POST | `/api/portfolio/positions` | Add a taken recommendation (two-step: preview warnings → confirm) |
+| POST | `/api/portfolio/account` | Edit account size (rescales the risk budget) |
+| POST | `/api/portfolio/close` | Close a position at an exit P&L → feeds calibration |
 | GET | `/api/phoenix` | Raw `brain_state.json` (DESIGN §5.3 data source) |
 | GET | `/api/phoenix/versions` | Version lineage list for the Versions panel |
+
+### GET `/api/payoff/{session_id}/{rec_index}`
+
+Rebuilds the payoff-at-expiry curve for a stored recommendation via
+`curve_from_recommendation` (the same single source of truth as the card's
+headline numbers), centred on the selection's spot:
+
+```jsonc
+{
+  "session_id": "…", "rec_index": 0, "strategy": "bull_call_spread",
+  "symbol": "SPY", "spot": 450.0, "entry_price": 4.97,
+  "curve": {
+    "prices": [ … ], "pnl": [ … ],           // parallel arrays, ~201 samples
+    "breakevens": [454.97], "max_profit": 1753.42, "max_loss": -496.58,
+    "unbounded_gain": false, "unbounded_loss": false
+  },
+  "disclaimer": "…"
+}
+```
+
+The UI draws this as inline SVG: P/L line, zero axis, shaded profit/loss
+regions, breakeven + current-spot markers, max-profit/loss annotations, and an
+"unbounded →" arrow when a side is flagged.
+
+### POST `/api/backtest`
+
+```jsonc
+// request (all but symbol have defaults)
+{"symbol": "SPY", "years": 3, "seed": 7, "account_size": 100000,
+ "entry_every_n_days": 21, "holding_days": 21, "bias": "neutral",
+ "risk_profile": "moderate", "max_loss_dollars": 5000}
+```
+
+`years` is clamped to **1–5**. Bars come from `synthetic_bars(seed)` — the same
+seed always yields the same series, so results are **deterministic per seed**.
+Response carries `result` (stats, `equity_curve`, `trades`), the Monte-Carlo
+gate `mc` (`accepted`, `ruin_probability`, `median_expectancy_r`, `reasons`),
+and the engine's `notes` (honesty about the synthetic data and
+intrinsic-value-at-expiry approximation). The request runs **without holding the
+shared lock** (its own selector, no shared state) so long backtests never block
+selection/calibration on other threads.
+
+### Portfolio endpoints (Phase 7)
+
+`POST /api/portfolio/positions` is **two-step**: `{session_id, rec_index, qty}`
+returns `{"added": false, "warnings": [...]}` when `Portfolio.check` finds a
+risk-budget / concentration / direction / expiry warning; resend with
+`"confirm": true` to add anyway. Adding registers the prediction so the eventual
+close feeds confidence calibration. `POST /api/portfolio/close`
+`{index, exit_pnl}` records a `TradeOutcome` (same calibration loop as
+`/api/outcome`) and moves the position to `closed_trades`. `GET /api/portfolio`
+returns the full serialized state plus `aggregates` (net Greeks, budget used,
+per-symbol/direction/expiry breakdowns) and `suggestions`.
 
 ### POST `/api/strategies`
 
@@ -210,21 +297,41 @@ Response includes the updated `strategy_performance`, `calibration`, and
 `total_outcomes`. Because one shared `QuantumAIBrain` backs the process,
 calibration accumulates across requests for the process lifetime.
 
+## Persistence
+
+The `QuantumAIBrain` state (calibration + knowledge, via `to_dict`/`from_dict`)
+and the `Portfolio` are persisted to `data/state/` as JSON **on every
+mutation** (recording an outcome, taking/closing a position, editing account
+size). Writes are **atomic** (temp file + `os.replace`) and happen **under the
+shared lock**, so a crash mid-write can never corrupt the state file.
+
+- On boot the server loads `data/state/brain.json` and
+  `data/state/portfolio.json` if present; a corrupt file falls back to a fresh
+  instance rather than crashing.
+- `--fresh` ignores any saved state and starts clean.
+- `data/state/` is **git-ignored** (runtime data, not repo content).
+- **Reasoning sessions stay in-memory** (they are cheap to recreate and hold a
+  live `ReasoningSession`); after a restart, re-run a selection to get a fresh
+  `session_id`. Persisted state is only the brain learning + the portfolio.
+
 ## Layout
 
 ```
 nci-dashboard/
   nci_dashboard/
     __main__.py        # python3 -m nci_dashboard
-    server.py          # stdlib http.server routing → DashboardAPI
+    server.py          # stdlib http.server routing → DashboardAPI (+ --fresh)
     api.py             # transport-agnostic service layer (the testable core)
+    state.py           # atomic JSON persistence (tmp + os.replace)
     market_data.py     # market-data providers (Alpaca / demo) for form pre-fill
-    paths.py           # sys.path wiring to the two sibling packages
+    paths.py           # sys.path wiring + state-dir constants
     static/index.html  # self-contained single-page UI (inline CSS/JS)
   data/
     brain_state.json     # Phoenix brain state (seeded from the phoenix example)
     versions_index.json  # version lineage for the Versions panel
-  tests/               # test_api.py, test_market_data.py, test_smoke.py (55 tests)
+    state/               # runtime state (git-ignored): brain.json, portfolio.json
+  tests/               # test_api / market_data / smoke / payoff / backtest /
+                       # portfolio / persistence  (83 tests)
   README.md
 ```
 

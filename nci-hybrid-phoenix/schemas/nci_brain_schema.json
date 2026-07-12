@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nerdcommand.example/schemas/nci_brain_schema.json",
+  "title": "NCI Hybrid Phoenix Brain State",
+  "description": "Full serialized state of the Phoenix brain (schema 2.1). Produced by NCIPhoenixBrain.to_state(); consumed by load_state(), the version store, and the dashboard tab.",
+  "type": "object",
+  "required": ["meta", "pool", "memory", "current_state"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name", "version", "schema_version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "schema_version": { "const": "2.1" },
+        "created_at": { "type": "number" },
+        "philosophy": { "type": "string" }
+      }
+    },
+    "pool": {
+      "type": "object",
+      "required": ["config", "records"],
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "promotion_score_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "demotion_score_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "exploration_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "specialization_bonus": { "type": "number", "minimum": 0, "maximum": 1 },
+            "min_trades_for_promotion": { "type": "integer", "minimum": 0 },
+            "score_smoothing": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "records": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/agentRecord" }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "required": ["capacity", "trades"],
+      "properties": {
+        "capacity": { "type": "integer", "minimum": 1 },
+        "trades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tradeResult" }
+        }
+      }
+    },
+    "pid": {
+      "type": "object",
+      "properties": {
+        "integral": { "type": "number" },
+        "prev_error": { "type": ["number", "null"] },
+        "config": {
+          "type": "object",
+          "properties": {
+            "kp": { "type": "number" },
+            "ki": { "type": "number" },
+            "kd": { "type": "number" },
+            "setpoint_r_per_day": { "type": "number" },
+            "output_min": { "type": "number", "exclusiveMinimum": 0 },
+            "output_max": { "type": "number" },
+            "integral_limit": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "properties": {
+        "open_positions": { "type": "integer", "minimum": 0 },
+        "drawdown_pct": { "type": "number" },
+        "halted_reason": { "type": ["string", "null"] },
+        "config": {
+          "type": "object",
+          "properties": {
+            "daily_loss_limit_r": { "type": "number", "minimum": 0 },
+            "weekly_loss_limit_r": { "type": "number", "minimum": 0 },
+            "max_drawdown_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+            "max_concurrent_positions": { "type": "integer", "minimum": 0 },
+            "max_correlated_exposure": { "type": "integer", "minimum": 0 },
+            "news_blackout_minutes": { "type": "integer", "minimum": 0 },
+            "news_impact_block": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    },
+    "orchestrator": {
+      "type": "object",
+      "properties": {
+        "rescue_mode": { "type": "boolean" },
+        "rescue_agent": { "type": "string" },
+        "loss_streak": { "type": "integer", "minimum": 0 },
+        "pool_health": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    },
+    "current_state": {
+      "type": "object",
+      "properties": {
+        "regime": { "$ref": "#/$defs/regimeState" },
+        "last_decision": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/decision" }]
+        },
+        "lot_multiplier": { "type": "number", "minimum": 0 },
+        "saved_at": { "type": "number" }
+      }
+    }
+  },
+  "$defs": {
+    "regime": {
+      "type": "string",
+      "enum": [
+        "trending_bullish",
+        "trending_bearish",
+        "ranging_choppy",
+        "high_volatility_expansion",
+        "low_volatility_compression",
+        "pre_breakout_coil",
+        "news_driven",
+        "unknown"
+      ]
+    },
+    "signal": { "type": "string", "enum": ["long", "short", "flat"] },
+    "agentStatus": {
+      "type": "string",
+      "enum": ["active", "probation", "dormant", "retired"]
+    },
+    "regimeState": {
+      "type": "object",
+      "required": ["regime", "confidence"],
+      "properties": {
+        "regime": { "$ref": "#/$defs/regime" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "scores": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "detected_at": { "type": "number" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "agentRecord": {
+      "type": "object",
+      "required": ["name", "status", "score"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "status": { "$ref": "#/$defs/agentStatus" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "specializations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/regime" }
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "trades": { "type": "integer", "minimum": 0 },
+            "wins": { "type": "integer", "minimum": 0 },
+            "gross_profit": { "type": "number", "minimum": 0 },
+            "gross_loss": { "type": "number", "minimum": 0 },
+            "sum_r": { "type": "number" },
+            "regime_r": {
+              "type": "object",
+              "additionalProperties": { "type": "number" }
+            },
+            "regime_trades": {
+              "type": "object",
+              "additionalProperties": { "type": "integer" }
+            }
+          }
+        },
+        "last_selected_at": { "type": "number" },
+        "demotions": { "type": "integer", "minimum": 0 },
+        "promotions": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "tradeResult": {
+      "type": "object",
+      "required": ["agent_name", "signal", "pnl", "pnl_r"],
+      "properties": {
+        "agent_name": { "type": "string" },
+        "symbol": { "type": "string" },
+        "signal": { "$ref": "#/$defs/signal" },
+        "pnl": { "type": "number" },
+        "pnl_r": { "type": "number" },
+        "regime": { "$ref": "#/$defs/regime" },
+        "opened_at": { "type": "number" },
+        "closed_at": { "type": "number" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["signal", "regime", "lot_multiplier"],
+      "properties": {
+        "signal": { "$ref": "#/$defs/signal" },
+        "agent": { "type": "string" },
+        "regime": { "$ref": "#/$defs/regime" },
+        "lot_multiplier": { "type": "number", "minimum": 0 },
+        "rescue_mode": { "type": "boolean" },
+        "blocked_by": { "type": "array", "items": { "type": "string" } },
+        "reasoning": { "type": "array", "items": { "type": "string" } },
+        "timestamp": { "type": "number" }
+      }
+    }
+  }
+}

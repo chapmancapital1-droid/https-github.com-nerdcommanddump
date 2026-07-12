@@ -163,7 +163,21 @@ nci-dashboard/
 The Phoenix tab is a **pure reader** per DESIGN §5.3. To point it at a live
 brain, overwrite `data/brain_state.json` (e.g. from
 `NCIPhoenixBrain.to_state()`) — no restart of the reader logic required beyond
-serving the new file. The "Roll back" buttons are intentionally inert here: the
-rollback POST belongs to the Phoenix brain host, not this read-only view.
+serving the new file.
+
+### Rollback: deliberately not wired (decision, not oversight)
+
+The "Roll back" buttons on the Versions panel are **intentionally inert**.
+Decided 2026-07-12: rollback is a state-mutating action on what will
+eventually be a live trading brain, and it must not be reachable from a
+read-only browser view. The capability itself already exists and is tested
+(`BrainVersionStore.rollback()`, append-only) — when needed today, run it
+from Python on the brain host.
+
+Wire it up only as part of Phoenix go-live (live brain at `C:\NCI\Brain`
+with nightly snapshots), and then as a small endpoint **on the brain host**
+with a confirmation step and an audit note (who rolled back, why). The
+dashboard button should POST to that endpoint — the dashboard itself stays
+a pure reader so nothing in a browser can ever hurt the brain.
 
 > Educational analysis tooling — not investment advice.

@@ -1,0 +1,211 @@
+{
+  "id": "v2.1.0-20260712-022529",
+  "label": "v2.1.0",
+  "notes": "baseline roster",
+  "parent": "rollback-to-v2.1.0-20260712-014959-20260712-014959",
+  "created_at": 1783823129.220723,
+  "state": {
+    "meta": {
+      "name": "NCI Hybrid Phoenix Brain",
+      "version": "2.1.0",
+      "schema_version": "2.1",
+      "created_at": 1783823129.2198343,
+      "philosophy": "Self-organizing, regime-aware, Monte-Carlo-validated, human-aligned risk. Educational analysis tooling \u2014 not investment advice."
+    },
+    "pool": {
+      "config": {
+        "promotion_score_threshold": 0.65,
+        "demotion_score_threshold": 0.35,
+        "exploration_rate": 0.05,
+        "specialization_bonus": 0.15,
+        "min_trades_for_promotion": 10,
+        "score_smoothing": 0.3
+      },
+      "records": {
+        "Scalper_Phoenix": {
+          "name": "Scalper_Phoenix",
+          "version": "4.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [
+            "ranging_choppy",
+            "low_volatility_compression"
+          ],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        },
+        "Breakout_Phoenix": {
+          "name": "Breakout_Phoenix",
+          "version": "3.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [
+            "pre_breakout_coil",
+            "high_volatility_expansion"
+          ],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        },
+        "MeanRev_Adaptive": {
+          "name": "MeanRev_Adaptive",
+          "version": "2.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [
+            "ranging_choppy"
+          ],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        },
+        "Trend_Rider_Quantum": {
+          "name": "Trend_Rider_Quantum",
+          "version": "1.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [
+            "trending_bullish",
+            "trending_bearish"
+          ],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        },
+        "News_Shield": {
+          "name": "News_Shield",
+          "version": "1.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [
+            "news_driven"
+          ],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        },
+        "Hybrid_Rescue": {
+          "name": "Hybrid_Rescue",
+          "version": "2.0",
+          "status": "active",
+          "score": 0.5,
+          "specializations": [],
+          "performance": {
+            "trades": 0,
+            "wins": 0,
+            "gross_profit": 0.0,
+            "gross_loss": 0.0,
+            "sum_r": 0.0,
+            "regime_r": {},
+            "regime_trades": {}
+          },
+          "last_selected_at": 0.0,
+          "demotions": 0,
+          "promotions": 0
+        }
+      }
+    },
+    "memory": {
+      "capacity": 250,
+      "total_recorded": 0,
+      "trades": []
+    },
+    "pid": {
+      "integral": 0.0,
+      "prev_error": null,
+      "config": {
+        "kp": 0.8,
+        "ki": 0.15,
+        "kd": 0.25,
+        "setpoint_r_per_day": 0.5,
+        "output_min": 0.1,
+        "output_max": 2.0,
+        "integral_limit": 5.0
+      }
+    },
+    "risk": {
+      "open_positions": 0,
+      "drawdown_pct": 0.0,
+      "halted_reason": null,
+      "equity_high_water": 0.0,
+      "current_equity": 0.0,
+      "closed": [],
+      "config": {
+        "daily_loss_limit_r": 6.0,
+        "weekly_loss_limit_r": 8.0,
+        "max_drawdown_pct": 12.0,
+        "max_concurrent_positions": 4,
+        "max_correlated_exposure": 2,
+        "news_blackout_minutes": 15,
+        "news_impact_block": 0.75
+      }
+    },
+    "orchestrator": {
+      "rescue_mode": false,
+      "rescue_agent": "Hybrid_Rescue",
+      "rescue_entered_at_count": 0,
+      "loss_streak": 0,
+      "pool_health": {
+        "active": 6
+      }
+    },
+    "current_state": {
+      "regime": {
+        "regime": "unknown",
+        "confidence": 0.0,
+        "scores": {},
+        "detected_at": 1783823129.2199037,
+        "notes": []
+      },
+      "last_decision": null,
+      "lot_multiplier": 1.0,
+      "saved_at": 1783823129.2201257
+    }
+  }
+}

@@ -1,0 +1,1116 @@
+{
+  "meta": {
+    "name": "NCI Hybrid Phoenix Brain",
+    "version": "2.1.0",
+    "schema_version": "2.1",
+    "created_at": 1783823129.2198343,
+    "philosophy": "Self-organizing, regime-aware, Monte-Carlo-validated, human-aligned risk. Educational analysis tooling \u2014 not investment advice."
+  },
+  "pool": {
+    "config": {
+      "promotion_score_threshold": 0.65,
+      "demotion_score_threshold": 0.35,
+      "exploration_rate": 0.05,
+      "specialization_bonus": 0.15,
+      "min_trades_for_promotion": 10,
+      "score_smoothing": 0.3
+    },
+    "records": {
+      "Scalper_Phoenix": {
+        "name": "Scalper_Phoenix",
+        "version": "4.0",
+        "status": "active",
+        "score": 0.5,
+        "specializations": [
+          "ranging_choppy",
+          "low_volatility_compression"
+        ],
+        "performance": {
+          "trades": 0,
+          "wins": 0,
+          "gross_profit": 0.0,
+          "gross_loss": 0.0,
+          "sum_r": 0.0,
+          "regime_r": {},
+          "regime_trades": {}
+        },
+        "last_selected_at": 0.0,
+        "demotions": 0,
+        "promotions": 0
+      },
+      "Breakout_Phoenix": {
+        "name": "Breakout_Phoenix",
+        "version": "3.0",
+        "status": "active",
+        "score": 0.5,
+        "specializations": [
+          "pre_breakout_coil",
+          "high_volatility_expansion"
+        ],
+        "performance": {
+          "trades": 0,
+          "wins": 0,
+          "gross_profit": 0.0,
+          "gross_loss": 0.0,
+          "sum_r": 0.0,
+          "regime_r": {},
+          "regime_trades": {}
+        },
+        "last_selected_at": 0.0,
+        "demotions": 0,
+        "promotions": 0
+      },
+      "MeanRev_Adaptive": {
+        "name": "MeanRev_Adaptive",
+        "version": "2.0",
+        "status": "active",
+        "score": 0.5,
+        "specializations": [
+          "ranging_choppy"
+        ],
+        "performance": {
+          "trades": 0,
+          "wins": 0,
+          "gross_profit": 0.0,
+          "gross_loss": 0.0,
+          "sum_r": 0.0,
+          "regime_r": {},
+          "regime_trades": {}
+        },
+        "last_selected_at": 0.0,
+        "demotions": 0,
+        "promotions": 0
+      },
+      "Trend_Rider_Quantum": {
+        "name": "Trend_Rider_Quantum",
+        "version": "1.0",
+        "status": "dormant",
+        "score": 0.32622,
+        "specializations": [
+          "trending_bullish",
+          "trending_bearish"
+        ],
+        "performance": {
+          "trades": 34,
+          "wins": 18,
+          "gross_profit": 3640.0,
+          "gross_loss": 1560.0,
+          "sum_r": 20.800000000000004,
+          "regime_r": {
+            "trending_bullish": 24.4,
+            "ranging_choppy": -3.6
+          },
+          "regime_trades": {
+            "trending_bullish": 30,
+            "ranging_choppy": 4
+          }
+        },
+        "last_selected_at": 1783823129.2217274,
+        "demotions": 2,
+        "promotions": 0
+      },
+      "News_Shield": {
+        "name": "News_Shield",
+        "version": "1.0",
+        "status": "active",
+        "score": 0.5,
+        "specializations": [
+          "news_driven"
+        ],
+        "performance": {
+          "trades": 0,
+          "wins": 0,
+          "gross_profit": 0.0,
+          "gross_loss": 0.0,
+          "sum_r": 0.0,
+          "regime_r": {},
+          "regime_trades": {}
+        },
+        "last_selected_at": 0.0,
+        "demotions": 0,
+        "promotions": 0
+      },
+      "Hybrid_Rescue": {
+        "name": "Hybrid_Rescue",
+        "version": "2.0",
+        "status": "active",
+        "score": 0.654412,
+        "specializations": [],
+        "performance": {
+          "trades": 6,
+          "wins": 6,
+          "gross_profit": 420.0,
+          "gross_loss": 0.0,
+          "sum_r": 4.2,
+          "regime_r": {
+            "trending_bearish": 4.2
+          },
+          "regime_trades": {
+            "trending_bearish": 6
+          }
+        },
+        "last_selected_at": 1783823129.2354276,
+        "demotions": 0,
+        "promotions": 0
+      }
+    }
+  },
+  "memory": {
+    "capacity": 250,
+    "total_recorded": 40,
+    "trades": [
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218094,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218301,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218392,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218475,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218542,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218652,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218702,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218804,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218986,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219062,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219112,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219245,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219305,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221938,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221943,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219465,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219534,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219574,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221961,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221965,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219684,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219718,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221979,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219832,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219863,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219896,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221995,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2220025,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2220063,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.22201,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336016,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336218,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.233627,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336338,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353435,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353544,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353592,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353628,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353666,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353694,
+        "tags": []
+      }
+    ]
+  },
+  "pid": {
+    "integral": 2.0,
+    "prev_error": 2.0,
+    "config": {
+      "kp": 0.8,
+      "ki": 0.15,
+      "kd": 0.25,
+      "setpoint_r_per_day": 0.5,
+      "output_min": 0.1,
+      "output_max": 2.0,
+      "integral_limit": 5.0
+    }
+  },
+  "risk": {
+    "open_positions": 0,
+    "drawdown_pct": 0.0,
+    "halted_reason": null,
+    "equity_high_water": 0.0,
+    "current_equity": 0.0,
+    "closed": [
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218094,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218301,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218392,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218475,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218542,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218652,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218702,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218804,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2218986,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219062,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219112,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219245,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219305,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221938,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221943,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219465,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219534,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219574,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221961,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 2.2,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221965,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219684,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219718,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221979,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219832,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219863,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2219896,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.221995,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -100,
+        "pnl_r": 1.8,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2220025,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 180,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2220063,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": 220,
+        "pnl_r": -1.0,
+        "regime": "trending_bullish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.22201,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336016,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336218,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.233627,
+        "tags": []
+      },
+      {
+        "agent_name": "Trend_Rider_Quantum",
+        "symbol": "EURUSD",
+        "signal": "long",
+        "pnl": -90,
+        "pnl_r": -0.9,
+        "regime": "ranging_choppy",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2336338,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353435,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353544,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353592,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353628,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353666,
+        "tags": []
+      },
+      {
+        "agent_name": "Hybrid_Rescue",
+        "symbol": "EURUSD",
+        "signal": "short",
+        "pnl": 70,
+        "pnl_r": 0.7,
+        "regime": "trending_bearish",
+        "opened_at": 0.0,
+        "closed_at": 1783823129.2353694,
+        "tags": []
+      }
+    ],
+    "config": {
+      "daily_loss_limit_r": 6.0,
+      "weekly_loss_limit_r": 8.0,
+      "max_drawdown_pct": 12.0,
+      "max_concurrent_positions": 4,
+      "max_correlated_exposure": 2,
+      "news_blackout_minutes": 15,
+      "news_impact_block": 0.75
+    }
+  },
+  "orchestrator": {
+    "rescue_mode": false,
+    "rescue_agent": "Hybrid_Rescue",
+    "rescue_entered_at_count": 34,
+    "loss_streak": 0,
+    "pool_health": {
+      "active": 5,
+      "dormant": 1
+    }
+  },
+  "current_state": {
+    "regime": {
+      "regime": "trending_bearish",
+      "confidence": 1.0,
+      "scores": {
+        "trending_bearish": 1.8
+      },
+      "detected_at": 1783823129.2353983,
+      "notes": [
+        "ADX 41 dir -1 \u2192 trending_bearish"
+      ]
+    },
+    "last_decision": {
+      "signal": "short",
+      "agent": "Hybrid_Rescue",
+      "regime": "trending_bearish",
+      "lot_multiplier": 0.1837,
+      "rescue_mode": false,
+      "blocked_by": [],
+      "reasoning": [
+        "ADX 41 dir -1 \u2192 trending_bearish",
+        "rescue recovery complete \u2192 normal selection resumed",
+        "selected Hybrid_Rescue (score 0.65, eff 0.65)",
+        "Hybrid_Rescue proposes short in trending_bearish",
+        "sizing: pid 0.52 \u00d7 agent 0.35 = 0.18\u00d7 base lot"
+      ],
+      "timestamp": 1783823129.2354414
+    },
+    "lot_multiplier": 0.5249999999999999,
+    "saved_at": 1783823129.23731
+  }
+}

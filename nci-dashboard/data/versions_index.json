@@ -1,0 +1,65 @@
+[
+  {
+    "id": "v2.1.0-20260711-201109",
+    "label": "v2.1.0",
+    "notes": "baseline roster",
+    "parent": null,
+    "created_at": 1783800669.1222498
+  },
+  {
+    "id": "v2.1.1-20260711-201109",
+    "label": "v2.1.1",
+    "notes": "trend rider validated hot",
+    "parent": "v2.1.0-20260711-201109",
+    "created_at": 1783800669.1319048
+  },
+  {
+    "id": "rollback-to-v2.1.0-20260711-201109-20260711-201109",
+    "label": "rollback-to-v2.1.0-20260711-201109",
+    "notes": "demo rollback to baseline",
+    "parent": "v2.1.1-20260711-201109",
+    "created_at": 1783800669.1334095
+  },
+  {
+    "id": "v2.1.0-20260712-014959",
+    "label": "v2.1.0",
+    "notes": "baseline roster",
+    "parent": "rollback-to-v2.1.0-20260711-201109-20260711-201109",
+    "created_at": 1783820999.1735158
+  },
+  {
+    "id": "v2.1.1-20260712-014959",
+    "label": "v2.1.1",
+    "notes": "trend rider validated hot",
+    "parent": "v2.1.0-20260712-014959",
+    "created_at": 1783820999.1837254
+  },
+  {
+    "id": "rollback-to-v2.1.0-20260712-014959-20260712-014959",
+    "label": "rollback-to-v2.1.0-20260712-014959",
+    "notes": "demo rollback to baseline",
+    "parent": "v2.1.1-20260712-014959",
+    "created_at": 1783820999.185387
+  },
+  {
+    "id": "v2.1.0-20260712-022529",
+    "label": "v2.1.0",
+    "notes": "baseline roster",
+    "parent": "rollback-to-v2.1.0-20260712-014959-20260712-014959",
+    "created_at": 1783823129.220723
+  },
+  {
+    "id": "v2.1.1-20260712-022529",
+    "label": "v2.1.1",
+    "notes": "trend rider validated hot",
+    "parent": "v2.1.0-20260712-022529",
+    "created_at": 1783823129.2314801
+  },
+  {
+    "id": "rollback-to-v2.1.0-20260712-022529-20260712-022529",
+    "label": "rollback-to-v2.1.0-20260712-022529",
+    "notes": "demo rollback to baseline",
+    "parent": "v2.1.1-20260712-022529",
+    "created_at": 1783823129.2357953
+  }
+]

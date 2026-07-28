@@ -1,0 +1,15 @@
+{
+  "_comment": "Schema for NCI_Commands.json - the live override channel the Python brain writes into MT4's MFiles folder. NCI_GodMode_v4_0_Fusion.mq4 reads this on every new bar and on each OnTimer heartbeat. All fields are OPTIONAL; missing keys keep the EA's extern defaults. No secrets ever live here.",
+
+  "trading_enabled": true,
+  "_trading_enabled": "bool. false = EA reports/manages but places no new orders (kill switch).",
+
+  "min_confluence": 9,
+  "_min_confluence": "int 1..15. Overrides InpMinConfluence for the GodMode main port. Values outside 1..15 are ignored.",
+
+  "risk_mult": 1.0,
+  "_risk_mult": "float 0<rm<=3. Scales risk-per-trade (e.g. 0.5 = half size during news, 1.5 = press a hot streak). Values outside range are ignored.",
+
+  "block_until": 0,
+  "_block_until": "int server-epoch seconds. While TimeCurrent() < block_until the EA opens NO new trades (news/event blackout). 0 = no blackout. Set from the Python carry-trade / economic-calendar overlay."
+}
